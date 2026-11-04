@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | Accepted (2026-11-04). Open questions in §8 still to be answered. |
+| **Status** | Accepted (2026-11-04). Open questions in §8 still to be answered. **Amended by [ADR 0002](0002-product-model.md):** per-client, single-company installs. Tenancy (§1 answer 4, §5.1) and every `organization_id` reference below no longer apply. |
+| **Product** | Meridian Workforce (formerly "Hajimi HR"); see [product vision](../product/vision.md) |
 | **Date** | 2026-11-04 |
 | **Decider** | Owner (Tang) |
 | **Brief sections** | §2 Platform decision gate, §3 Architecture, §4 Security, §14 Open decisions 1 and 2 |
@@ -28,7 +29,7 @@ Answers confirmed with the owner on 2026-11-04:
 1. **Production server:** VPS/dedicated with WHM root. We can install Redis, Supervisor, ClamAV and MySQL 8 there.
 2. **Database:** MySQL 8.0+ in production. Development also moves to MySQL 8. See §4.1.
 3. **Next.js runtime:** static export served by Apache. Laravel serves the API. There is no Node process in production.
-4. **Tenancy:** launch for a single company, with a multi-tenant schema (`organization_id` everywhere) from day one.
+4. **Tenancy:** ~~launch for a single company, with a multi-tenant schema (`organization_id` everywhere) from day one.~~ Superseded by ADR 0002: one company per installation, no `organization_id`.
 5. **Redis:** used in production. Development uses Laravel's `database` cache and queue drivers.
 
 Because this departs from the brief's constants, §5 lists every brief requirement the stack affects and how we meet it. **The owner is approving those deviations together with the stack.**
@@ -67,15 +68,15 @@ The brief's evaluation criteria applied to the three options it names, plus the 
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Backend framework | **Laravel, latest stable major at scaffold time**, PHP 8.3 | The brief says Laravel 11, which is past its security-support window by now. Version to be confirmed (Q1). |
+| Backend framework | **Laravel 13**, PHP 8.3+ | The brief says Laravel 11, which is past its security-support window. Laravel 13 needs PHP ^8.3, so production PHP must be 8.3 or newer (Q1). |
 | Auth | Laravel **Fortify** (login, password reset, TOTP 2FA, recovery codes) + **Sanctum** SPA cookie auth | Session cookies are HttpOnly, Secure and SameSite=Lax, with CSRF via `/sanctum/csrf-cookie`. Bearer tokens only for future API clients. |
 | Password hashing | `argon2id` hashing driver | The production PHP build must include Argon2. Check during server setup. |
-| Database | **MySQL 8.4 LTS** (prod and dev), InnoDB, `utf8mb4_0900_ai_ci` | See §4.1 for dev and §5 for feature mapping. |
+| Database | **MySQL 8.4 LTS** (prod and dev), InnoDB, `utf8mb4_0900_as_ci` (case-insensitive, accent-sensitive; Q7) | See §4.1 for dev and §5 for feature mapping. |
 | Cache, locks, rate limits | **Redis** in prod (installed via WHM/root); `database` driver in dev | Code uses `Cache::lock`, `RateLimiter` and `Cache::tags` only where the driver supports them. Tags are not supported by the DB driver, so we use versioned keys instead (brief §3.2.8). |
 | Queue | **Redis + Horizon** under **Supervisor** in prod; `database` queue in dev | Horizon needs `pcntl`, which doesn't exist on Windows, so dev runs `php artisan queue:work`. |
 | Scheduler | One cPanel cron: `* * * * * php artisan schedule:run` | Covers reminders, retention purge, annual review launch and KPI recalculation sweeps. |
-| Frontend | **Next.js (App Router) with `output: 'export'`**, **Ant Design 5** components, **Tailwind CSS** for layout and utilities | Static HTML/JS served by Apache. All data is fetched client-side with TanStack Query. |
-| API contract | **OpenAPI 3.1** spec in the repo → TypeScript client generated with `openapi-typescript` + `openapi-fetch` | How the spec is written (spec-first or generated from code) is open question Q2. |
+| Frontend | **Next.js 16 (App Router) with `output: 'export'`**, **React 19**, **Ant Design 6** components, **Tailwind CSS 4** for layout and utilities | Static HTML/JS served by Apache. All data is fetched client-side with TanStack Query. |
+| API contract | **OpenAPI 3.1, generated from Laravel code with Scramble** (`dedoc/scramble`) → committed `openapi/openapi.yaml` → TypeScript client generated with `openapi-typescript` + `openapi-fetch` | Code-first (Q2): the spec is produced from routes, FormRequests and API Resources, so it can't drift from the code. CI regenerates it and fails if the committed file differs. Breaking changes to the spec then break the frontend type-check. |
 | Validation | Laravel FormRequests on the server; matching schemas on the client, generated from OpenAPI | The server is always authoritative. |
 | Files | Flysystem: **S3-compatible** (Cloudflare R2 or Wasabi) in prod, `local` disk in dev | Presigned uploads, signed URLs, ClamAV scan (installed on the VPS), re-encoding with Intervention Image. |
 | Encryption of PII | Laravel encrypter set to **`aes-256-gcm`**, key rotation via `APP_PREVIOUS_KEYS`; separate HMAC key for blind indexes | KMS/Vault isn't available on cPanel. Keys live in `.env` outside the web root, with permissions 0600. See §6. |
@@ -112,9 +113,9 @@ Serving frontend and API from **one origin** means Sanctum cookies work without 
 
 | Piece | Setup |
 |---|---|
-| Laravel | Apache vhost `hajimi.test` → `backend/public`, PHP 8.3 from XAMPP |
+| Laravel | Apache vhost `meridian.test` → `backend/public`, PHP 8.3 from XAMPP |
 | MySQL | **MySQL 8.4 LTS installed alongside XAMPP on port 3307.** XAMPP's MariaDB 10.11 stays on 3306 for other projects. |
-| Next.js | `npm run dev` on `:3000`, reverse-proxied by the `hajimi.test` vhost (`mod_proxy`), so the browser sees one origin, as in production |
+| Next.js | `npm run dev` on `:3000`, reverse-proxied by the `meridian.test` vhost (`mod_proxy`), so the browser sees one origin, as in production |
 | Queue and cache | `database` drivers; run `php artisan queue:work` in a terminal |
 | Files | `local` disk; ClamAV scan replaced by a stub that always returns "clean" in dev |
 | Mail | Log driver, or Mailpit if installed |
@@ -157,9 +158,9 @@ The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with i
 | 5.6 | Designation reorder swaps levels in one transaction | Deferrable unique constraint | Inside one transaction, move the affected rows to a temporary offset (`level + 1000`), then write the final levels. `UNIQUE (organization_id, level)` stays enforced the whole time. | None |
 | 5.7 | `points int[5]`, `working_days smallint[]`, `two_fa_roles text[]`, `embed_allowed_domains text[]`, `recovery_codes_hash text[]` | Arrays | `JSON` columns with `CHECK (JSON_SCHEMA_VALID(...))` (MySQL 8.0.17+), e.g. exactly 5 non-negative integers for points | Low |
 | 5.8 | `kpi_weights` keys, 0..100 and sum = 100 | CHECK on JSONB | `JSON_SCHEMA_VALID` for keys and ranges, plus a CHECK on the sum using `JSON_EXTRACT`. Also validated in the FormRequest. | Low |
-| 5.9 | `citext` emails, `UNIQUE (org, lower(name))` | citext, functional index | Case-insensitive collation (`utf8mb4_0900_ai_ci`) gives case-insensitive uniqueness directly. Emails are lower-cased on write as well. | Low. Note that `_ai_` is also accent-insensitive: "Jose" and "José" collide. |
+| 5.9 | `citext` emails, `UNIQUE (org, lower(name))` | citext, functional index | Case-insensitive, accent-sensitive collation (`utf8mb4_0900_as_ci`) gives case-insensitive uniqueness directly, while "José" and "Jose" stay distinct (Q7). Emails are lower-cased on write as well. | Low |
 | 5.10 | `timestamptz` stored in UTC | timestamptz | `DATETIME(6)` with the connection timezone forced to `+00:00`. Laravel casts to UTC; org timezone conversion is done in the app (brief §3.2.4). We avoid `TIMESTAMP` because it overflows in 2038. | Low |
-| 5.11 | UUIDv7 primary keys | `uuid` type | `CHAR(36) CHARACTER SET ascii` holding UUIDv7, generated by Laravel. `BINARY(16)` is smaller but makes debugging and Laravel integration harder (open question Q3). | Low |
+| 5.11 | UUIDv7 primary keys (§3.2.3) | `uuid` type | **Owner decision (Q3): integer keys inside, prefixed public IDs outside.** Every primary and foreign key is `BIGINT UNSIGNED AUTO_INCREMENT`, starting at 1, and never appears in URLs or API responses. Each exposed table also has a `public_id` column: a type prefix plus 8 random characters (e.g. `emp_7Kq2xP9a`, `cand_…`, `task_…`), `CHAR(16) CHARACTER SET ascii`, `UNIQUE`, generated on create with a retry on collision. The API and URLs use `public_id` only; Laravel route model binding resolves by it. Business codes from the brief (`HJ-0001`, `APP-2026-0031`, `P001`, `K01`) stay as they are, `UNIQUE (organization_id, code)`. Cursor pagination uses `(created_at, id)` internally and encodes the cursor so raw IDs stay hidden. | Low: integer IDs never leave the server, so they can't be enumerated. Prefixes and lengths are fixed in the Foundation step. |
 | 5.12 | Superior chain acyclic; dependency graph acyclic | Trigger with recursive CTE | Checked in the domain service with a recursive CTE under row locks (MySQL 8 supports `WITH RECURSIVE`). A DB trigger backstop will be added **if a spike confirms** MySQL lets a trigger read its own table in this case. | Medium until the spike is done |
 | 5.13 | Partition `activity_log`, `audit_log`, `task_checkins`, `notifications` by month | Declarative partitioning | MySQL **does not allow foreign keys on partitioned tables**, and the partition key must be part of every unique key. **MVP: no partitioning.** Add time-based indexes and a retention/archive job. Partition the FK-free log tables (`audit_log`, `activity_log`, `notifications`) only when row counts call for it. `task_checkins` keeps its FKs. | Low at MVP scale |
 | 5.14 | Append-only `audit_log` (DB role INSERT only) | Role grants | A separate DB user and Laravel connection `audit` with `INSERT, SELECT` only, plus `BEFORE UPDATE/DELETE` triggers that `SIGNAL`. | Low |
@@ -203,13 +204,13 @@ Actual costs depend on provider quotes. Get quotes before step 2.
 
 | # | Question | Blocks |
 |---|---|---|
-| Q1 | Laravel, Next.js, Ant Design and Tailwind major versions: pin to the latest stable at scaffold time? | Scaffold |
-| Q2 | OpenAPI: **spec-first** (write `openapi.yaml`, implement to match; the brief says the spec is the source of truth) or **code-first** (generate the spec from Laravel with Scramble, with a CI check that it's up to date)? | Foundation |
-| Q3 | UUID storage: `CHAR(36)` (simpler) or `BINARY(16)` (smaller, faster indexes)? | First migration |
-| Q4 | Production domain(s): e.g. `hr.hajimi.my` for the console and the public apply form? | Deploy, CSP, Sanctum config |
+| Q1 | ✅ **Answered 2026-11-04:** latest majors: Laravel 13, Next.js 16, React 19, Ant Design 6, Tailwind 4. Exact versions are pinned by the lockfiles at scaffold time. | Scaffold |
+| Q2 | ✅ **Answered 2026-11-04:** code-first. The spec is generated from Laravel with Scramble, with a CI staleness check, and the TS client is generated from it. | Foundation |
+| Q3 | ✅ **Answered 2026-11-04:** `BIGINT` auto-increment keys internally, plus a prefixed 8-character random `public_id` exposed in the API and URLs. Replaces UUIDv7 (see §5.11). | First migration |
+| Q4 | Production domain(s): e.g. `hr.<client-domain>` per client install and the public apply form? | Deploy, CSP, Sanctum config |
 | Q5 | Object storage provider: Cloudflare R2, Wasabi, or AWS S3 (Malaysia region `ap-southeast-5`) for data residency? | File service |
 | Q6 | Email provider (e.g. Amazon SES, Postmark, Mailgun, or cPanel SMTP)? | Notifications |
-| Q7 | Accent-insensitive uniqueness (§5.9): is "Jose" = "José" acceptable for names, or should those columns use `utf8mb4_0900_as_ci`? | First migration |
+| Q7 | ✅ **Answered 2026-11-04:** accent-sensitive, case-insensitive: `utf8mb4_0900_as_ci` as the database default. | First migration |
 | Q8 | Remaining brief §14 items: working vs calendar days (3), delay confirmation (4), mid-period promotion KPI target (5), payroll (7), data residency (8) | Work and KPI modules |
 
 ---
