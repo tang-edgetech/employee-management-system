@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Every route here is served under /api/v1 (bootstrap/app.php) and rate limited
+// by the "api" limiter. Endpoints arrive with their milestones: auth (M3),
+// access roles and settings (M4), files (M5).

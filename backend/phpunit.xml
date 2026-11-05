@@ -8,6 +8,9 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
+        <testsuite name="Database">
+            <directory>tests/Database</directory>
+        </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
@@ -26,6 +29,9 @@
         <env name="DB_CONNECTION" value="mariadb"/>
         <env name="DB_DATABASE" value="meridian_testing"/>
         <env name="DB_URL" value=""/>
+        <!-- Test-only keys: never used outside the test suite. -->
+        <env name="MERIDIAN_DATA_KEYS" value="v1:base64:aVIDzQLUNAL1afxghPrcqiyAAZ9wYy+bi10kveRUEcA="/>
+        <env name="MERIDIAN_BLIND_INDEX_KEY" value="base64:wH36pN23lHd+IMBCRFRAiUq6mQ4l7KFjsWcgJtAvKpg="/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

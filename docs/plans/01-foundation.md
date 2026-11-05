@@ -160,10 +160,10 @@ Conventions for every table: `id BIGINT UNSIGNED AUTO_INCREMENT` primary key (ne
 | Table | Columns and constraints | Why |
 |---|---|---|
 | `files` | `public_id`, `disk`, `storage_key UNIQUE`, `original_name`, `mime`, `size_bytes`, `sha256 CHAR(64)`, `scan_status ENUM('pending','clean','infected')`, `purpose ENUM('photo','resume','evidence','logo','import')`, `uploaded_by`, `confirmed_at` | Brief §6.1 `files`; `purpose` sets size and MIME limits |
-| `audit_log` | `id`, `occurred_at DATETIME(6)`, `actor_user_id NULL` (no FK, so rows survive user deletion), `ip VARBINARY(16)`, `user_agent VARCHAR(255)`, `request_id CHAR(26)`, `action VARCHAR(64)`, `subject_type VARCHAR(64)`, `subject_id BIGINT`, `changes JSON` (before/after with sensitive values redacted). Indexes `(subject_type, subject_id, occurred_at)` and `(actor_user_id, occurred_at)`. Triggers `BEFORE UPDATE` / `BEFORE DELETE` → `SIGNAL`. Written through a separate `audit` DB user with `INSERT, SELECT` only. | Append-only (ADR 0001 §5.14). Not partitioned at MVP (§5.13). |
+| `audit_log` | `id`, `occurred_at DATETIME(6)`, `actor_user_id NULL` (no FK, so rows survive user deletion), `ip VARBINARY(16)`, `user_agent VARCHAR(255)`, `request_id CHAR(26)`, `action VARCHAR(64)`, `subject_type VARCHAR(64)`, `subject_id BIGINT`, `changes JSON` (before/after with sensitive values redacted). Indexes `(subject_type, subject_id, occurred_at)` and `(actor_user_id, occurred_at)`. Triggers `BEFORE UPDATE` / `BEFORE DELETE` → `SIGNAL`. Written on the app connection in the same transaction as the change (ADR 0001 §5.14, amended 2026-11-05). | Append-only (ADR 0001 §5.14). Not partitioned at MVP (§5.13). |
 | `jobs`, `job_batches`, `failed_jobs`, `cache`, `cache_locks` | Laravel defaults | Dev drivers; harmless in prod |
 
-**Migration order:** settings → access → files → users → employees → teams → audit triggers + DB users (via a privileged migration step run only by the installer).
+**Migration order:** settings → access → files → users → employees → teams → audit triggers (created by the audit_log migration).
 
 ---
 

@@ -1,0 +1,95 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public IDs
+    |--------------------------------------------------------------------------
+    |
+    | Integer keys never leave the server (ADR 0001 §5.11). Every exposed table
+    | carries a public_id: "<prefix>_" followed by 8 random base62 characters.
+    | Prefixes are fixed once data exists; never reuse or rename one.
+    |
+    */
+
+    'public_id' => [
+        'length' => 8,
+        'max_attempts' => 5,
+        'prefixes' => [
+            'user' => 'usr',
+            'employee' => 'emp',
+            'team' => 'team',
+            'file' => 'file',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Field encryption
+    |--------------------------------------------------------------------------
+    |
+    | Sensitive columns (NRIC, salary, bank details...) are encrypted with a
+    | dedicated data key, separate from APP_KEY, so rotating one doesn't touch
+    | the other. Format: "<version>:base64:<32 bytes>", comma separated, the
+    | first entry is used for new writes and older ones still decrypt.
+    |
+    */
+
+    'data_keys' => env('MERIDIAN_DATA_KEYS', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Blind index
+    |--------------------------------------------------------------------------
+    |
+    | HMAC key used to make encrypted values searchable for exact matches
+    | (e.g. NRIC duplicate checks) without storing them in plain text.
+    | Changing it requires re-indexing every blind-index column.
+    |
+    */
+
+    'blind_index_key' => env('MERIDIAN_BLIND_INDEX_KEY', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Idempotency
+    |--------------------------------------------------------------------------
+    */
+
+    'idempotency' => [
+        'ttl_hours' => 24,
+        'lock_seconds' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    'pagination' => [
+        'default_per_page' => 25,
+        'max_per_page' => 100,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit log
+    |--------------------------------------------------------------------------
+    |
+    | Attributes whose values are never written to the audit log. The log still
+    | records that they changed. Encrypted casts are redacted automatically.
+    |
+    */
+
+    'audit' => [
+        'redact' => [
+            'password',
+            'remember_token',
+            'two_factor_secret',
+            'two_factor_recovery_codes',
+        ],
+    ],
+
+];
