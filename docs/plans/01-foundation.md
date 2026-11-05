@@ -142,7 +142,7 @@ Conventions for every table: `id BIGINT UNSIGNED AUTO_INCREMENT` primary key (ne
 
 | Table | Columns and constraints | Why |
 |---|---|---|
-| `users` | `public_id`, `email VARCHAR(190) UNIQUE` (lower-cased on write), `password` (argon2id), `role_id FK`, `employee_id UNIQUE NULL FK`, `two_factor_secret TEXT` (encrypted), `two_factor_recovery_codes TEXT` (encrypted, hashed codes), `two_factor_confirmed_at`, `status ENUM('invited','active','disabled')`, `failed_login_count SMALLINT`, `locked_until DATETIME(6)`, `last_login_at`, `ui_layout ENUM(5 themes) DEFAULT 'indigo'`, `remember_token` | Fortify column names; theme preference stored server-side (brief §9) |
+| `users` | `public_id`, `name`, `email VARCHAR(190) UNIQUE` (lower-cased on write, CHECK), `password` (argon2id), `role_id FK`, `employee_id UNIQUE NULL` (FK added with employees in M4), `two_factor_secret TEXT` (encrypted), `two_factor_recovery_codes TEXT` (encrypted, so they can be shown again after a password confirmation), `two_factor_confirmed_at`, `status ENUM('invited','active','disabled')`, `last_login_at`, `password_changed_at`, `ui_layout ENUM(5 themes) DEFAULT 'indigo'`, `remember_token`, `version`. **M3:** the failed-login count and lock are kept in the cache per email (`LoginThrottle`), not in columns, so unknown emails behave exactly like real ones. | Fortify column names; theme preference stored server-side (brief §9) |
 | `sessions` | Laravel default (`user_id` indexed) | Dev DB sessions; lets us revoke a user's sessions |
 | `password_reset_tokens` | Laravel default (token hashed) | |
 | `personal_access_tokens` | Sanctum default | Ready for future mobile apps |
@@ -174,11 +174,12 @@ All under `/api/v1`, JSON, `snake_case`. Errors are RFC 7807 Problem Details wit
 | Method & path | Permission / rule | Notes |
 |---|---|---|
 | `GET /sanctum/csrf-cookie` | public | Sets XSRF cookie |
-| `POST /auth/login` | public, 5/min/IP + per-email lockout | Returns `{two_factor: true}` when a code is needed; rotates the session |
+| `POST /auth/login` | public, 20/min/IP (an office shares one IP) + per-email lockout: 5th failure locks 1 min, doubling to 1 h | Returns `{two_factor: true}` when a code is needed; rotates the session |
 | `POST /auth/two-factor-challenge` | pending-login session | TOTP code or recovery code (each recovery code works once) |
 | `POST /auth/logout` | authenticated | |
 | `POST /auth/forgot-password` · `POST /auth/reset-password` | public, rate-limited | Always 202, so the response doesn't reveal whether an email exists |
-| `POST /auth/confirm-password` | authenticated | Required before 2FA changes |
+| `POST /auth/confirm-password` | authenticated | Required before 2FA changes (valid 15 min) |
+| `PUT /auth/password` | authenticated | **Added in M3 (owner, 2026-11-05).** Current + new password; other sessions end; audited |
 | `POST /auth/2fa/setup` · `POST /auth/2fa/confirm` · `DELETE /auth/2fa` | self, recently confirmed password | Setup returns QR SVG + secret; disabling is blocked if the role is enforced |
 | `GET /auth/2fa/recovery-codes` · `POST /auth/2fa/recovery-codes` | self, recently confirmed password | Regenerate invalidates the old codes |
 | `GET /me` | authenticated | User, role, linked employee, `ui_layout`, `two_factor_required` |
@@ -285,3 +286,7 @@ Icons: AntD ships `@ant-design/icons`; the mockup used Lucide. Decision D4.
 | D4 | Icons: AntD icons (native, consistent with components) or Lucide (matches the mockup)? | Lucide via `lucide-react`, to stay faithful to the mockup | M6 |
 | D5 | Add a `system.audit.view` permission + a basic audit log viewer now? The brief has no such permission, so adding one is a brief change. | Not now: audit log is written in Foundation; a viewer can come with Hardening | M4 |
 | D6 | Demo login quick-pick buttons on the login page in dev builds (like the mockup)? Never shown in production builds. | Yes, dev only | M6 |
+| D7 | Passkeys (Fortify installs them)? | **Owner, 2026-11-05: not for now.** Feature off, table and routes removed; can be added later | M3 |
+| D8 | Password rules | **Owner, 2026-11-05: 8-128 characters with upper and lower case, a number and a symbol.** Below the OWASP ASVS L2 guidance (12+ characters, breached-password check), accepted by the owner | M3 |
+| D9 | Endpoint for a signed-in user to change their password | **Owner, 2026-11-05: yes**, `PUT /auth/password` | M3 |
+| D10 | Audit writes vs. a separate audit DB user | **Owner, 2026-11-05: same transaction as the change** (ADR 0001 §5.14 amended) | M2 |

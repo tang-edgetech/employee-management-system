@@ -14,12 +14,20 @@ it('reports readiness of the database, cache and queue', function () {
 });
 
 it('returns 503 and names the failing dependency, without error details', function () {
-    DB::shouldReceive('select')->andThrow(new RuntimeException('SQLSTATE[HY000] secret host'));
+    // A connection to a port nothing listens on, made the default for this request only.
+    config(['database.connections.unreachable' => array_merge(config('database.connections.mariadb'), [
+        'port' => 1, 'database' => 'secret_db_name', 'options' => [PDO::ATTR_TIMEOUT => 1],
+    ])]);
+    DB::setDefaultConnection('unreachable');
 
-    $response = $this->get('/readyz');
+    try {
+        $response = $this->get('/readyz');
+    } finally {
+        DB::setDefaultConnection('mariadb');
+    }
 
-    $response->assertStatus(503)->assertJsonPath('checks.database', 'fail');
-    expect($response->getContent())->not->toContain('secret host');
+    $response->assertStatus(503)->assertJsonPath('checks.database', 'fail')->assertJsonPath('checks.cache', 'ok');
+    expect($response->getContent())->not->toContain('secret_db_name')->not->toContain('SQLSTATE');
 });
 
 it('no longer serves the default /up route', function () {

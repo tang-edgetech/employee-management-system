@@ -9,6 +9,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerSchemaMacros();
         $this->registerRateLimiters();
+
+        // Owner's choice (2026-11-05): 8+ characters, mixed case, a number and a symbol.
+        Password::defaults(fn () => Password::min(8)->max(128)->mixedCase()->numbers()->symbols());
     }
 
     private function registerSchemaMacros(): void

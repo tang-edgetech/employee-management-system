@@ -8,7 +8,8 @@ use Illuminate\Validation\Rules\Password;
 trait PasswordValidationRules
 {
     /**
-     * Get the validation rules used to validate passwords.
+     * Password rules (owner, 2026-11-05): 8-128 characters with upper and lower
+     * case, a number and a symbol. Defined in AppServiceProvider.
      *
      * @return array<int, Rule|array<mixed>|string>
      */

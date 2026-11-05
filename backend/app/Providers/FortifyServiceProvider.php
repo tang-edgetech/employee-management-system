@@ -2,15 +2,20 @@
 
 namespace App\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
-use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Domain\Auth\CredentialsCheck;
+use App\Domain\Auth\EnsureLoginIsNotLocked;
+use App\Models\User;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\CanonicalizeUsername;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 
@@ -21,7 +26,8 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Routes are registered in routes/api.php under /api/v1/auth.
+        Fortify::ignoreRoutes();
     }
 
     /**
@@ -29,28 +35,37 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::createUsersUsing(CreateNewUser::class);
-        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
-        Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
-        RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+        Fortify::authenticateUsing(fn (Request $request) => app(CredentialsCheck::class)($request));
 
-            return Limit::perMinute(5)->by($throttleKey);
+        Fortify::authenticateThrough(fn () => [
+            EnsureLoginIsNotLocked::class,
+            config('fortify.lowercase_usernames') ? CanonicalizeUsername::class : null,
+            RedirectIfTwoFactorAuthenticatable::class,
+            AttemptToAuthenticate::class,
+            // Regenerates the session ID, so a session fixed before login is useless.
+            PrepareAuthenticatedSession::class,
+        ]);
+
+        Event::listen(Login::class, function (Login $event) {
+            if ($event->user instanceof User) {
+                // Query update: not an audited change and must not bump the version.
+                User::query()->whereKey($event->user->getKey())->update(['last_login_at' => now()]);
+            }
         });
 
-        RateLimiter::for('two-factor', function (Request $request) {
-            return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        });
+        // Per IP, on top of the per-email lockout. Generous enough for an office
+        // where everyone signs in from one public IP at 9 am.
+        RateLimiter::for('login', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));
 
-        RateLimiter::for('passkeys', function (Request $request) {
-            $credentialId = $request->input('credential.id');
+        RateLimiter::for('two-factor', fn (Request $request) => Limit::perMinute(5)
+            ->by($request->session()->get('login.id') ?? $request->ip()));
 
-            return Limit::perMinute(10)->by(
-                ($credentialId ?: $request->session()->getId()).'|'.$request->ip()
-            );
-        });
+        RateLimiter::for('password-reset', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip()),
+            Limit::perHour(5)->by('email:'.mb_strtolower((string) $request->input('email'))),
+        ]);
     }
 }

@@ -3,13 +3,17 @@
 use App\Exceptions\ProblemDetailsRenderer;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EnsureSessionIsValid;
 use App\Http\Middleware\IdempotencyKey;
 use App\Http\Middleware\RequireIfMatch;
+use App\Http\Middleware\RequireRecentPassword;
+use App\Http\Middleware\RequireTwoFactorIfEnforced;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\AuthenticateSession as SanctumAuthenticateSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,10 +32,16 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(AssignRequestId::class);
+        // Requests from the web app (same site) get session + CSRF; others are token-based.
+        $middleware->statefulApi();
         $middleware->throttleApi();
         $middleware->alias([
             'idempotent' => IdempotencyKey::class,
             'if-match' => RequireIfMatch::class,
+            'auth.session' => SanctumAuthenticateSession::class,
+            'session.valid' => EnsureSessionIsValid::class,
+            '2fa.enforced' => RequireTwoFactorIfEnforced::class,
+            'password.recent' => RequireRecentPassword::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
