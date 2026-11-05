@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ApiProblem;
 use App\Exceptions\ProblemDetailsRenderer;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Middleware\AssignRequestId;
@@ -34,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(AssignRequestId::class);
         // Requests from the web app (same site) get session + CSRF; others are token-based.
         $middleware->statefulApi();
+        // Signed upload URL (local disk): the signature authorises it, like an S3 presigned URL.
+        $middleware->validateCsrfTokens(except: ['api/v1/files/*/content']);
         $middleware->throttleApi();
         $middleware->alias([
             'idempotent' => IdempotencyKey::class,
@@ -48,6 +51,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => ProblemDetailsRenderer::shouldRender($request),
         );
+
+        // Deliberate client errors (412, 409, 422...) are normal API answers, not incidents.
+        $exceptions->dontReportWhen(fn (Throwable $e) => $e instanceof ApiProblem && $e->status < 500);
 
         $exceptions->render(function (Throwable $e, Request $request) {
             return ProblemDetailsRenderer::shouldRender($request)

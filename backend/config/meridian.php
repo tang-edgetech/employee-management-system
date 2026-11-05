@@ -75,6 +75,67 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Files
+    |--------------------------------------------------------------------------
+    |
+    | Uploads go straight to storage through a short-lived URL, are checked by
+    | their real content (not the name or the browser's claim), virus-scanned,
+    | and only then usable (brief §4 Uploads). Each purpose sets its own limits
+    | and the permission needed to upload; "null" means any signed-in user.
+    | Photos are re-encoded to 240×240 WebP, which also strips EXIF data.
+    |
+    */
+
+    'files' => [
+        'disk' => env('UPLOADS_DISK', 'uploads'),
+        'upload_url_minutes' => 10,
+        'download_url_minutes' => 5,
+        'pending_expire_hours' => 24,
+
+        // "none" marks files clean without scanning: development only, refused in production.
+        'scanner' => env('FILE_SCANNER', 'none'),
+        'clamav' => [
+            'host' => env('CLAMAV_HOST', '127.0.0.1'),
+            'port' => (int) env('CLAMAV_PORT', 3310),
+            'timeout' => 30,
+        ],
+
+        'purposes' => [
+            'photo' => [
+                'max_bytes' => 3 * 1024 * 1024,
+                'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+                'permission' => 'people.edit',
+                'normalise' => 'photo',
+            ],
+            'logo' => [
+                'max_bytes' => 2 * 1024 * 1024,
+                'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+                'permission' => 'system.settings',
+                'normalise' => 'logo',
+            ],
+            'resume' => [
+                'max_bytes' => 5 * 1024 * 1024,
+                'mimes' => ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                'permission' => 'candidate.create',
+                'normalise' => null,
+            ],
+            'evidence' => [
+                'max_bytes' => 10 * 1024 * 1024,
+                'mimes' => ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
+                'permission' => null,
+                'normalise' => null,
+            ],
+            'import' => [
+                'max_bytes' => 5 * 1024 * 1024,
+                'mimes' => ['text/csv', 'text/plain'],
+                'permission' => 'people.import',
+                'normalise' => null,
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Audit log
     |--------------------------------------------------------------------------
     |

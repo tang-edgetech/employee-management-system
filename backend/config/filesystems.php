@@ -47,6 +47,17 @@ return [
             'report' => false,
         ],
 
+        // Uploaded files (plan 01 F6). Local in development; in production point
+        // UPLOADS_DISK at an S3-compatible bucket so uploads never live on, or are
+        // served from, the app's own domain (brief §4).
+        'uploads' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/uploads'),
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

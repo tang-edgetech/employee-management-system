@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Production runs `php artisan schedule:run` every minute from cron (deploy/, M8).
+
+Schedule::command('files:prune-abandoned')->hourly()->withoutOverlapping();

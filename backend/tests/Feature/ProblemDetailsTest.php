@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\ApiProblem;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -73,4 +74,12 @@ it('rate limits the API with a 429 problem and Retry-After', function () {
 
     assertProblemShape($response, 429, 'RATE_LIMITED');
     $response->assertHeader('Retry-After');
+});
+
+it('does not report deliberate client errors as incidents, but does report server errors', function () {
+    $handler = app(ExceptionHandler::class);
+
+    expect($handler->shouldReport(ApiProblem::conflict('X', 'y')))->toBeFalse()
+        ->and($handler->shouldReport(new ApiProblem(503, 'DOWN', 'Down')))->toBeTrue()
+        ->and($handler->shouldReport(new RuntimeException('boom')))->toBeTrue();
 });

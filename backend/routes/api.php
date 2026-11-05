@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AccessRoleController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\TwoFactorController;
+use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +15,7 @@ use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 
 // Every route here is served under /api/v1 (bootstrap/app.php) and rate limited
 // by the "api" limiter. The web app authenticates with Sanctum's session cookie
-// and CSRF token. Files arrive in M5.
+// and CSRF token.
 
 // "signed-in": a valid, active, non-idle session.
 // "app": additionally blocks users who must set up 2FA first (TWO_FACTOR_SETUP_REQUIRED).
@@ -54,8 +55,20 @@ Route::middleware($app)->group(function () {
     Route::get('settings', [SettingsController::class, 'show']);
     Route::patch('settings', [SettingsController::class, 'update'])->middleware('if-match');
 
+    Route::post('files/presign', [FileController::class, 'presign']);
+    Route::post('files/{file}/complete', [FileController::class, 'complete']);
+    Route::get('files/{file}', [FileController::class, 'show']);
+    Route::get('files/{file}/url', [FileController::class, 'url']);
+
     Route::middleware('can:system.settings')->group(function () {
         Route::get('access-roles', [AccessRoleController::class, 'index']);
         Route::put('access-roles/{role:key}/permissions', [AccessRoleController::class, 'updatePermissions'])->middleware('if-match');
     });
+});
+
+// Local disk only (production uses S3 presigned URLs): the signed URL is the
+// authorisation, so these sit outside the signed-in group and skip CSRF.
+Route::middleware('signed')->group(function () {
+    Route::put('files/{file}/content', [FileController::class, 'upload'])->name('files.upload');
+    Route::get('files/{file}/download', [FileController::class, 'download'])->name('files.download');
 });

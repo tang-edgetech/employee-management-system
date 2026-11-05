@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Domain\Access\Permission;
 use App\Domain\Access\PermissionMatrix;
 use App\Domain\Access\ScopeResolver;
+use App\Domain\Files\Scanning\ClamAvScanner;
+use App\Domain\Files\Scanning\NoScanner;
+use App\Domain\Files\Scanning\Scanner;
 use App\Domain\Shared\Crypto\BlindIndex;
 use App\Domain\Shared\Crypto\FieldEncrypter;
 use App\Models\User;
@@ -30,6 +33,15 @@ class AppServiceProvider extends ServiceProvider
         // Per request: permissions and scope are worked out once and reused.
         $this->app->scoped(PermissionMatrix::class);
         $this->app->scoped(ScopeResolver::class);
+
+        $this->app->bind(Scanner::class, fn () => match (config('meridian.files.scanner')) {
+            'clamav' => new ClamAvScanner(
+                (string) config('meridian.files.clamav.host'),
+                (int) config('meridian.files.clamav.port'),
+                (int) config('meridian.files.clamav.timeout'),
+            ),
+            default => new NoScanner,
+        });
 
         $this->app->singleton(BlindIndex::class, function () {
             $key = (string) config('meridian.blind_index_key');
