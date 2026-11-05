@@ -44,6 +44,11 @@ Every layout block and component has its own stable class name, in the spirit of
 | `mw-device` | A registered 2FA authenticator device |
 | `mw-qr` | QR code for adding an authenticator |
 | `mw-code-list` | Recovery codes |
+| `mw-page-heading` | Page title plus its Info button |
+| `mw-help-btn` | The Info (ⓘ) button that opens the user guide for the current page |
+| `mw-guide`, `mw-guide__head`, `mw-guide__body`, `mw-guide__steps`, `mw-guide__tips`, `mw-guide__foot` | Right-hand slide-in user guide panel (closes with Esc or a click outside) |
+| `mw-group-card` | A group (team) inside a department, with its members and team leads |
+| `mw-group-editor` | Table for a group's members, team leads (0 or more) and each person's "Reports to" |
 | `mw-version` | Installed version and its status |
 | `mw-update-log`, `mw-update-log__row`, `mw-update-log__steps` | System update history and each run's step log |
 

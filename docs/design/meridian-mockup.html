@@ -261,6 +261,24 @@ html[data-sb="rail"] .mw-sidebar__version{padding:0 0 10px;text-align:center}
 .mw-version__number{font-family:var(--font-mono);font-size:28px;font-weight:600;color:var(--deep)}
 .mw-update-log__row{cursor:pointer}
 .mw-update-log__steps{font-family:var(--font-mono);font-size:12px;background:#0B3B3B;color:#D7ECE8;border-radius:10px;padding:12px 14px;white-space:pre-wrap;line-height:1.6;margin:4px 0 8px}
+/* page heading + user guide panel */
+.mw-page-heading{display:flex;align-items:center;gap:6px;min-width:0}
+.mw-help-btn{color:var(--accent)}
+.mw-guide-wrap{position:fixed;inset:0;z-index:80;background:rgba(11,59,59,.28)}
+.mw-guide{position:absolute;right:0;top:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;box-shadow:-24px 0 48px -24px rgba(11,59,59,.4);animation:mwGuideIn .24s ease-out}
+@keyframes mwGuideIn{from{transform:translateX(100%)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.mw-guide{animation:none}}
+.mw-guide__head{display:flex;align-items:center;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line);background:var(--deep);color:#fff}
+.mw-guide__head .icon-btn{color:#CFE4E0}
+.mw-guide__body{flex:1;overflow-y:auto;padding:20px}
+.mw-guide__intro{font-size:14px;line-height:1.6;color:var(--ink)}
+.mw-guide__h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:20px 0 8px}
+.mw-guide__steps{counter-reset:s;display:grid;gap:10px;padding:0;margin:0;list-style:none}
+.mw-guide__steps li{counter-increment:s;display:flex;gap:10px;font-size:13.5px;line-height:1.5}
+.mw-guide__steps li::before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:12px;display:grid;place-items:center}
+.mw-guide__tips{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.mw-guide__tips li{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.mw-guide__foot{padding:14px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 /* option 6 */
 .sidebar{border-right:1px solid var(--line)}
 .sb-logo{background:var(--accent)!important;color:#fff!important;font-family:var(--font-head);font-weight:800;font-size:18px}
@@ -420,14 +438,14 @@ const DB = {
     mkEmp('E028','HJ-0012','Chris','Senior Backend Developer','D4','Back End','Permanent','Permanent','2023-08-24','E008',7600,'F','1991-10-19'),
     mkEmp('E029','HJ-0013','Kai Seng (KS)','Backend Developer','D3','Back End','Permanent','Permanent','2024-01-04','E008',5800,'M','1997-01-04'),
     mkEmp('E030','HJ-0014','Yu Hang','Backend Developer','D3','Back End','Permanent','Permanent','2025-06-11','E008',5800,'F','1996-04-15'),
-    mkEmp('E031','HJ-0015','Adam Lai','Backend Developer','D3','Back End','Permanent','Permanent','2019-11-18','E008',5800,'M','1995-07-26'),
-    mkEmp('E032','HJ-0016','Leng','Backend Developer','D3','Back End','Permanent','Permanent','2020-04-25','E008',5800,'F','1994-10-11'),
+    mkEmp('E031','HJ-0015','Adam Lai','Backend Developer','D3','Back End','Permanent','Permanent','2019-11-18','E028',5800,'M','1995-07-26'),
+    mkEmp('E032','HJ-0016','Leng','Backend Developer','D3','Back End','Permanent','Permanent','2020-04-25','E028',5800,'F','1994-10-11'),
     mkEmp('E011','HJ-0017','Gary','Backend Developer','D2','Back End','Permanent','PIP','2021-09-05','E008',4300,'M','2000-01-22',{pipEnd:'2026-12-15'}),
     mkEmp('E033','HJ-0018','Adam Koh','Backend Developer','D2','Back End','Permanent','Permanent','2022-02-12','E008',4300,'F','1999-04-07'),
     mkEmp('E034','HJ-0019','Zhong Lin','Backend Developer','D2','Back End','Permanent','Permanent','2023-07-19','E008',4300,'M','1998-07-18'),
     mkEmp('E035','HJ-0020','Jun Onn','Backend Developer','D2','Back End','Permanent','Permanent','2024-12-26','E008',4300,'F','1997-10-03'),
     mkEmp('E036','HJ-0021','JY','Backend Developer','D2','Back End','Permanent','Permanent','2025-05-06','E008',4300,'M','2000-01-14'),
-    mkEmp('E037','HJ-0022','Darren','Backend Developer','D1','Back End','Permanent','Permanent','2019-10-13','E008',3400,'F','2001-04-25'),
+    mkEmp('E037','HJ-0022','Darren','Backend Developer','D1','Back End','Permanent','Permanent','2019-10-13','E028',3400,'F','2001-04-25'),
     mkEmp('E021','HJ-0023','Wong Wei Yee','Head of WordPress','D5','WordPress','Permanent','Permanent','2020-03-20','E002',9200,'M','1989-07-10'),
     mkEmp('E014','HJ-0024','Tang Sheng','WordPress Developer','D3','WordPress','Contract','Contract','2021-08-27','E021',5800,'F','1994-10-21',{endDate:'2026-11-30'}),
     mkEmp('E017','HJ-0025','James','WordPress Developer','D1','WordPress','Permanent','Probation','2022-01-07','E014',3400,'M','2002-01-06',{probEnd:'2026-11-16'}),
@@ -450,29 +468,29 @@ const DB = {
     mkEmp('E004','HJ-0042','Ellie','Admin & HR Executive','D3','Admin','Permanent','Permanent','2025-02-18','E002',5800,'F','1996-04-11'),
     mkEmp('E003','HJ-0043','Angie','Head of Customer Service','D5','Customer Service','Permanent','Permanent','2019-07-25','E002',9200,'M','1989-07-22'),
     mkEmp('E015','HJ-0044','Edwind','Customer Service Executive','D3','Customer Service','Permanent','Permanent','2020-12-05','E003',5800,'F','1994-10-07'),
-    mkEmp('E046','HJ-0045','Brian','Customer Service Executive','D3','Customer Service','Permanent','Permanent','2021-05-12','E015',5800,'M','1997-01-18'),
-    mkEmp('E047','HJ-0046','Iryse','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2022-10-19','E015',4300,'F','1999-04-03'),
-    mkEmp('E048','HJ-0047','Ryu','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2023-03-26','E015',4300,'M','1998-07-14'),
-    mkEmp('E049','HJ-0048','Carmen','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2024-08-06','E015',4300,'F','1997-10-25'),
-    mkEmp('E050','HJ-0049','Adrian','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2025-01-13','E015',3400,'M','2002-01-10'),
-    mkEmp('E051','HJ-0050','Catherine','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2019-06-20','E015',3400,'F','2001-04-21'),
-    mkEmp('E052','HJ-0051','Ronnie','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2020-11-27','E015',3400,'M','2000-07-06'),
+    mkEmp('E046','HJ-0045','Brian','Customer Service Executive','D3','Customer Service','Permanent','Permanent','2021-05-12','E003',5800,'M','1997-01-18'),
+    mkEmp('E047','HJ-0046','Iryse','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2022-10-19','E003',4300,'F','1999-04-03'),
+    mkEmp('E048','HJ-0047','Ryu','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2023-03-26','E003',4300,'M','1998-07-14'),
+    mkEmp('E049','HJ-0048','Carmen','Customer Service Executive','D2','Customer Service','Permanent','Permanent','2024-08-06','E003',4300,'F','1997-10-25'),
+    mkEmp('E050','HJ-0049','Adrian','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2025-01-13','E003',3400,'M','2002-01-10'),
+    mkEmp('E051','HJ-0050','Catherine','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2019-06-20','E003',3400,'F','2001-04-21'),
+    mkEmp('E052','HJ-0051','Ronnie','Customer Service Executive','D1','Customer Service','Permanent','Permanent','2020-11-27','E003',3400,'M','2000-07-06'),
   ],
   alumni:[{idNo:'970101-08-5513',name:'Lee Wen Hao',no:'HJ-0021',lastDesig:'Junior 2',left:'2024-06-30',reason:'Further studies (Masters)',rehire:true}],
   teams:[
-    {id:'T1',name:'Team 1',dept:'General',lead:'E022',members:['E022','E023']},
-    {id:'T2',name:'Team 2',dept:'General',lead:'E024',members:['E024','E025']},
-    {id:'T3',name:'Full Stack',dept:'General',lead:'E026',members:['E026']},
-    {id:'T4',name:'Business Analyst',dept:'General',lead:'',members:[]},
-    {id:'T5',name:'System',dept:'System',lead:'E018',members:['E018','E027']},
-    {id:'T6',name:'Back End',dept:'Back End',lead:'E008',members:['E008','E028','E029','E030','E031','E032','E011','E033','E034','E035','E036','E037']},
-    {id:'T7',name:'WordPress',dept:'WordPress',lead:'E014',members:['E014','E017','E038','E016']},
-    {id:'T8',name:'IT Support',dept:'WordPress',lead:'E039',members:['E039']},
-    {id:'T9',name:'FE Developer',dept:'Front End',lead:'E019',members:['E019','E040','E041','E009','E010','E042']},
-    {id:'T10',name:'Mobile',dept:'Mobile',lead:'E006',members:['E006','E012','E043','E013']},
-    {id:'T11',name:'Product Team',dept:'Product Team',lead:'E044',members:['E044','E045']},
-    {id:'T12',name:'Admin',dept:'Admin',lead:'E004',members:['E004']},
-    {id:'T13',name:'Customer Service',dept:'Customer Service',lead:'E015',members:['E015','E046','E047','E048','E049','E050','E051','E052']},
+    {id:'T1',name:'Team 1',dept:'General',leads:['E022'],members:['E022','E023']},
+    {id:'T2',name:'Team 2',dept:'General',leads:['E024'],members:['E024','E025']},
+    {id:'T3',name:'Full Stack',dept:'General',leads:['E026'],members:['E026']},
+    {id:'T4',name:'Business Analyst',dept:'General',leads:[],members:[]},
+    {id:'T5',name:'System',dept:'System',leads:['E018'],members:['E018','E027']},
+    {id:'T6',name:'Back End',dept:'Back End',leads:['E008','E028'],members:['E008','E028','E029','E030','E031','E032','E011','E033','E034','E035','E036','E037']},
+    {id:'T7',name:'WordPress',dept:'WordPress',leads:['E014'],members:['E014','E017','E038','E016']},
+    {id:'T8',name:'IT Support',dept:'WordPress',leads:['E039'],members:['E039']},
+    {id:'T9',name:'FE Developer',dept:'Front End',leads:['E019'],members:['E019','E040','E041','E009','E010','E042']},
+    {id:'T10',name:'Mobile',dept:'Mobile',leads:['E006'],members:['E006','E012','E043','E013']},
+    {id:'T11',name:'Product Team',dept:'Product Team',leads:['E044'],members:['E044','E045']},
+    {id:'T12',name:'Admin',dept:'Admin',leads:['E004'],members:['E004']},
+    {id:'T13',name:'Customer Service',dept:'Customer Service',leads:[],members:['E015','E046','E047','E048','E049','E050','E051','E052']},
   ],
   vacancies:[
     {id:'V001',title:'Frontend Developer',dept:'Front End',dFrom:'D3',dTo:'D4',type:'Permanent',openings:2,status:'Open',closing:'2026-11-30',manager:'E007',created:'2026-10-06'},
@@ -660,7 +678,7 @@ const ACCOUNTS = [
   {email:'ahfa@hajimi.my',name:'Ah Fa',role:'C-Level',roleKey:'exec',sub:'Chief Executive Officer',eid:'E001',devices:[{id:'dv2',name:'Pixel 8 · Microsoft Authenticator',added:'2026-08-14',last:'2026-11-02'}]},
   {email:'ellie@hajimi.my',name:'Ellie',role:'HR',roleKey:'hr',sub:'Admin & HR',eid:'E004'},
   {email:'teechienyap@hajimi.my',name:'Tee Chien Yap',role:'Head of Department',roleKey:'lead',sub:'Front End',eid:'E007'},
-  {email:'jeffyeoh@hajimi.my',name:'Jeff Yeoh',role:'Employee · Senior 2',roleKey:'staff',sub:'PIC, FE Developer',eid:'E019'},
+  {email:'jeffyeoh@hajimi.my',name:'Jeff Yeoh',role:'Employee · Senior 2',roleKey:'staff',sub:'Team lead, FE Developer',eid:'E019'},
   {email:'sinyee@hajimi.my',name:'Sin Yee',role:'Employee · Junior 1',roleKey:'staff',sub:'Front End',eid:'E010'},
 ];
 const NAV = [
@@ -687,7 +705,7 @@ const S = {user:null,candTab:'All',empTab:'All',orgZoom:1,pending2FA:null,taskTa
 
 /* =================== I18N =================== */
 // English text is the key; Chinese (Simplified) from ZH. Untranslated text falls back to English.
-const ZH = {"Overview":"概览","Work":"工作","Recruitment":"招聘","People":"人员","Organization":"组织","System":"系统","Dashboard":"仪表板","My Profile":"我的资料","My Tasks":"我的任务","Projects":"项目","Meetings":"会议","KPI":"绩效指标","Vacancies":"职位空缺","Candidates":"候选人","Interviews":"面试","Employees":"员工","My People":"我的团队","Probation & Reviews":"试用期与评估","Annual Data Review":"年度资料审核","Teams":"小组","Org Chart":"组织架构图","Organization Chart":"组织架构图","Departments":"部门","Designations":"职级","Employment Types":"雇佣类型","Task Tags & Points":"任务标签与积分","Integrations":"集成","Access Roles":"访问角色","Global Settings":"全局设置","System Updates":"系统更新","Collapse menu":"收起菜单","Expand menu":"展开菜单","Sign out":"退出登录","My profile":"我的资料","Search people, NRIC, tasks…":"搜索人员、身份证号、任务…","Notifications":"通知","Language":"语言","Sign in":"登录","Use your work email.":"请使用工作邮箱登录。","2FA is currently":"双重验证当前","on":"已开启","off":"已关闭","Work email":"工作邮箱","Password":"密码","Remember me":"记住我","Forgot password?":"忘记密码？","Demo accounts":"演示账号","Two-factor check":"双重验证","Verify & continue":"验证并继续","Hire, run projects and score KPIs in one place.":"招聘、项目管理与绩效评分，一站完成。","Version":"版本","Good morning,":"早上好，","My open tasks":"我的未完成任务","Check-ins due":"待提交进度","My KPI (Q4 to date)":"我的绩效（第四季度至今）","Next meeting":"下一场会议","Headcount":"员工人数","On probation":"试用期中","Active projects":"进行中的项目","Interviews ahead":"即将进行的面试","Profile":"个人资料","Personal information":"个人信息","Security":"安全","Preferences":"偏好设置","Display name":"显示名称","Shown across the system. Others see the first letter of your display name as your avatar.":"在系统中显示。其他人会看到您显示名称的首字母作为头像。","Profile picture":"头像","Only you see this picture. Everyone else sees the first letter of your display name.":"此头像仅您本人可见。其他人看到的是您显示名称的首字母。","Upload picture":"上传头像","Remove":"移除","Official photo":"官方照片","Set by HR. Used in the organisation chart, HR records and management views.":"由人力资源部设置，用于组织架构图、人事记录及管理视图。","No official photo yet. HR will add it.":"尚无官方照片，将由人力资源部添加。","Save":"保存","Save changes":"保存更改","Cancel":"取消","Employment":"雇佣信息","Managed by HR":"由人力资源部管理","Staff no.":"员工编号","Department":"部门","Designation":"职级","Position":"职位","Reports to":"直属上级","Joined":"入职日期","Status":"状态","Group":"小组","PIC":"负责人","Profile completeness":"资料完整度","required fields complete":"项必填信息已完成","Complete your profile":"请完善个人资料","Fill in every required field. Changes are sent to HR for approval.":"请填写所有必填项。更改将提交人力资源部审批。","Identity":"身份信息","Legal name":"法定姓名","ID type":"证件类型","ID number":"证件号码","Date of birth":"出生日期","Gender":"性别","Nationality":"国籍","Contact":"联系方式","Personal email":"个人邮箱","Mobile":"手机号码","Home address":"住址","Emergency contact":"紧急联系人","Name":"姓名","Relationship":"关系","Phone":"电话","Education":"教育背景","Highest level":"最高学历","Institution":"院校","Field of study":"专业","Year completed":"毕业年份","Submit for HR approval":"提交人力资源部审批","Submitted to HR for approval":"已提交人力资源部审批","Legal name is changed by HR with supporting documents.":"法定姓名需由人力资源部凭证明文件修改。","Change password":"修改密码","Current password":"当前密码","New password":"新密码","Repeat new password":"再次输入新密码","Update password":"更新密码","At least 8 characters":"至少 8 个字符","Upper and lower case letters":"包含大小写字母","A number":"包含数字","A symbol":"包含符号","Both new passwords match":"两次输入的新密码一致","Different from the current password":"与当前密码不同","Password changed. Your other sessions were signed out.":"密码已修改，其他设备上的登录已退出。","Two-factor authentication":"双重验证","Authenticator apps":"验证器应用","Add device":"添加设备","Maximum 2 devices":"最多 2 台设备","Required by your organisation":"组织要求必须开启","Optional for your role":"您的角色可选开启","No devices yet.":"尚未添加设备。","Added":"添加于","Last used":"最近使用","Recovery codes":"恢复码","View recovery codes":"查看恢复码","Regenerate":"重新生成","Your organisation requires two-factor authentication. Add an authenticator app to continue.":"您的组织要求开启双重验证。请添加验证器应用以继续使用。","Scan the QR code with your authenticator app, or enter the key manually.":"使用验证器应用扫描二维码，或手动输入密钥。","Device name":"设备名称","6-digit code":"6 位验证码","Add authenticator":"添加验证器","Interface language":"界面语言","English":"English","中文":"中文","Sign out after inactivity":"闲置后自动退出","Session timeout":"会话超时","Require an authenticator code at sign-in.":"登录时需要输入验证器验证码。","Enforce 2FA for":"强制双重验证的角色","Roles that must use 2FA when it is on":"开启后必须使用双重验证的角色","Work rules":"工作规则","Employment defaults":"雇佣默认设置","Installed version":"已安装版本","Up to date":"已是最新版本","Update available":"有可用更新","Check for updates":"检查更新","Update now":"立即更新","Automatic updates":"自动更新","Update log":"更新日志","Started":"开始时间","Trigger":"触发方式","Commit":"提交","Duration":"耗时","Result":"结果","Scheduled":"定时","Manual":"手动","Success":"成功","Failed":"失败","No changes":"无变更","Rolled back":"已回滚","Steps":"步骤","Schedule":"计划","Repository":"代码仓库","Branch":"分支","Last checked":"最近检查","Designation ladders, hiring rounds, project timelines with check-ins, and KPIs built from real delivery data at":"职级体系、多轮招聘、带进度更新的项目时间线，以及基于真实交付数据的绩效指标，尽在"};
+const ZH = {"Overview":"概览","Work":"工作","Recruitment":"招聘","People":"人员","Organization":"组织","System":"系统","Dashboard":"仪表板","My Profile":"我的资料","My Tasks":"我的任务","Projects":"项目","Meetings":"会议","KPI":"绩效指标","Vacancies":"职位空缺","Candidates":"候选人","Interviews":"面试","Employees":"员工","My People":"我的团队","Probation & Reviews":"试用期与评估","Annual Data Review":"年度资料审核","Teams":"小组","Org Chart":"组织架构图","Organization Chart":"组织架构图","Departments":"部门","Designations":"职级","Employment Types":"雇佣类型","Task Tags & Points":"任务标签与积分","Integrations":"集成","Access Roles":"访问角色","Global Settings":"全局设置","System Updates":"系统更新","Collapse menu":"收起菜单","Expand menu":"展开菜单","Sign out":"退出登录","My profile":"我的资料","Search people, NRIC, tasks…":"搜索人员、身份证号、任务…","Notifications":"通知","Language":"语言","Sign in":"登录","Use your work email.":"请使用工作邮箱登录。","2FA is currently":"双重验证当前","on":"已开启","off":"已关闭","Work email":"工作邮箱","Password":"密码","Remember me":"记住我","Forgot password?":"忘记密码？","Demo accounts":"演示账号","Two-factor check":"双重验证","Verify & continue":"验证并继续","Hire, run projects and score KPIs in one place.":"招聘、项目管理与绩效评分，一站完成。","Version":"版本","Good morning,":"早上好，","My open tasks":"我的未完成任务","Check-ins due":"待提交进度","My KPI (Q4 to date)":"我的绩效（第四季度至今）","Next meeting":"下一场会议","Headcount":"员工人数","On probation":"试用期中","Active projects":"进行中的项目","Interviews ahead":"即将进行的面试","Profile":"个人资料","Personal information":"个人信息","Security":"安全","Preferences":"偏好设置","Display name":"显示名称","Shown across the system. Others see the first letter of your display name as your avatar.":"在系统中显示。其他人会看到您显示名称的首字母作为头像。","Profile picture":"头像","Only you see this picture. Everyone else sees the first letter of your display name.":"此头像仅您本人可见。其他人看到的是您显示名称的首字母。","Upload picture":"上传头像","Remove":"移除","Official photo":"官方照片","Set by HR. Used in the organisation chart, HR records and management views.":"由人力资源部设置，用于组织架构图、人事记录及管理视图。","No official photo yet. HR will add it.":"尚无官方照片，将由人力资源部添加。","Save":"保存","Save changes":"保存更改","Cancel":"取消","Employment":"雇佣信息","Managed by HR":"由人力资源部管理","Staff no.":"员工编号","Department":"部门","Designation":"职级","Position":"职位","Reports to":"直属上级","Joined":"入职日期","Status":"状态","Group":"小组","PIC":"负责人","Team lead":"组长","Reports to (per person)":"直属上级（逐人设置）","In group":"在组内","User guide":"用户指南","On this page":"本页内容","How to":"操作步骤","Tips":"提示","Close":"关闭","Profile completeness":"资料完整度","required fields complete":"项必填信息已完成","Complete your profile":"请完善个人资料","Fill in every required field. Changes are sent to HR for approval.":"请填写所有必填项。更改将提交人力资源部审批。","Identity":"身份信息","Legal name":"法定姓名","ID type":"证件类型","ID number":"证件号码","Date of birth":"出生日期","Gender":"性别","Nationality":"国籍","Contact":"联系方式","Personal email":"个人邮箱","Mobile":"手机号码","Home address":"住址","Emergency contact":"紧急联系人","Name":"姓名","Relationship":"关系","Phone":"电话","Education":"教育背景","Highest level":"最高学历","Institution":"院校","Field of study":"专业","Year completed":"毕业年份","Submit for HR approval":"提交人力资源部审批","Submitted to HR for approval":"已提交人力资源部审批","Legal name is changed by HR with supporting documents.":"法定姓名需由人力资源部凭证明文件修改。","Change password":"修改密码","Current password":"当前密码","New password":"新密码","Repeat new password":"再次输入新密码","Update password":"更新密码","At least 8 characters":"至少 8 个字符","Upper and lower case letters":"包含大小写字母","A number":"包含数字","A symbol":"包含符号","Both new passwords match":"两次输入的新密码一致","Different from the current password":"与当前密码不同","Password changed. Your other sessions were signed out.":"密码已修改，其他设备上的登录已退出。","Two-factor authentication":"双重验证","Authenticator apps":"验证器应用","Add device":"添加设备","Maximum 2 devices":"最多 2 台设备","Required by your organisation":"组织要求必须开启","Optional for your role":"您的角色可选开启","No devices yet.":"尚未添加设备。","Added":"添加于","Last used":"最近使用","Recovery codes":"恢复码","View recovery codes":"查看恢复码","Regenerate":"重新生成","Your organisation requires two-factor authentication. Add an authenticator app to continue.":"您的组织要求开启双重验证。请添加验证器应用以继续使用。","Scan the QR code with your authenticator app, or enter the key manually.":"使用验证器应用扫描二维码，或手动输入密钥。","Device name":"设备名称","6-digit code":"6 位验证码","Add authenticator":"添加验证器","Interface language":"界面语言","English":"English","中文":"中文","Sign out after inactivity":"闲置后自动退出","Session timeout":"会话超时","Require an authenticator code at sign-in.":"登录时需要输入验证器验证码。","Enforce 2FA for":"强制双重验证的角色","Roles that must use 2FA when it is on":"开启后必须使用双重验证的角色","Work rules":"工作规则","Employment defaults":"雇佣默认设置","Installed version":"已安装版本","Up to date":"已是最新版本","Update available":"有可用更新","Check for updates":"检查更新","Update now":"立即更新","Automatic updates":"自动更新","Update log":"更新日志","Started":"开始时间","Trigger":"触发方式","Commit":"提交","Duration":"耗时","Result":"结果","Scheduled":"定时","Manual":"手动","Success":"成功","Failed":"失败","No changes":"无变更","Rolled back":"已回滚","Steps":"步骤","Schedule":"计划","Repository":"代码仓库","Branch":"分支","Last checked":"最近检查","Designation ladders, hiring rounds, project timelines with check-ins, and KPIs built from real delivery data at":"职级体系、多轮招聘、带进度更新的项目时间线，以及基于真实交付数据的绩效指标，尽在"};
 let LANG = (()=>{try{return localStorage.getItem('mw_lang')==='zh'?'zh':'en'}catch(e){return 'en'}})();
 const t = s => (LANG==='zh' && ZH[s]) || s;
 function setLang(l){
@@ -752,7 +770,7 @@ function scope(){ // employees the current user manages
   const r=S.user.roleKey;
   if(['sysadmin','hr','exec'].includes(r)) return DB.employees.map(e=>e.id);
   const ids=new Set(reportsOf(S.user.eid));
-  if(r==='lead') DB.teams.filter(t=>t.lead===S.user.eid).forEach(t=>t.members.forEach(m=>{ids.add(m);reportsOf(m).forEach(x=>ids.add(x))}));
+  if(r==='lead') DB.teams.filter(t=>(t.leads||[]).includes(S.user.eid)).forEach(t=>t.members.forEach(m=>{ids.add(m);reportsOf(m).forEach(x=>ids.add(x))}));
   DB.departments.filter(d=>d.head&&d.head===S.user.eid).forEach(d=>DB.employees.filter(e=>e.dept===d.name).forEach(e=>ids.add(e.id)));
   ids.delete(S.user.eid);return [...ids];
 }
@@ -808,7 +826,7 @@ function picker(name,{selected=[],pool=DB.employees.map(e=>e.id),lead=null,quick
       <label><input type="${single?'radio':'checkbox'}" name="${name}" value="${e.id}" ${selected.includes(e.id)?'checked':''} onchange="pickCount('${name}')">${av(e.name,26)}
       <span class="min-w-0 flex-1"><span class="block text-sm font-semibold truncate">${esc(e.name)}</span><span class="block text-xs muted truncate">${esc(e.pos)} · ${des(e.desig).name} · ${esc(e.dept)}</span></span></label>
       ${lead!==null?`<label class="!flex-none" data-tip="Set as lead" style="color:var(--hi)"><input type="radio" name="${name}-lead" value="${e.id}" ${lead===e.id?'checked':''}>${ic('crown','w-4 h-4')}</label>`:''}
-      ${DB.teams.some(t=>t.lead===e.id)&&lead===null?`<span data-tip="Group PIC" style="color:var(--hi)">${ic('crown','w-4 h-4')}</span>`:''}
+      ${DB.teams.some(t=>(t.leads||[]).includes(e.id))&&lead===null?`<span data-tip="Team lead" style="color:var(--hi)">${ic('crown','w-4 h-4')}</span>`:''}
     </div>`}).join('');
   const depts=[...new Set(pool.map(id=>emp(id)?.dept).filter(Boolean))];
   return `<div class="picker" id="pk-${name}">
@@ -931,7 +949,7 @@ function renderShell(){
     <main class="main">
       <header class="topbar mw-topbar">
         <button class="icon-btn menu-btn" data-tip="Menu" onclick="toggleSb(true)">${ic('menu')}</button>
-        <div class="flex-1 min-w-0"><div class="crumb" id="crumb"></div><h1 class="page-title truncate" id="ptitle"></h1></div>
+        <div class="flex-1 min-w-0"><div class="crumb" id="crumb"></div><div class="mw-page-heading"><h1 class="page-title truncate" id="ptitle"></h1><button type="button" class="icon-btn mw-help-btn" id="help-btn" onclick="openGuide()" aria-label="${t('User guide')}" aria-haspopup="dialog" data-tip="${t('User guide')}">${ic('info')}</button></div></div>
         <div class="hidden md:flex items-center gap-2 input" style="width:240px;height:38px"><span class="muted">${ic('search','w-4 h-4')}</span><input class="bg-transparent outline-none flex-1 min-w-0 text-sm" placeholder="${t('Search people, NRIC, tasks…')}" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
         <span class="hidden sm:inline-flex">${langSwitch()}</span><span class="hidden sm:inline-flex">${ib('bell',t('Notifications'),'showNotifs()')}</span>
         <span id="top-action" class="flex gap-2"></span>
@@ -984,14 +1002,14 @@ function route(){
   if(h.startsWith('project-')){pid=h.slice(8).toUpperCase();r='projects'}
   if(!PAGES[r]||!can(r))r='dashboard';
   if(mustSetup2FA()){r='profile';S.profTab='security'}
-  renderShell();renderNav(r);
+  renderShell();renderNav(r);S.page=r;
   const p=PAGES[r];
   if(pid&&proj(pid)){const P=proj(pid);$('#crumb').innerHTML=`<a href="#projects">Work / Projects</a> / ${P.id}`;$('#ptitle').textContent=P.name;$('#top-action').innerHTML=projActions(P);$('#view').innerHTML=pgProject(P)}
   else{$('#crumb').textContent=`${t(p.c)} / ${t(p.t)}`;$('#ptitle').textContent=t(p.t);$('.mw-profile-card')?.classList.toggle('is-active',r==='profile');$('#top-action').innerHTML=p.a?p.a():'';$('#view').innerHTML=p.r()}
   icons();
 }
 function rerender(){const y=scrollY;route();window.scrollTo(0,y);if($('#drawer')&&S.drawerFn){const f=S.drawerFn;f()}}
-window.addEventListener('hashchange',()=>{closeDrawer();route();window.scrollTo(0,0)});
+window.addEventListener('hashchange',()=>{closeDrawer();closeGuide();route();window.scrollTo(0,0)});
 
 /* =================== PROFILE =================== */
 // Tabs: Overview (display name, own picture, official photo, employment), Personal information
@@ -1029,7 +1047,7 @@ function profOverview(m,u,done,total){
     ${m?`<section class="mw-section">
       <div class="mw-section__title">${ic('briefcase','w-4 h-4')}${t('Employment')}</div><div class="mw-section__hint">${t('Managed by HR')}</div>
       <dl class="dl mt-4"><dt>${t('Legal name')}</dt><dd>${esc(m.name)}</dd><dt>${t('Staff no.')}</dt><dd class="mono">${m.no}</dd><dt>${t('Department')}</dt><dd>${esc(m.dept)}</dd>
-        <dt>${t('Group')}</dt><dd>${(()=>{const g=DB.teams.find(x=>x.members.includes(m.id));return g?esc(g.name)+(g.lead===m.id?' · '+t('PIC'):''):'—'})()}</dd>
+        <dt>${t('Group')}</dt><dd>${(()=>{const g=DB.teams.find(x=>x.members.includes(m.id));return g?esc(g.name)+((g.leads||[]).includes(m.id)?' · '+t('Team lead'):''):'—'})()}</dd>
         <dt>${t('Designation')}</dt><dd>${des(m.desig).name}</dd><dt>${t('Position')}</dt><dd>${esc(m.pos)}</dd><dt>${t('Reports to')}</dt><dd>${esc(ename(m.reports))}</dd><dt>${t('Joined')}</dt><dd>${fmt(m.joined)}</dd><dt>${t('Status')}</dt><dd>${chip(m.status,STATUS_TONE[m.status])}</dd></dl>
       <div class="mt-5"><div class="flex justify-between text-sm"><b>${t('Profile completeness')}</b><span class="muted">${done}/${total} ${t('required fields complete')}</span></div><div class="mw-progress mt-2"><div class="mw-progress__bar" style="width:${Math.round(done/total*100)}%"></div></div>
       ${done<total?`<button type="button" class="btn btn-ghost mt-3" onclick="S.profTab='info';rerender()">${ic('arrow-right')}${t('Complete your profile')}</button>`:''}</div>
@@ -1152,6 +1170,26 @@ function pgUpdates(){
 }
 function checkUpdates(){toast(APP.version===APP.latest?t('Up to date')+' · v'+APP.version:t('Update available'),'refresh-cw')}
 
+/* =================== USER GUIDE =================== */
+// Short how-to for each page, opened from the Info button after the page title.
+const GUIDES = {"dashboard":{"intro":"Your day at a glance: tasks, check-ins due, your KPI so far and upcoming meetings. HR and management see company-wide figures instead.","steps":["Start with the greeting band: it tells you what needs attention today.","Click a tile to jump to the full list (e.g. Check-ins due opens My Tasks).","Handle anything in \"Needs your approval\" or \"Due soon\" first."],"tips":["Numbers update as soon as you or your team record work.","If a banner asks you to review your personal data, do it before the due date."]},"profile":{"intro":"Your own account: display name, picture, personal information, password and two-factor authentication.","steps":["Overview: change your display name or upload a picture (only you see it).","Personal information: fill in every required field; changes go to HR for approval.","Security: change your password and add up to two authenticator devices.","Preferences: choose English or 中文."],"tips":["Your official photo is set by HR and used in the org chart and HR records.","Keep at least one 2FA device if your organisation requires it."]},"mytasks":{"intro":"Every task assigned to you, with due dates and check-in status.","steps":["Open a task to see its details and history.","Post a check-in at the required interval: progress %, hours and a short note.","If you are blocked, say who or what is blocking you; this records a delay.","Need more time? Request an extension before the due date."],"tips":["Missed check-ins count against your KPI.","Tasks waiting on another task can't start until it's done."]},"projects":{"intro":"All projects you can see, their phase, progress and delivery health.","steps":["Open a project to see its timeline, tasks, prerequisites and delays.","Project managers move the phase forward one step at a time.","Use Standalone task for work that isn't part of a project."],"tips":["\"At risk\" means overdue tasks or open delays: check the delay log first."]},"meetings":{"intro":"Schedule meetings, record minutes and turn action items into tasks.","steps":["Click Schedule meeting, set objectives and pick attendees (or Everyone).","After the meeting, complete it with minutes and decisions.","Convert action items into tasks so they are tracked."],"tips":["Attendance locks 7 days after a meeting is completed."]},"kpi":{"intro":"Performance scores built from delivery data: points, on-time rate, delays, check-ins, quality, rating and meetings.","steps":["Pick the period, then open a person to see how each part of the score was calculated.","HR can import external task data or export scores to Excel."],"tips":["C-level staff are excluded from KPI.","Only confirmed delays count against someone."]},"vacancies":{"intro":"Open positions, their designation range and hiring manager.","steps":["Create a vacancy and share its public apply link.","Pause or close it when hiring is done."],"tips":["Candidates apply through the public form with PDPA consent."]},"candidates":{"intro":"Everyone who applied or was added to the talent pool, by stage.","steps":["Filter by stage with the tabs.","Open a candidate to schedule interviews or move their stage.","Convert a hired candidate into an employee in one step."],"tips":["Former employees are flagged for HR only."]},"interviews":{"intro":"All interview rounds, scheduled and completed.","steps":["Schedule a round with a panel, date and mode.","Record the result with remarks after the interview."],"tips":["\"Next round\" prompts you to schedule the following round."]},"employees":{"intro":"Employee records you are allowed to see.","steps":["Use the status tabs and search to find someone.","Open a person for details, history and lifecycle actions.","HR can add employees or import a CSV."],"tips":["Salary and full ID numbers are visible only to HR and management."]},"lifecycle":{"intro":"Probation, contract and PIP deadlines in one place.","steps":["Act before the end date: confirm, extend or start a PIP.","Each action is recorded in the employee's history."],"tips":["Probation can be extended up to twice the default length."]},"review":{"intro":"The annual personal-data review: who has confirmed their details and what is waiting for HR.","steps":["HR launches the review in the month set in Global Settings.","Employees confirm or update their details by the due date.","HR approves or returns each submission."],"tips":["Reminders go out 7 days and 1 day before the due date."]},"teams":{"intro":"Groups inside each department, their team leads and members.","steps":["Click Edit on a group to tick members and team leads.","Set \"Reports to\" for each person in the same table.","Use the crown to make or remove a team lead quickly."],"tips":["Team leads are optional: a group can have none, one or several.","Reporting lines are per person and can never loop."]},"orgchart":{"intro":"The organisation: by department (heads, groups, team leads) or as reporting lines.","steps":["Switch between By department and Reporting lines.","In Reporting lines, zoom and export a PNG."],"tips":["Official photos are shown here once HR adds them."]},"departments":{"intro":"Departments, their head (HOD) and their groups.","steps":["Add or rename a department; the change applies everywhere.","Set or clear the head of department."],"tips":["A department has at most one HOD; it can have none."]},"designations":{"intro":"The career ladder, from Intern to C-Level, with salary bands and KPI targets.","steps":["Add, rename or reorder levels to match your organisation.","Set each level's salary band and quarterly KPI target."],"tips":["The head of a department can hold any level."]},"emptypes":{"intro":"Employment types and their probation and duration rules.","steps":["Adjust the default probation and conversion path for each type."],"tips":[]},"tags":{"intro":"Task tags and the points each difficulty level is worth.","steps":["Edit a tag's points for levels 1 to 5."],"tips":["Points feed the delivery part of the KPI."]},"integrations":{"intro":"Connections to tools such as ClickUp, Asana or Google Sheets.","steps":["Map external users to employees by work email.","Import tasks for KPI."],"tips":[]},"access":{"intro":"What each role is allowed to do.","steps":["Switch permissions on or off per role.","The System Admin role always has everything."],"tips":["You can't remove Global Settings access from your own role."]},"config":{"intro":"Company-wide settings: security, work rules, employment defaults, recruitment and KPI.","steps":["Change a value; it applies to everyone.","Turn on two-factor authentication and choose which roles must use it."],"tips":["Session timeout signs people out after inactivity."]},"updates":{"intro":"The installed version and the history of automatic updates.","steps":["Check for updates to compare with the latest release.","Click a row in the log to see each step of that update."],"tips":["A failed health check rolls back to the previous release automatically."]}};
+function openGuide(){
+  const key=S.page||'dashboard',g=GUIDES[key]||{intro:'Help for this page is coming soon.',steps:[],tips:[]},title=t(PAGES[key]?.t||'');
+  closeGuide();
+  const w=document.createElement('div');w.className='mw-guide-wrap';w.id='guide';
+  w.innerHTML=`<aside class="mw-guide" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+    <div class="mw-guide__head">${ic('book-open','w-5 h-5')}<div class="flex-1 min-w-0"><div class="text-xs" style="color:#A9CBC5">${t('User guide')}</div><h2 id="guide-title" class="font-bold text-lg truncate">${esc(title)}</h2></div><button type="button" class="icon-btn" id="guide-close" onclick="closeGuide()" aria-label="${t('Close')}">${ic('x')}</button></div>
+    <div class="mw-guide__body"><p class="mw-guide__intro">${esc(g.intro)}</p>
+      ${g.steps.length?`<div class="mw-guide__h">${t('How to')}</div><ol class="mw-guide__steps">${g.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`:''}
+      ${g.tips.length?`<div class="mw-guide__h">${t('Tips')}</div><ul class="mw-guide__tips">${g.tips.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`:''}
+    </div>
+    <div class="mw-guide__foot">Meridian Workforce v${APP.version} · the full user manual is published with each release.</div></aside>`;
+  w.onclick=e=>{if(e.target===w)closeGuide()};
+  document.body.appendChild(w);icons();$('#guide-close').focus();
+}
+function closeGuide(){const g=$('#guide');if(g){g.remove();$('#help-btn')?.focus()}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#guide'))closeGuide()});
+
 /* =================== DASHBOARD =================== */
 const kpiTile=(icon,label,num,sub,tone,href='')=>`<${href?`a href="${href}"`:'div'} class="card kpi p-5 flex flex-col gap-3"><div class="flex items-center justify-between"><span class="text-sm font-semibold muted">${t(label)}</span><span class="chip ${tone}">${ic(icon)}</span></div><div class="num tnum">${num}</div><div class="text-xs muted">${sub}</div></${href?'a':'div'}>`;
 function reviewBanner(){
@@ -1219,10 +1257,10 @@ function submitProfile(){
 
 /* =================== DEPARTMENTS =================== */
 function pgDepartments(){
-  return `<div class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Department</th><th>Type</th><th>Head of department</th><th>Groups (PIC)</th><th>Headcount</th><th class="text-right">Actions</th></tr></thead><tbody>
-  ${DB.departments.map(d=>{const n=DB.employees.filter(e=>e.dept===d.name).length;return `<tr><td><span class="flex items-center gap-2 font-semibold"><i class="inline-block w-3 h-3 rounded" style="background:${d.color}"></i>${esc(d.name)}</span></td><td>${chip(d.kind,d.kind==='Delivery'?'info':'')}</td><td>${d.head?`<span class="flex items-center gap-2">${av(ename(d.head),26)}${esc(ename(d.head))}</span>`:'—'}</td><td>${DB.teams.filter(t=>t.dept===d.name).map(t=>chip(t.name+(t.lead?' · '+ename(t.lead):''))).join(' ')||'<span class="muted">—</span>'}</td><td class="tnum">${n}</td>
+  return `<div class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Department</th><th>Type</th><th>Head of department</th><th>Groups (team leads)</th><th>Headcount</th><th class="text-right">Actions</th></tr></thead><tbody>
+  ${DB.departments.map(d=>{const n=DB.employees.filter(e=>e.dept===d.name).length;return `<tr><td><span class="flex items-center gap-2 font-semibold"><i class="inline-block w-3 h-3 rounded" style="background:${d.color}"></i>${esc(d.name)}</span></td><td>${chip(d.kind,d.kind==='Delivery'?'info':'')}</td><td>${d.head?`<span class="flex items-center gap-2">${av(ename(d.head),26)}${esc(ename(d.head))}</span>`:'—'}</td><td>${DB.teams.filter(t=>t.dept===d.name).map(t=>chip(t.name+((t.leads||[]).length?' · '+t.leads.map(ename).join(', '):''))).join(' ')||'<span class="muted">—</span>'}</td><td class="tnum">${n}</td>
   <td><div class="actions">${ib('users','View members',`S.empTab='All';S.empDept='${esc(d.name)}';location.hash='employees'`)}${ib('pencil','Edit department',`editDept('${d.id}')`)}${ib('trash-2','Delete department',`delDept('${d.id}')`,'bad')}</div></td></tr>`}).join('')}
-  </tbody></table></div></div><p class="text-xs muted mt-3">Each department has at most one head (HOD) and any number of groups; each group has its own person in charge (PIC). Departments are free-form: rename or add any. Employees, groups, vacancies and the org chart pick them up immediately.</p>`;
+  </tbody></table></div></div><p class="text-xs muted mt-3">Each department has at most one head (HOD) and any number of groups; each group can have no, one or several team leads. Departments are free-form: rename or add any. Employees, groups, vacancies and the org chart pick them up immediately.</p>`;
 }
 function editDept(id){
   const d=id?DB.departments.find(x=>x.id===id):{name:'',color:'#0ea5e9',head:'',kind:'Delivery'};
@@ -1438,7 +1476,7 @@ function scheduleInterview(cid,iid,round){
   const pool=DB.candidates.filter(c=>!['Hired','Disqualified'].includes(c.stage));
   const c0=cid?cand(cid):pool[0],v=cvac(c0);
   const prev=DB.interviews.filter(i=>i.cand===c0.id),r=it?.round||round||prev.length+1;
-  const sugg=[v.manager,...DB.teams.filter(t=>t.dept===v.dept).map(t=>t.lead)];
+  const sugg=[v.manager,...DB.teams.filter(t=>t.dept===v.dept).flatMap(t=>t.leads||[])];
   const sel0=it?it.panel:(prev.at(-1)?.panel||sugg);
   openModal({title:it?'Reschedule interview':`Schedule interview · Round ${r}`,icon:'calendar-plus',size:'lg',body:`
     ${prev.length&&!it?`<div class="banner mb-4" style="padding:10px 14px"><span class="text-sm">${ic('history','w-4 h-4 inline')} ${prev.length} previous round(s): ${prev.map(p=>`R${p.round} ${p.kind} (${p.result})`).join(', ')}</span></div>`:''}
@@ -1517,7 +1555,7 @@ function pgEmployees(){
   return `<div class="flex flex-wrap items-center gap-3 mb-4"><div class="tabs">${tabs.map(s=>`<button class="tab ${S.empTab===s?'on':''}" onclick="S.empTab='${s}';rerender()">${s}<span class="n tnum">${s==='All'?list.length:list.filter(e=>e.status===s).length}</span></button>`).join('')}</div>
     ${S.empDept?`<span class="chip info">${ic('building-2')}${esc(S.empDept)} <button onclick="S.empDept=null;rerender()" data-tip="Clear filter">${ic('x')}</button></span>`:''}${!isHR()?chip(S.user.roleKey==='lead'?'Your team and their reports':'People you supervise','info','eye'):''}</div>
   <div class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Employee</th><th>Position</th><th>Designation</th><th>Department</th><th>Superior</th><th>Status</th><th class="text-right">Actions</th></tr></thead><tbody>
-  ${shown.map(e=>`<tr><td><div class="flex items-center gap-3">${av(e.name,34)}<div><div class="font-semibold flex items-center gap-1.5">${esc(e.name)}${DB.teams.some(t=>t.lead===e.id)?`<span data-tip="Group PIC" style="color:var(--hi)">${ic('crown','w-3.5 h-3.5')}</span>`:''}</div><div class="text-xs muted mono">${e.no}</div></div></div></td>
+  ${shown.map(e=>`<tr><td><div class="flex items-center gap-3">${av(e.name,34)}<div><div class="font-semibold flex items-center gap-1.5">${esc(e.name)}${DB.teams.some(t=>(t.leads||[]).includes(e.id))?`<span data-tip="Team lead" style="color:var(--hi)">${ic('crown','w-3.5 h-3.5')}</span>`:''}</div><div class="text-xs muted mono">${e.no}</div></div></div></td>
     <td>${esc(e.pos)}</td><td>${des(e.desig).name}${reportsOf(e.id).length&&des(e.desig).level<=4?`<div class="text-xs muted">supervises ${DB.employees.filter(x=>x.reports===e.id).length}</div>`:''}</td><td><span class="flex items-center gap-1.5"><i class="inline-block w-2 h-2 rounded-full" style="background:${dcol(e.dept)}"></i>${esc(e.dept)}</span></td><td class="text-sm">${esc(ename(e.reports))}</td>
     <td>${chip(e.status,STATUS_TONE[e.status])}${e.probEnd&&e.status.includes('Probation')?`<div class="text-xs muted mt-1">ends ${fmtS(e.probEnd)}</div>`:''}</td>
     <td><div class="actions">${empActions(e)}</div></td></tr>`).join('')}
@@ -1539,7 +1577,7 @@ function viewEmployee(id){
   const direct=DB.employees.filter(x=>x.reports===id),k=kpiOf(id);
   openDrawer(`<div class="modal-h">${av(e.name,48)}<div class="flex-1 min-w-0"><div class="font-bold text-lg truncate">${esc(e.name)}</div><div class="text-xs muted">${e.no} · ${esc(e.pos)}</div></div>${canEdit(id)?ib('pencil','Edit employee',`editEmployee('${id}')`):''}${ib('x','Close','closeDrawer()')}</div>
   <div class="modal-b flex-1">
-    <div class="flex flex-wrap gap-2">${chip(e.status,STATUS_TONE[e.status])}${chip(d.name+' · L'+d.level,'acc','layers')}${chip(e.type,'','file-badge')}${team?chip(team.name+(team.lead===id?' · Lead':''),'hi',team.lead===id?'crown':'users-round'):''}</div>
+    <div class="flex flex-wrap gap-2">${chip(e.status,STATUS_TONE[e.status])}${chip(d.name+' · L'+d.level,'acc','layers')}${chip(e.type,'','file-badge')}${team?chip(team.name+((team.leads||[]).includes(id)?' · Team lead':''),'hi',(team.leads||[]).includes(id)?'crown':'users-round'):''}</div>
     <div class="kv mt-4"><div><span class="text-xs muted">KPI Q4</span><b>${k.score.toFixed(0)} ${gradeBadge(k)}</b></div><div><span class="text-xs muted">Open tasks</span><b>${DB.tasks.filter(t=>t.who===id&&t.status!=='Done').length}</b></div><div><span class="text-xs muted">Delays caused</span><b>${DB.delays.filter(x=>x.resp===id).reduce((a,x)=>a+x.days,0)} d</b></div></div>
     <div class="sec-h">${ic('briefcase')}Employment</div>
     <dl class="dl"><dt>Department</dt><dd>${esc(e.dept)}</dd><dt>Superior</dt><dd>${e.reports?`<a href="javascript:viewEmployee('${e.reports}')" style="color:var(--accent)" class="font-semibold">${esc(ename(e.reports))}</a>`:'—'}</dd><dt>Supervises</dt><dd>${direct.length?direct.map(x=>`<a href="javascript:viewEmployee('${x.id}')" style="color:var(--accent)">${esc(x.name)}</a> <span class="muted text-xs">(${des(x.desig).name})</span>`).join(', '):'—'}</dd><dt>Joined</dt><dd>${fmt(e.joined)} · ${(-days(e.joined)/365.25).toFixed(1)} yrs</dd>
@@ -1703,35 +1741,54 @@ function reviewSettings(){openModal({title:'Annual review cycle',icon:'settings-
 /* =================== TEAMS =================== */
 function pgTeams(){
   const hr=isHR();
-  return `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${DB.teams.map(t=>`
-   <section class="card flex flex-col">
+  return `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${DB.teams.map(g=>{const leads=g.leads||[];return `
+   <section class="card mw-group-card flex flex-col">
      <div class="p-5 pb-3 flex items-start gap-3" style="border-bottom:1px solid var(--line)">
-       <span class="w-10 h-10 grid place-items-center rounded-xl flex-none text-white" style="background:${dcol(t.dept)}">${ic('users-round','w-5 h-5')}</span>
-       <div class="flex-1 min-w-0"><h3 class="font-bold text-base">${esc(t.name)}</h3><div class="text-xs muted">${esc(t.dept)} · ${t.members.length} members</div></div>
-       ${hr?`<div class="actions">${ib('user-plus','Add / remove members',`editTeam('${t.id}')`)}${ib('trash-2','Delete team',`delTeam('${t.id}')`,'bad')}</div>`:''}
+       <span class="w-10 h-10 grid place-items-center rounded-xl flex-none text-white" style="background:${dcol(g.dept)}">${ic('users-round','w-5 h-5')}</span>
+       <div class="flex-1 min-w-0"><h3 class="font-bold text-base">${esc(g.name)}</h3><div class="text-xs muted">${esc(g.dept)} · ${g.members.length} members · ${leads.length?leads.length+' team lead'+(leads.length>1?'s':''):'no team lead'}</div></div>
+       ${hr?`<div class="actions">${ib('pencil','Edit group',`editTeam('${g.id}')`)}${ib('trash-2','Delete group',`delTeam('${g.id}')`,'bad')}</div>`:''}
      </div>
-     <ul class="p-3 flex flex-col gap-1">${t.members.map(m=>{const e=emp(m);if(!e)return'';const lead=t.lead===m;return `<li class="flex items-center gap-3 px-2 py-2 rounded-lg group" style="${lead?'background:color-mix(in srgb,var(--hi) 12%,transparent)':''}">
-       ${av(e.name,32)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate flex items-center gap-1.5">${esc(e.name)}${lead?`<span style="color:var(--hi)">${ic('crown','w-4 h-4')}</span>`:''}</div><div class="text-xs muted truncate">${esc(e.pos)} · ${des(e.desig).name}${e.reports&&t.members.includes(e.reports)&&e.reports!==t.lead?` · under ${esc(ename(e.reports).split(' ')[0])}`:''}</div></div>
-       ${lead?chip('PIC','hi'):hr?`<span class="actions opacity-40 group-hover:opacity-100">${ib('crown','Set as PIC',`setLead('${t.id}','${m}')`)}${ib('user-minus','Remove from team',`rmMember('${t.id}','${m}')`,'bad')}</span>`:''}</li>`}).join('')}</ul>
-   </section>`).join('')}</div>`;
+     <ul class="p-3 flex flex-col gap-1">${g.members.length?g.members.map(m=>{const e=emp(m);if(!e)return'';const lead=leads.includes(m);return `<li class="flex items-center gap-3 px-2 py-2 rounded-lg group" style="${lead?'background:color-mix(in srgb,var(--hi) 10%,transparent)':''}">
+       ${av(e.display||e.name,32)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate flex items-center gap-1.5">${esc(e.display||e.name)}${lead?`<span style="color:var(--hi)" aria-hidden="true">${ic('crown','w-4 h-4')}</span>`:''}</div><div class="text-xs muted truncate">${esc(des(e.desig).name)} · ${t('Reports to')} ${esc(ename(e.reports))}</div></div>
+       ${lead?chip(t('Team lead'),'hi'):''}${hr?`<span class="actions opacity-40 group-hover:opacity-100">${ib('crown',lead?'Remove as team lead':'Make team lead',`toggleLead('${g.id}','${m}')`)}${ib('user-minus','Remove from group',`rmMember('${g.id}','${m}')`,'bad')}</span>`:''}</li>`}).join(''):'<li class="text-sm muted px-2 py-3">No members yet.</li>'}</ul>
+   </section>`}).join('')}</div><p class="text-xs muted mt-3">Team leads are optional: a group can have none, one or several. Who reports to whom is set per person, so members can sit under any colleague, a team lead, the HOD or the GM.</p>`;
 }
-function setLead(t,m){DB.teams.find(x=>x.id===t).lead=m;rerender();toast(`${ename(m)} is now the PIC`,'crown')}
-function rmMember(t,m){const tm=DB.teams.find(x=>x.id===t);tm.members=tm.members.filter(x=>x!==m);rerender();toast('Removed from team','user-minus')}
-function delTeam(id){confirmBox('Delete team?','Members stay employed; only the team grouping is removed.','Delete',`DB.teams=DB.teams.filter(t=>t.id!=='${id}');closeModal();rerender();toast('Team deleted','trash-2')`)}
+function toggleLead(gid,m){const g=DB.teams.find(x=>x.id===gid);g.leads=g.leads||[];g.leads=g.leads.includes(m)?g.leads.filter(x=>x!==m):[...g.leads,m];rerender();toast(`${ename(m)}: ${g.leads.includes(m)?'now a team lead':'no longer a team lead'}`,'crown')}
+// True if making "sup" the superior of "id" would put "id" above itself.
+function wouldLoop(id,sup){for(let x=sup,i=0;x&&i<200;x=emp(x)?.reports,i++){if(x===id)return true}return false}
+function groupRows(dept,g){
+  const people=DB.employees.filter(e=>e.dept===dept);
+  const supOpts=e=>[['','— None —'],...DB.employees.filter(x=>x.id!==e.id).sort((a,b)=>(a.dept===dept?0:1)-(b.dept===dept?0:1)||des(b.desig).level-des(a.desig).level).map(x=>[x.id,`${x.display||x.name} · ${x.dept===dept?des(x.desig).name:x.dept}`])];
+  return `<div class="tbl-wrap mw-group-editor"><table class="tbl"><thead><tr><th>Employee</th><th class="text-center">${t('In group')}</th><th class="text-center">${t('Team lead')}</th><th>${t('Reports to (per person)')}</th></tr></thead><tbody>
+    ${people.map(e=>`<tr><td><div class="flex items-center gap-2">${av(e.display||e.name,26)}<div><div class="font-semibold text-sm">${esc(e.display||e.name)}</div><div class="text-xs muted">${esc(des(e.desig).name)}</div></div></div></td>
+      <td class="text-center"><input type="checkbox" class="ge-in" data-id="${e.id}" ${g.members.includes(e.id)?'checked':''} aria-label="${esc(e.name)} in group" style="width:18px;height:18px;accent-color:var(--accent)"></td>
+      <td class="text-center"><input type="checkbox" class="ge-lead" data-id="${e.id}" ${(g.leads||[]).includes(e.id)?'checked':''} aria-label="${esc(e.name)} team lead" style="width:18px;height:18px;accent-color:var(--accent)"></td>
+      <td style="min-width:230px">${sel('ge-rep-'+e.id,supOpts(e),e.reports||'')}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
 function editTeam(id){
-  const t=id?DB.teams.find(x=>x.id===id):{name:'',dept:deptNames()[2],lead:'',members:[]};
-  openModal({title:id?`Edit ${esc(t.name)}`:'New group',icon:'users-round',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Group name',inp('tm-n',t.name,'text','e.g. FE Developer'),'',true)}${fld('Department',sel('tm-d',deptNames(),t.dept))}</div>
-  <div class="sec-h">${ic('users')}Members <span class="normal-case font-normal tracking-normal">· search, tick members, click a crown to set the PIC</span></div>${picker('tm',{selected:t.members,lead:t.lead||''})}`,
-  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTeam('${id||''}')">${ic('check')}Save team</button>`});
+  const g=id?DB.teams.find(x=>x.id===id):{name:'',dept:deptNames()[1],leads:[],members:[]};
+  S.editGroup=g;
+  openModal({title:id?`Edit ${esc(g.name)}`:'New group',icon:'users-round',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Group name',inp('tm-n',g.name,'text','e.g. FE Developer'),'',true)}${fld('Department',sel('tm-d',deptNames(),g.dept,'onchange="$(\'#ge-rows\').innerHTML=groupRows(this.value,S.editGroup)"'))}</div>
+  <div class="sec-h">${ic('users')}Members, team leads and reporting <span class="normal-case font-normal tracking-normal">· team leads are optional; tick as many as needed</span></div>
+  <div id="ge-rows">${groupRows(g.dept,g)}</div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTeam('${id||''}')">${ic('check')}Save group</button>`});
 }
 function saveTeam(id){
-  const members=picked('tm'),lead=pickedLead('tm')||members[0];
-  if(!val('tm-n')||!members.length){toast('Name and at least one member required','circle-alert');return}
-  if(!members.includes(lead))members.unshift(lead);
-  const o={name:val('tm-n'),dept:val('tm-d'),members,lead};
+  const members=$$('.ge-in').filter(c=>c.checked).map(c=>c.dataset.id);
+  const leads=$$('.ge-lead').filter(c=>c.checked).map(c=>c.dataset.id);
+  if(!val('tm-n')){toast('Group name is required','circle-alert');return}
+  if(leads.some(l=>!members.includes(l))){toast('A team lead must also be in the group','circle-alert');return}
+  const reps=$$('[id^="ge-rep-"]').map(s=>[s.id.slice(7),s.value]);
+  const loop=reps.find(([e,s])=>s&&wouldLoop(e,s));
+  if(loop){toast(`${ename(loop[0])} can't report to ${ename(loop[1])}: that would make a loop`,'circle-alert');return}
+  reps.forEach(([e,s])=>{const x=emp(e);if(x)x.reports=s||null});
+  const o={name:val('tm-n'),dept:val('tm-d'),members,leads};
   if(id)Object.assign(DB.teams.find(x=>x.id===id),o);else DB.teams.push({id:'T'+Date.now(),...o});
-  closeModal();rerender();toast('Team saved','users-round');
+  closeModal();rerender();toast('Group saved','users-round');
 }
+function rmMember(t,m){const tm=DB.teams.find(x=>x.id===t);tm.members=tm.members.filter(x=>x!==m);tm.leads=(tm.leads||[]).filter(x=>x!==m);rerender();toast('Removed from group','user-minus')}
+function delTeam(id){confirmBox('Delete group?','Members stay employed; only the grouping is removed.','Delete',`DB.teams=DB.teams.filter(t=>t.id!=='${id}');closeModal();rerender();toast('Group deleted','trash-2')`)}
 
 /* =================== ORG CHART =================== */
 function pgOrgChart(){
@@ -1746,7 +1803,7 @@ function orgBoard(){
     const staff=DB.employees.filter(e=>e.dept===d.name),groups=DB.teams.filter(t=>t.dept===d.name);
     const lvl=e=>`<span class="lv">${esc(des(e.desig).name)}</span>`;
     const showLabel=g=>groups.length>1||g.name!==d.name;
-    const mem=id=>{const e=emp(id);if(!e)return'';const g=groups.find(t=>t.members.includes(id));return `<div class="mem">${av(e.display||e.name,26,e.photo||null)}<span class="font-medium">${esc(e.display||e.name)}</span>${g&&g.lead===id?'<span class="pic" data-tip="Person in charge of the group">PIC</span>':''}${lvl(e)}</div>`};
+    const mem=id=>{const e=emp(id);if(!e)return'';const g=groups.find(t=>t.members.includes(id));return `<div class="mem">${av(e.display||e.name,26,e.photo||null)}<span class="font-medium">${esc(e.display||e.name)}</span>${g&&(g.leads||[]).includes(id)?'<span class="pic" data-tip="Team lead">'+t('Team lead')+'</span>':''}${lvl(e)}</div>`};
     return `<section class="dept-card"><header><b>${esc(d.name)}</b><span class="text-xs muted">${staff.length} ${staff.length===1?'person':'people'}</span></header>
       ${d.head&&emp(d.head)?`<div class="dept-hod">${av(ename(d.head),30)}<div><div class="font-bold text-sm">${esc(ename(d.head))}</div><div class="t">Head of department</div></div></div>`:''}
       ${groups.map(g=>(showLabel(g)?`<div class="grp-label">${esc(g.name)}</div>`:'')+g.members.map(mem).join('')).join('')}
@@ -1755,11 +1812,11 @@ function orgBoard(){
     <div class="org-top">${person('E001','Chief Executive Officer')}<span class="stem"></span>${person('E002','General Manager')}</div>
     <div class="org-divider">${depts.length} departments</div>
     <div class="dept-cols">${depts.map(card).join('')}</div>
-  </section><p class="text-xs muted mt-3">Each department shows its head (HOD), then its groups; PIC marks each group's person in charge. Built from departments and groups; switch to Reporting lines for the superior tree.</p>`;
+  </section><p class="text-xs muted mt-3">Each department shows its head (HOD), then its groups; a group may have no, one or several team leads. Built from departments and groups; switch to Reporting lines for the superior tree.</p>`;
 }
 function orgTree(){
   const kids=id=>DB.employees.filter(e=>e.reports===id).sort((a,b)=>des(b.desig).level-des(a.desig).level);
-  const node=e=>{const k=kids(e.id),lead=DB.teams.some(t=>t.lead===e.id);return `<li><div class="org-node"><span class="strip" style="background:${dcol(e.dept)}"></span>${lead?`<span class="crown">${ic('crown')}</span>`:''}${av(e.name,40)}<div class="nm">${esc(e.name)}</div><div class="ps">${esc(e.pos)}</div><div class="mt-2 flex justify-center gap-1 flex-wrap">${chip(des(e.desig).name,'acc')}${e.status!=='Permanent'?chip(e.status,STATUS_TONE[e.status]):''}</div></div>${k.length?`<ul>${k.map(node).join('')}</ul>`:''}</li>`};
+  const node=e=>{const k=kids(e.id),lead=DB.teams.some(t=>(t.leads||[]).includes(e.id));return `<li><div class="org-node"><span class="strip" style="background:${dcol(e.dept)}"></span>${lead?`<span class="crown">${ic('crown')}</span>`:''}${av(e.name,40)}<div class="nm">${esc(e.name)}</div><div class="ps">${esc(e.pos)}</div><div class="mt-2 flex justify-center gap-1 flex-wrap">${chip(des(e.desig).name,'acc')}${e.status!=='Permanent'?chip(e.status,STATUS_TONE[e.status]):''}</div></div>${k.length?`<ul>${k.map(node).join('')}</ul>`:''}</li>`};
   return `<section class="card overflow-hidden">
     <div class="p-4 flex flex-wrap items-center gap-3" style="border-bottom:1px solid var(--line)">
       <div class="flex flex-wrap gap-3 flex-1 text-xs">${DB.departments.map(d=>`<span class="flex items-center gap-1.5"><i class="inline-block w-3 h-3 rounded-sm" style="background:${d.color}"></i>${esc(d.name)}</span>`).join('')}<span class="flex items-center gap-1.5" style="color:var(--hi)">${ic('crown','w-3.5 h-3.5')}<span style="color:var(--ink)">Team lead</span></span></div>
@@ -2324,7 +2381,7 @@ const PAGES = {
   employees:{t:'Employees',c:'People',r:pgEmployees,a:()=>isHR()?`<button class="btn btn-ghost" onclick="importEmployees()">${ic('file-spreadsheet')}<span class="hidden sm:inline">Import CSV</span></button><button class="btn btn-primary" onclick="editEmployee()">${ic('user-plus')}<span class="hidden sm:inline">Add employee</span></button>`:''},
   lifecycle:{t:'Probation & Reviews',c:'People',r:pgLifecycle},
   review:{t:'Annual Data Review',c:'People',r:pgReview},
-  teams:{t:'Teams',c:'People',r:pgTeams,a:()=>isHR()?`<button class="btn btn-primary" onclick="editTeam()">${ic('plus')}<span class="hidden sm:inline">New team</span></button>`:''},
+  teams:{t:'Teams',c:'People',r:pgTeams,a:()=>isHR()?`<button class="btn btn-primary" onclick="editTeam()">${ic('plus')}<span class="hidden sm:inline">New group</span></button>`:''},
   orgchart:{t:'Organization Chart',c:'People',r:pgOrgChart},
   departments:{t:'Departments',c:'Organization',r:pgDepartments,a:()=>`<button class="btn btn-primary" onclick="editDept()">${ic('plus')}<span class="hidden sm:inline">Add department</span></button>`},
   designations:{t:'Designations',c:'Organization',r:pgDesignations,a:()=>`<button class="btn btn-primary" onclick="editDesignation()">${ic('plus')}<span class="hidden sm:inline">Add level</span></button>`},
