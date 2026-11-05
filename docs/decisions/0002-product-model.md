@@ -56,7 +56,7 @@ The owner accepted the higher operations effort for stronger separation and a si
 
 | Concern | Approach |
 |---|---|
-| Installation | A one-command installer (`php artisan meridian:install`): checks requirements (PHP 8.3+, MySQL 8.4, extensions), runs migrations, creates the first admin, and starts the **onboarding wizard** (company name, logo, working week, holiday region, departments, designations). |
+| Installation | A one-command installer (`php artisan meridian:install`): checks requirements (PHP 8.3+, MariaDB 10.11+, extensions), runs migrations, creates the first admin, and starts the **onboarding wizard** (company name, logo, working week, holiday region, departments, designations). |
 | Releases | Semantic versions (`v1.4.2`) with a changelog. Each client install records its version. Migrations must run cleanly when a client skips versions (e.g. 1.2 → 1.5). |
 | Deployment | The same Deployer script, with one host entry per client. Clients that host it themselves get a release archive plus the upgrade command. |
 | Configuration | Everything client-specific is in `company_settings` (in the DB) or `.env` (secrets). No client names in code. |

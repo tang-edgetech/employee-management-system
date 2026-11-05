@@ -5,7 +5,7 @@
 | **Status** | Approved by owner (2026-11-05), including recommendations D1–D6 in §8 |
 | **Date** | 2026-11-04 |
 | **Roadmap step** | Brief §13 step 1, adjusted by [ADR 0001](../decisions/0001-stack.md) and [ADR 0002](../decisions/0002-product-model.md) |
-| **Owner decisions used** | XAMPP config may be edited with backups · dev host `meridian.localhost` · MySQL 8.4 from the ZIP archive on port 3307, no Windows service · demo data grows per module |
+| **Owner decisions used** | XAMPP config may be edited with backups · dev host `meridian.localhost` · database: XAMPP's MariaDB 10.11 on port 3306 (owner, 2026-11-05; replaces the MySQL 8.4 ZIP) · demo data grows per module |
 
 Foundation builds the platform every later module stands on. It ships **no HR features**. When it's done, you can sign in as any of the 6 demo accounts (with 2FA), see a themed app shell whose menu is filtered by your permissions, edit global settings and the permission matrix, and upload a file safely. Everything is covered by tests and CI, and generated API types connect the frontend to the backend.
 
@@ -17,7 +17,7 @@ Foundation builds the platform every later module stands on. It ships **no HR fe
 
 | # | Area | Brief ref |
 |---|---|---|
-| F0 | Local environment (XAMPP edits, MySQL 8.4, vhost) | ADR 0001 §3.3 |
+| F0 | Local environment (XAMPP edits, MariaDB 10.11 settings, vhost) | ADR 0001 §3.3 |
 | F1 | Repo skeleton: `backend/`, `frontend/`, `openapi/`, `deploy/`, `tools/` | ADR 0001 §3.4 |
 | F2 | Platform services: Problem Details errors, JSON logs with request ID, health checks, public IDs, encrypted fields, blind index, audit log, idempotency keys, optimistic concurrency, cursor pagination, rate limits | §3.2, §4, §8.1 |
 | F3 | Authentication: login, logout, password reset, TOTP 2FA + recovery codes, lockout, session rotation, idle timeout, 2FA enforcement by role | §4, §8.2 AUTH |
@@ -43,7 +43,7 @@ Browser ──► http://meridian.localhost  (Apache, XAMPP, port 80)
               ├── /api/*, /sanctum/*, /healthz, /readyz ─► Laravel (backend/public)
               └── everything else ───────────────────────► Next.js dev server :3000 (proxied, incl. websocket HMR)
 
-Laravel ──► MySQL 8.4 :3307 (C:\mysql84, data in C:\mysql84\data)
+Laravel ──► MariaDB 10.11 :3306 (XAMPP, 127.0.0.1 only)
         ├── cache / queue / session: "database" driver in dev (Redis in prod)
         ├── files: "local" disk in dev (S3-compatible in prod), served via signed routes only
         └── mail: "log" driver in dev
@@ -98,7 +98,6 @@ In production the same shape holds, except Apache serves the static `frontend/ou
   tests/unit/ (Vitest)  tests/e2e/ (Playwright)
 /openapi/openapi.yaml         generated, committed
 /deploy/deploy.php            Deployer recipe · apache-vhost.conf · supervisor-horizon.conf
-/tools/mysql/start.ps1 stop.ps1 my.ini   dev MySQL 8.4 helpers (data dir lives outside the repo)
 /tools/xampp/meridian-vhost.conf         the vhost we add to XAMPP
 /.github/workflows/ci.yml  /.github/dependabot.yml
 ```
@@ -107,7 +106,7 @@ In production the same shape holds, except Apache serves the static `frontend/ou
 
 ## 3. Database schema (Foundation tables)
 
-Conventions for every table: `id BIGINT UNSIGNED AUTO_INCREMENT` primary key (never exposed). `public_id CHAR(16) ascii UNIQUE` on exposed tables. `created_at`/`updated_at` stored as `DATETIME(6)` UTC. `created_by`/`updated_by` reference `users.id` (NULL = system). `version INT UNSIGNED` where optimistic concurrency applies. Charset `utf8mb4`, collation `utf8mb4_0900_as_ci`. Strict SQL mode.
+Conventions for every table: `id BIGINT UNSIGNED AUTO_INCREMENT` primary key (never exposed). `public_id CHAR(16) ascii UNIQUE` on exposed tables. `created_at`/`updated_at` stored as `DATETIME(6)` UTC. `created_by`/`updated_by` reference `users.id` (NULL = system). `version INT UNSIGNED` where optimistic concurrency applies. Charset `utf8mb4`, collation `utf8mb4_uca1400_as_ci` (MariaDB 10.11). Strict SQL mode. JSON columns get `JSON_VALID` CHECKs; JSON shape rules are validated in the app (ADR 0001 §4.1).
 
 ### 3.1 `company_settings` (singleton)
 
@@ -227,7 +226,7 @@ Each milestone ends with a short report, then **I ask before committing**. Pushi
 
 | M | Work | Gate before starting |
 |---|---|---|
-| M0 | Back up and edit XAMPP config; add `meridian.localhost` vhost; MySQL 8.4 ZIP to `C:\mysql84` on port 3307 with start/stop scripts; `.gitattributes`, `.editorconfig` | ✅ XAMPP edits approved. **Ask before the ~250 MB MySQL download.** You restart Apache from the XAMPP panel. |
+| M0 | Back up XAMPP config; `tools/xampp/apply-config.ps1` (PHP extensions, proxy modules, `meridian.localhost` vhost, MariaDB 10.11 dev settings); `.gitattributes`, `.editorconfig` | ✅ XAMPP edits approved. The config files need Administrator rights, so **you run the script as Administrator**, then restart Apache and MySQL from the XAMPP panel. |
 | M1 | Scaffold Laravel 13 + Next.js 16 and install packages (list in §6.1) | **Ask:** confirm the package list |
 | M2 | Platform services (F2) + company settings (F5) + tests | — |
 | M3 | Auth + 2FA (F3) + tests | — |

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted (2026-11-04). Open questions in §8 still to be answered. **Amended by [ADR 0002](0002-product-model.md):** per-client, single-company installs. Tenancy (§1 answer 4, §5.1) and every `organization_id` reference below no longer apply. |
+| **Status** | Accepted (2026-11-04). Open questions in §8 still to be answered. **Amended by [ADR 0002](0002-product-model.md):** per-client, single-company installs. Tenancy (§1 answer 4, §5.1) and every `organization_id` reference below no longer apply. **Amended 2026-11-05 (owner):** the database is **MariaDB 10.11 LTS** in dev and production, replacing MySQL 8.4 (§4.1). |
 | **Product** | Meridian Workforce (formerly "Hajimi HR"); see [product vision](../product/vision.md) |
 | **Date** | 2026-11-04 |
 | **Decider** | Owner (Tang) |
@@ -20,14 +20,14 @@ The owner has already chosen a stack that fits their skills and existing hosting
 |---|---|
 | Frontend | Next.js + Tailwind CSS + Ant Design |
 | Backend | Laravel (PHP 8.3) |
-| Database | **MySQL 8** (not PostgreSQL) |
+| Database | **MariaDB 10.11 LTS** (not PostgreSQL; MySQL 8 until the 2026-11-05 amendment) |
 | Development | XAMPP on Windows, localhost |
 | Production | WHM/cPanel on a **VPS or dedicated server with root access** |
 
 Answers confirmed with the owner on 2026-11-04:
 
-1. **Production server:** VPS/dedicated with WHM root. We can install Redis, Supervisor, ClamAV and MySQL 8 there.
-2. **Database:** MySQL 8.0+ in production. Development also moves to MySQL 8. See §4.1.
+1. **Production server:** VPS/dedicated with WHM root. We can install Redis, Supervisor and ClamAV there, and pick MariaDB 10.11 in WHM.
+2. **Database:** ~~MySQL 8.0+ in production. Development also moves to MySQL 8.~~ Amended 2026-11-05: **MariaDB 10.11 LTS minimum, in both dev (XAMPP) and production (WHM).** See §4.1.
 3. **Next.js runtime:** static export served by Apache. Laravel serves the API. There is no Node process in production.
 4. **Tenancy:** ~~launch for a single company, with a multi-tenant schema (`organization_id` everywhere) from day one.~~ Superseded by ADR 0002: one company per installation, no `organization_id`.
 5. **Redis:** used in production. Development uses Laravel's `database` cache and queue drivers.
@@ -71,7 +71,7 @@ The brief's evaluation criteria applied to the three options it names, plus the 
 | Backend framework | **Laravel 13**, PHP 8.3+ | The brief says Laravel 11, which is past its security-support window. Laravel 13 needs PHP ^8.3, so production PHP must be 8.3 or newer (Q1). |
 | Auth | Laravel **Fortify** (login, password reset, TOTP 2FA, recovery codes) + **Sanctum** SPA cookie auth | Session cookies are HttpOnly, Secure and SameSite=Lax, with CSRF via `/sanctum/csrf-cookie`. Bearer tokens only for future API clients. |
 | Password hashing | `argon2id` hashing driver | The production PHP build must include Argon2. Check during server setup. |
-| Database | **MySQL 8.4 LTS** (prod and dev), InnoDB, `utf8mb4_0900_as_ci` (case-insensitive, accent-sensitive; Q7) | See §4.1 for dev and §5 for feature mapping. |
+| Database | **MariaDB 10.11 LTS** (prod and dev), InnoDB, `utf8mb4_uca1400_as_ci` (case-insensitive, accent-sensitive; Q7) | See §4.1 for dev and §5 for feature mapping. |
 | Cache, locks, rate limits | **Redis** in prod (installed via WHM/root); `database` driver in dev | Code uses `Cache::lock`, `RateLimiter` and `Cache::tags` only where the driver supports them. Tags are not supported by the DB driver, so we use versioned keys instead (brief §3.2.8). |
 | Queue | **Redis + Horizon** under **Supervisor** in prod; `database` queue in dev | Horizon needs `pcntl`, which doesn't exist on Windows, so dev runs `php artisan queue:work`. |
 | Scheduler | One cPanel cron: `* * * * * php artisan schedule:run` | Covers reminders, retention purge, annual review launch and KPI recalculation sweeps. |
@@ -83,9 +83,9 @@ The brief's evaluation criteria applied to the three options it names, plus the 
 | Edge | **Cloudflare** in front of the server (DNS, WAF, CDN, rate limiting, Turnstile for the public apply form) | |
 | Errors and logs | Sentry (Laravel + browser SDK), Monolog JSON logs with `request_id`, `org_id`, `user_id` | OpenTelemetry deferred until there is a collector to send to. |
 | Health checks | `/healthz` (liveness) and `/readyz` (DB, Redis and queue reachable) | |
-| CI | GitHub Actions: Pint + PHPStan (Larastan) + Pest on a **MySQL 8.4 service container**; ESLint + `tsc` + Vitest for the frontend; migration dry-run | |
+| CI | GitHub Actions: Pint + PHPStan (Larastan) + Pest on a **MariaDB 10.11 service container**; ESLint + `tsc` + Vitest for the frontend; migration dry-run | |
 | Deploy | **Deployer (PHP)** over SSH: release folders + atomic `current` symlink, `migrate --force`, `horizon:terminate`, frontend `out/` uploaded | Gives zero-downtime deploys on cPanel. Migrations follow expand → migrate → contract. |
-| Backups | WHM daily backups + **MySQL binary logs kept 30 days** for point-in-time recovery, copied off-server to S3 | Quarterly restore drill (brief §3.2.13). |
+| Backups | WHM daily backups + **MariaDB binary logs kept 30 days** for point-in-time recovery, copied off-server to S3 | Quarterly restore drill (brief §3.2.13). |
 
 ### 3.2 Production request flow
 
@@ -101,7 +101,7 @@ Apache on cPanel  ── hr.<domain>
    └── /apply/*     → Laravel-rendered shell (sets per-org CSP frame-ancestors), loads the static apply bundle
                        │
           ┌────────────┼──────────────┬──────────────┐
-       MySQL 8.4     Redis        Horizon workers   S3 (R2/Wasabi)
+       MariaDB 10.11 Redis        Horizon workers   S3 (R2/Wasabi)
      (+ binlog)   (cache/queue)   (Supervisor)      signed URLs
                                       │
                        Email provider · ClickUp/Asana/monday/Google APIs
@@ -114,7 +114,7 @@ Serving frontend and API from **one origin** means Sanctum cookies work without 
 | Piece | Setup |
 |---|---|
 | Laravel | Apache vhost `meridian.localhost` → `backend/public`, PHP 8.3 from XAMPP |
-| MySQL | **MySQL 8.4 LTS installed alongside XAMPP on port 3307.** XAMPP's MariaDB 10.11 stays on 3306 for other projects. |
+| Database | **XAMPP's MariaDB 10.11 on port 3306**, bound to 127.0.0.1, configured like production (§4.1). (Was MySQL 8.4 on 3307 before the 2026-11-05 amendment.) |
 | Next.js | `npm run dev` on `:3000`, reverse-proxied by the `meridian.localhost` vhost (`mod_proxy`), so the browser sees one origin, as in production |
 | Queue and cache | `database` drivers; run `php artisan queue:work` in a terminal |
 | Files | `local` disk; ClamAV scan replaced by a stub that always returns "clean" in dev |
@@ -136,7 +136,28 @@ Serving frontend and API from **one origin** means Sanctum cookies work without 
 
 ### 4.1 Dev/prod database parity
 
-XAMPP on this machine ships **MariaDB 10.11.16**, not MySQL. MariaDB and MySQL 8 differ in JSON storage, functional indexes, `JSON_SCHEMA_VALID` and some CHECK behaviour. Running different engines would let migrations pass locally and fail on deploy. **Decision:** install MySQL 8.4 LTS for development (port 3307). CI also runs on MySQL 8.4.
+XAMPP on this machine ships **MariaDB 10.11.16**. Running different engines in dev and prod would let migrations pass locally and fail on deploy.
+
+~~Decision: install MySQL 8.4 LTS for development (port 3307).~~ **Amended decision (owner, 2026-11-05): MariaDB 10.11 LTS everywhere.**
+
+- **Dev:** XAMPP's MariaDB 10.11 on port 3306, bound to `127.0.0.1`, with the same charset, collation, timezone and SQL mode as production.
+- **Production:** MariaDB 10.11 selected in WHM, so dev and production run the same major version. Moving both to 11.4 LTS later is a planned upgrade, not a drift.
+- **CI:** runs on a MariaDB 10.11 service container.
+- **Why 10.11 and not "any 10.x":**
+  - 10.6 and older are past end of support.
+  - Only 10.10+ has the accent-sensitive Unicode collation `utf8mb4_uca1400_as_ci` (Q7).
+  - 10.11 is supported until February 2028.
+- **What MariaDB changes in §5:**
+  - `JSON` is an alias for `LONGTEXT` with a `JSON_VALID` check.
+  - `JSON_SCHEMA_VALID` only exists from 11.1, so JSON shape rules (5.7, 5.8) are enforced in the application layer, with simple `JSON_LENGTH`/`JSON_EXTRACT` CHECKs where they fit.
+  - Everything else in §5 works the same on MariaDB 10.11:
+    - generated columns with unique indexes;
+    - CHECK constraints;
+    - `SIGNAL` triggers;
+    - `WITH RECURSIVE`;
+    - `DATETIME(6)`;
+    - `SELECT … FOR UPDATE`;
+    - binary logs.
 
 ### 4.2 Versions found on this machine (2026-11-04)
 
@@ -146,7 +167,7 @@ PHP 8.3.36 · Apache 2.4.65 · MariaDB 10.11.16 (XAMPP) · Node 24.22.1 · npm 1
 
 ## 5. Deviations from the brief and how we meet each requirement
 
-The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with its MySQL 8 replacement:
+The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with its MySQL 8 replacement. **Since the 2026-11-05 amendment the engine is MariaDB 10.11:** every row below applies to MariaDB as written, except 5.7, 5.8 and 5.9, which carry a MariaDB note.
 
 | # | Brief requirement | PostgreSQL feature | MySQL 8 replacement | Residual risk |
 |---|---|---|---|---|
@@ -156,16 +177,16 @@ The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with i
 | 5.4 | One Pending extension per task | Partial unique | `pending_key = IF(status = 'Pending', 1, NULL)` and `UNIQUE (task_id, pending_key)` | Low |
 | 5.5 | KPI periods must not overlap per org | `EXCLUDE` with a date range | `BEFORE INSERT/UPDATE` trigger that `SIGNAL`s if an overlapping period exists. The service layer also takes a `SELECT … FOR UPDATE` lock on the org's periods before writing. | Low (periods are written rarely, by HR only) |
 | 5.6 | Designation reorder swaps levels in one transaction | Deferrable unique constraint | Inside one transaction, move the affected rows to a temporary offset (`level + 1000`), then write the final levels. `UNIQUE (organization_id, level)` stays enforced the whole time. | None |
-| 5.7 | `points int[5]`, `working_days smallint[]`, `two_fa_roles text[]`, `embed_allowed_domains text[]`, `recovery_codes_hash text[]` | Arrays | `JSON` columns with `CHECK (JSON_SCHEMA_VALID(...))` (MySQL 8.0.17+), e.g. exactly 5 non-negative integers for points | Low |
-| 5.8 | `kpi_weights` keys, 0..100 and sum = 100 | CHECK on JSONB | `JSON_SCHEMA_VALID` for keys and ranges, plus a CHECK on the sum using `JSON_EXTRACT`. Also validated in the FormRequest. | Low |
-| 5.9 | `citext` emails, `UNIQUE (org, lower(name))` | citext, functional index | Case-insensitive, accent-sensitive collation (`utf8mb4_0900_as_ci`) gives case-insensitive uniqueness directly, while "José" and "Jose" stay distinct (Q7). Emails are lower-cased on write as well. | Low |
+| 5.7 | `points int[5]`, `working_days smallint[]`, `two_fa_roles text[]`, `embed_allowed_domains text[]`, `recovery_codes_hash text[]` | Arrays | `JSON` columns with `CHECK (JSON_SCHEMA_VALID(...))` (MySQL 8.0.17+), e.g. exactly 5 non-negative integers for points. **MariaDB 10.11:** `JSON_VALID` + `JSON_LENGTH` CHECKs in the DB; element types and ranges validated in the FormRequest/domain layer. | Low |
+| 5.8 | `kpi_weights` keys, 0..100 and sum = 100 | CHECK on JSONB | `JSON_SCHEMA_VALID` for keys and ranges, plus a CHECK on the sum using `JSON_EXTRACT`. Also validated in the FormRequest. **MariaDB 10.11:** keys and ranges checked in the FormRequest; the DB keeps the sum CHECK via `JSON_EXTRACT`. | Low |
+| 5.9 | `citext` emails, `UNIQUE (org, lower(name))` | citext, functional index | Case-insensitive, accent-sensitive collation (`utf8mb4_0900_as_ci`) gives case-insensitive uniqueness directly, while "José" and "Jose" stay distinct (Q7). Emails are lower-cased on write as well. **MariaDB 10.11:** the equivalent collation is `utf8mb4_uca1400_as_ci`. | Low |
 | 5.10 | `timestamptz` stored in UTC | timestamptz | `DATETIME(6)` with the connection timezone forced to `+00:00`. Laravel casts to UTC; org timezone conversion is done in the app (brief §3.2.4). We avoid `TIMESTAMP` because it overflows in 2038. | Low |
 | 5.11 | UUIDv7 primary keys (§3.2.3) | `uuid` type | **Owner decision (Q3): integer keys inside, prefixed public IDs outside.** Every primary and foreign key is `BIGINT UNSIGNED AUTO_INCREMENT`, starting at 1, and never appears in URLs or API responses. Each exposed table also has a `public_id` column: a type prefix plus 8 random characters (e.g. `emp_7Kq2xP9a`, `cand_…`, `task_…`), `CHAR(16) CHARACTER SET ascii`, `UNIQUE`, generated on create with a retry on collision. The API and URLs use `public_id` only; Laravel route model binding resolves by it. Business codes from the brief (`HJ-0001`, `APP-2026-0031`, `P001`, `K01`) stay as they are, `UNIQUE (organization_id, code)`. Cursor pagination uses `(created_at, id)` internally and encodes the cursor so raw IDs stay hidden. | Low: integer IDs never leave the server, so they can't be enumerated. Prefixes and lengths are fixed in the Foundation step. |
 | 5.12 | Superior chain acyclic; dependency graph acyclic | Trigger with recursive CTE | Checked in the domain service with a recursive CTE under row locks (MySQL 8 supports `WITH RECURSIVE`). A DB trigger backstop will be added **if a spike confirms** MySQL lets a trigger read its own table in this case. | Medium until the spike is done |
 | 5.13 | Partition `activity_log`, `audit_log`, `task_checkins`, `notifications` by month | Declarative partitioning | MySQL **does not allow foreign keys on partitioned tables**, and the partition key must be part of every unique key. **MVP: no partitioning.** Add time-based indexes and a retention/archive job. Partition the FK-free log tables (`audit_log`, `activity_log`, `notifications`) only when row counts call for it. `task_checkins` keeps its FKs. | Low at MVP scale |
 | 5.14 | Append-only `audit_log` (DB role INSERT only) | Role grants | A separate DB user and Laravel connection `audit` with `INSERT, SELECT` only, plus `BEFORE UPDATE/DELETE` triggers that `SIGNAL`. | Low |
 | 5.15 | Read replicas for dashboards | Streaming replicas | **Not at MVP** (single server). A `read` connection is configured but points at the primary, so adding a replica later is a config change. | None now |
-| 5.16 | Docker for dev and prod | Docker | **Not used.** Dev runs on XAMPP + MySQL 8.4; prod on cPanel. Reproducibility comes from pinned versions, lockfiles, and CI on MySQL 8.4. | Medium: environment drift. Mitigated by §4.1 and CI. |
+| 5.16 | Docker for dev and prod | Docker | **Not used.** Dev runs on XAMPP + MariaDB 10.11; prod on cPanel with MariaDB 10.11. Reproducibility comes from pinned versions, lockfiles, and CI on MariaDB 10.11. | Medium: environment drift. Mitigated by §4.1 and CI. |
 | 5.17 | KMS/Vault for encryption keys | — | Keys in `.env` outside the web root (0600), backed up encrypted in the owner's password manager. Key version prefix stored with each ciphertext so keys can rotate. | Medium: a server compromise exposes the keys. Revisit if hosting moves. |
 | 5.18 | Server-side PNG org chart export with headless Chromium | — | **MVP: client-side export** (html-to-image, as in the mockup). Server-side Browsershot/Chromium later, only if large orgs need it. | Low |
 | 5.19 | Next.js SSR/SPA (brief §3.1) | — | **Static export.** No SSR, middleware, API routes or `next/image` optimisation. Dynamic pages (`/employees/[id]`) use client-side routing with an Apache rewrite fallback to the app shell. Auth is enforced by the API, never by the frontend. | Low: this is an internal console, so SEO doesn't matter. The public apply page is served via Laravel (§3.2). |
@@ -176,7 +197,7 @@ The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with i
 
 **Positive**
 - The owner can build, debug and run every layer with skills they already have.
-- cPanel/WHM handles TLS, backups, mail, PHP-FPM and MySQL administration out of the box.
+- cPanel/WHM handles TLS, backups, mail, PHP-FPM and MariaDB administration out of the box.
 - A static frontend means no Node runtime in production, so there are fewer processes to keep alive.
 - Laravel's first-party packages cover auth, 2FA, queues, rate limiting, encryption with rotation, and policies.
 
@@ -192,9 +213,9 @@ The brief (§2, §3, §6) assumes PostgreSQL. Each Postgres-only feature, with i
 
 The app servers are stateless (sessions, cache and queues in Redis; files in S3), so scaling is mostly about moving infrastructure, not rewriting code:
 
-1. **About 1k users:** one VPS (app + MySQL + Redis + workers).
-2. **About 100k users:** move MySQL (and Redis) to their own server or a managed service, add a read replica for dashboards, and run workers on a separate box.
-3. **About 1M users:** move off cPanel to a load balancer with N app nodes, managed MySQL with replicas, managed Redis, and a CDN for the static frontend. Consider PostgreSQL again at this point if RLS is needed for many tenants.
+1. **About 1k users:** one VPS (app + MariaDB + Redis + workers).
+2. **About 100k users:** move MariaDB (and Redis) to their own server or a managed service, add a read replica for dashboards, and run workers on a separate box.
+3. **About 1M users:** move off cPanel to a load balancer with N app nodes, managed MariaDB (or MySQL-compatible) with replicas, managed Redis, and a CDN for the static frontend. Consider PostgreSQL again at this point if RLS is needed for many tenants.
 
 Actual costs depend on provider quotes. Get quotes before step 2.
 
@@ -210,7 +231,7 @@ Actual costs depend on provider quotes. Get quotes before step 2.
 | Q4 | Production domain(s): e.g. `hr.<client-domain>` per client install and the public apply form? | Deploy, CSP, Sanctum config |
 | Q5 | Object storage provider: Cloudflare R2, Wasabi, or AWS S3 (Malaysia region `ap-southeast-5`) for data residency? | File service |
 | Q6 | Email provider (e.g. Amazon SES, Postmark, Mailgun, or cPanel SMTP)? | Notifications |
-| Q7 | ✅ **Answered 2026-11-04:** accent-sensitive, case-insensitive: `utf8mb4_0900_as_ci` as the database default. | First migration |
+| Q7 | ✅ **Answered 2026-11-04:** accent-sensitive, case-insensitive: `utf8mb4_0900_as_ci` as the database default. On MariaDB 10.11 (2026-11-05): `utf8mb4_uca1400_as_ci`. | First migration |
 | Q8 | Remaining brief §14 items: working vs calendar days (3), delay confirmation (4), mid-period promotion KPI target (5), payroll (7), data residency (8) | Work and KPI modules |
 
 ---
