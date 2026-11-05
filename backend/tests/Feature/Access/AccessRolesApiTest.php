@@ -26,9 +26,9 @@ it('is only for users with Global Settings access', function (string $account, i
     putPermissions($this, 'staff', ['delay.record'])->assertStatus($status === 200 ? 200 : 403);
 })->with([
     'sysadmin' => ['tang', 200],
-    'exec' => ['aiman', 403],
-    'hr' => ['nurul', 403],
-    'staff' => ['hafiz', 403],
+    'exec' => ['ahfa', 403],
+    'hr' => ['ellie', 403],
+    'staff' => ['sinyee', 403],
 ]);
 
 it('lists the roles with user counts and the catalogue', function () {
@@ -56,8 +56,8 @@ it('changes a role\'s permissions, audits it and takes effect on the next reques
     ]);
 
     app()->forgetScopedInstances();
-    expect(demoUser('hafiz')->can('kpi.view_all'))->toBeTrue()
-        ->and(demoUser('hafiz')->can('extension.approve'))->toBeFalse();
+    expect(demoUser('sinyee')->can('kpi.view_all'))->toBeTrue()
+        ->and(demoUser('sinyee')->can('extension.approve'))->toBeFalse();
 });
 
 it('refuses to edit the locked System Admin role', function () {
@@ -74,7 +74,7 @@ it('stops someone removing Global Settings access from their own role', function
         1,
         demoUser('tang'),
     );
-    Sanctum::actingAs(demoUser('aiman'));
+    Sanctum::actingAs(demoUser('ahfa'));
 
     putPermissions($this, 'exec', ['people.edit'])->assertStatus(409)->assertJsonPath('code', 'CANNOT_REMOVE_OWN_ACCESS');
     putPermissions($this, 'hr', ['people.edit'])->assertOk();

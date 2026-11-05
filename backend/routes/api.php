@@ -2,16 +2,17 @@
 
 use App\Http\Controllers\Api\V1\AccessRoleController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\V1\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Api\V1\Auth\TwoFactorController;
 use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\VersionController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\PasswordController;
-use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 
 // Every route here is served under /api/v1 (bootstrap/app.php) and rate limited
 // by the "api" limiter. The web app authenticates with Sanctum's session cookie
@@ -24,7 +25,7 @@ $app = [...$signedIn, '2fa.enforced'];
 
 Route::prefix('auth')->group(function () use ($signedIn, $app) {
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');
-    Route::post('two-factor-challenge', [TwoFactorAuthenticatedSessionController::class, 'store'])->middleware('throttle:two-factor');
+    Route::post('two-factor-challenge', TwoFactorChallengeController::class)->middleware('throttle:two-factor');
     Route::post('forgot-password', ForgotPasswordController::class)->middleware('throttle:password-reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])->middleware('throttle:password-reset');
 
@@ -33,9 +34,10 @@ Route::prefix('auth')->group(function () use ($signedIn, $app) {
         Route::post('confirm-password', [ConfirmablePasswordController::class, 'store'])->middleware('throttle:login');
 
         Route::middleware('password.recent')->prefix('2fa')->group(function () {
-            Route::post('setup', [TwoFactorController::class, 'setup']);
-            Route::post('confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:two-factor');
-            Route::delete('/', [TwoFactorController::class, 'disable']);
+            Route::get('devices', [TwoFactorController::class, 'index']);
+            Route::post('devices', [TwoFactorController::class, 'store']);
+            Route::post('devices/{device}/confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:two-factor');
+            Route::delete('devices/{device}', [TwoFactorController::class, 'destroy']);
             Route::get('recovery-codes', [TwoFactorController::class, 'recoveryCodes']);
             Route::post('recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes']);
         });
@@ -46,10 +48,12 @@ Route::prefix('auth')->group(function () use ($signedIn, $app) {
 
 Route::middleware($signedIn)->group(function () {
     Route::get('me', [MeController::class, 'show']);
+    Route::get('version', VersionController::class);
 });
 
 Route::middleware($app)->group(function () {
     Route::get('me/permissions', [MeController::class, 'permissions']);
+    Route::patch('me', [MeController::class, 'update']);
     Route::patch('me/preferences', [MeController::class, 'updatePreferences']);
 
     Route::get('settings', [SettingsController::class, 'show']);

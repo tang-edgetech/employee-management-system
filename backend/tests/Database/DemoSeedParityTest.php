@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\People\Department;
 use App\Domain\People\Employee;
 use App\Domain\People\Team;
 use App\Domain\Settings\CompanySettings;
@@ -7,7 +8,7 @@ use App\Models\User;
 use Database\Seeders\DemoCompanySeeder;
 
 /*
-| The demo company must match the mockup (brief §6.3, plan 01 §7 "Seed parity").
+| The demo company must match the HTML mockup (plan 01 §9.2, D14).
 */
 
 beforeEach(fn () => $this->seed(DemoCompanySeeder::class));
@@ -17,45 +18,69 @@ function emp(string $name): Employee
     return Employee::query()->where('full_name', $name)->firstOrFail();
 }
 
+function chainOf(string $name): array
+{
+    $chain = [];
+    for ($e = emp($name); $e !== null; $e = $e->superior) {
+        $chain[] = $e->full_name;
+    }
+
+    return $chain;
+}
+
 it('has the six demo accounts with the right roles', function () {
     $accounts = User::query()->with(['role', 'employee'])->get()
         ->mapWithKeys(fn (User $u) => [$u->email => [$u->role->key, $u->employee?->full_name]])->all();
 
     expect($accounts)->toBe([
         'tang@hajimi.dev' => ['sysadmin', null],
-        'aiman@hajimi.my' => ['exec', 'Aiman Rahman'],
-        'nurul@hajimi.my' => ['hr', 'Nurul Huda'],
-        'kevin@hajimi.my' => ['lead', 'Kevin Tan'],
-        'nadia@hajimi.my' => ['staff', 'Nadia Hassan'],
-        'hafiz@hajimi.my' => ['staff', 'Hafiz Ismail'],
+        'ahfa@hajimi.my' => ['exec', 'Ah Fa'],
+        'ellie@hajimi.my' => ['hr', 'Ellie'],
+        'teechienyap@hajimi.my' => ['lead', 'Tee Chien Yap'],
+        'jeffyeoh@hajimi.my' => ['staff', 'Jeff Yeoh'],
+        'sinyee@hajimi.my' => ['staff', 'Sin Yee'],
     ]);
 });
 
-it('has 20 employees and 6 teams', function () {
-    expect(Employee::query()->count())->toBe(20)
-        ->and(Team::query()->count())->toBe(6);
+it('has 51 people in Management plus 9 departments, with the chart\'s head counts', function () {
+    $counts = Department::query()->orderBy('sort')->withCount('employees')->pluck('employees_count', 'name')->all();
+
+    expect(Employee::query()->count())->toBe(51)
+        ->and($counts)->toBe([
+            'Management' => 2, 'General' => 5, 'System' => 2, 'Back End' => 13, 'WordPress' => 6,
+            'Front End' => 7, 'Mobile' => 4, 'Product Team' => 2, 'Admin' => 1, 'Customer Service' => 9,
+        ]);
 });
 
-it('has every team lead as a member of their team', function () {
-    foreach (Team::query()->with('members')->get() as $team) {
-        expect($team->members->pluck('id'))->toContain($team->lead_employee_id);
+it('has the heads of department from the chart, and none where the chart shows none', function () {
+    $heads = Department::query()->orderBy('sort')->with('head')->get()->mapWithKeys(fn (Department $d) => [$d->name => $d->head?->full_name])->all();
+
+    expect($heads)->toBe([
+        'Management' => 'Ah Fa', 'General' => null, 'System' => null, 'Back End' => 'Gan Siong Yi', 'WordPress' => 'Wong Wei Yee',
+        'Front End' => 'Tee Chien Yap', 'Mobile' => null, 'Product Team' => null, 'Admin' => null, 'Customer Service' => 'Angie',
+    ]);
+});
+
+it('has groups with zero, one or several team leads, each a member', function () {
+    $leads = Team::query()->with(['leads', 'members'])->get();
+
+    foreach ($leads as $team) {
+        expect($team->members->pluck('id')->all())->toContain(...$team->leads->pluck('id')->all());
     }
+    expect($leads->firstWhere('name', 'Back End')->leads->pluck('full_name')->sort()->values()->all())->toBe(['Chris', 'Rex'])
+        ->and($leads->firstWhere('name', 'Customer Service')->leads)->toHaveCount(0)
+        ->and($leads->firstWhere('name', 'Business Analyst')->members)->toHaveCount(0);
 });
 
-it('has the reporting chain Hafiz -> Nadia -> Kevin -> Grace -> Aiman', function () {
-    $chain = [];
-    $current = emp('Hafiz Ismail');
-    while ($current !== null) {
-        $chain[] = $current->full_name;
-        $current = $current->superior;
-    }
-
-    expect($chain)->toBe(['Hafiz Ismail', 'Nadia Hassan', 'Kevin Tan', 'Grace Lim', 'Aiman Rahman']);
+it('has per-person reporting lines up to the CEO', function () {
+    expect(chainOf('Sin Yee'))->toBe(['Sin Yee', 'Jeff Yeoh', 'Tee Chien Yap', 'Leon Ong', 'Ah Fa'])
+        ->and(chainOf('Adam Lai'))->toBe(['Adam Lai', 'Chris', 'Rex', 'Gan Siong Yi', 'Leon Ong', 'Ah Fa'])
+        ->and(chainOf('Ronnie'))->toBe(['Ronnie', 'Angie', 'Leon Ong', 'Ah Fa']);
 });
 
-it('has Nadia supervising exactly Mei Ling and Hafiz', function () {
-    expect(emp('Nadia Hassan')->directReports()->orderBy('full_name')->pluck('full_name')->all())
-        ->toBe(['Chow Mei Ling', 'Hafiz Ismail']);
+it('has Jeff Yeoh supervising his five group members', function () {
+    expect(emp('Jeff Yeoh')->directReports()->orderBy('full_name')->pluck('full_name')->all())
+        ->toBe(['AK', 'Ivan', 'KY', 'Sin Yee', 'Syndy']);
 });
 
 it('names the company Hajimi Technologies', function () {

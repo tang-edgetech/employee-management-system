@@ -19,22 +19,23 @@ final class Scope
         public readonly array $employeeIds,
         public readonly bool $hasReports,
         public readonly bool $leadsTeams,
+        public readonly bool $headsDepartment = false,
     ) {}
 
-    public static function everyone(bool $hasReports = false, bool $leadsTeams = false): self
+    public static function everyone(bool $hasReports = false, bool $leadsTeams = false, bool $headsDepartment = false): self
     {
-        return new self(true, [], $hasReports, $leadsTeams);
+        return new self(true, [], $hasReports, $leadsTeams, $headsDepartment);
     }
 
     /**
      * @param  list<int>  $employeeIds
      */
-    public static function only(array $employeeIds, bool $hasReports, bool $leadsTeams): self
+    public static function only(array $employeeIds, bool $hasReports, bool $leadsTeams, bool $headsDepartment = false): self
     {
         $ids = array_values(array_unique(array_map('intval', $employeeIds)));
         sort($ids);
 
-        return new self(false, $ids, $hasReports, $leadsTeams);
+        return new self(false, $ids, $hasReports, $leadsTeams, $headsDepartment);
     }
 
     public function includes(int $employeeId): bool

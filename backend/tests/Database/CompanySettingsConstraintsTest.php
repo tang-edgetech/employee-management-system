@@ -58,9 +58,9 @@ it('rejects KPI weights that do not add up to 100', function () {
 
 it('accepts a valid change', function () {
     DB::table('company_settings')->where('id', 1)->update([
-        'session_timeout_minutes' => 480,
+        'session_timeout_minutes' => 240,
         'kpi_weights' => '{"delivery":25,"ontime":25,"delay":15,"checkin":10,"quality":10,"rating":10,"meeting":5}',
     ]);
 
-    expect(DB::table('company_settings')->value('session_timeout_minutes'))->toBe(480);
+    expect(DB::table('company_settings')->value('session_timeout_minutes'))->toBe(240);
 });

@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property string $employee_no
  * @property string $full_name
  * @property string $work_email
+ * @property ?int $department_id
  * @property ?int $superior_id
  * @property string $status
  * @property Carbon $join_date
@@ -53,6 +54,12 @@ class Employee extends Model
     public function setWorkEmailAttribute(string $value): void
     {
         $this->attributes['work_email'] = mb_strtolower(trim($value));
+    }
+
+    /** @return BelongsTo<Department, $this> */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     /** @return BelongsTo<Employee, $this> */

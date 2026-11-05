@@ -21,10 +21,10 @@ it('shows each reader only the sections they may see, with an ETag', function (s
     expect(array_keys($response->json('data')))->toBe($sections);
     $response->assertHeader('ETag', '"'.$this->version.'"')->assertJsonPath('meta.version', $this->version);
 })->with([
-    'staff' => ['hafiz', ['company', 'work']],
-    'lead' => ['kevin', ['company', 'work']],
-    'hr' => ['nurul', ['company', 'work', 'employment', 'recruitment', 'kpi']],
-    'exec (no candidate.create by default)' => ['aiman', ['company', 'work', 'employment', 'kpi']],
+    'staff' => ['sinyee', ['company', 'work']],
+    'lead' => ['teechienyap', ['company', 'work']],
+    'hr' => ['ellie', ['company', 'work', 'employment', 'recruitment', 'kpi']],
+    'exec (no candidate.create by default)' => ['ahfa', ['company', 'work', 'employment', 'kpi']],
     'sysadmin' => ['tang', ['company', 'work', 'security', 'employment', 'recruitment', 'kpi']],
 ]);
 
@@ -48,7 +48,7 @@ it('needs If-Match, and refuses a stale one', function () {
 });
 
 it('lets HR change KPI weights but not security settings', function () {
-    Sanctum::actingAs(demoUser('nurul'));
+    Sanctum::actingAs(demoUser('ellie'));
     $etag = ['If-Match' => '"'.$this->version.'"'];
 
     $this->patchJson('/api/v1/settings', ['two_fa_enabled' => true], $etag)
@@ -58,7 +58,7 @@ it('lets HR change KPI weights but not security settings', function () {
 });
 
 it('refuses a mixed change if any field is not allowed, and changes nothing', function () {
-    Sanctum::actingAs(demoUser('nurul'));
+    Sanctum::actingAs(demoUser('ellie'));
 
     $this->patchJson('/api/v1/settings', ['kpi_mode' => 'external', 'company_name' => 'X'], ['If-Match' => '"'.$this->version.'"'])
         ->assertStatus(403);
@@ -67,7 +67,7 @@ it('refuses a mixed change if any field is not allowed, and changes nothing', fu
 });
 
 it('refuses staff changing anything', function () {
-    Sanctum::actingAs(demoUser('hafiz'));
+    Sanctum::actingAs(demoUser('sinyee'));
 
     $this->patchJson('/api/v1/settings', ['checkin_every_workdays' => 3], ['If-Match' => '"'.$this->version.'"'])->assertStatus(403);
 });
@@ -81,7 +81,7 @@ it('rejects unknown fields and empty updates', function () {
 });
 
 it('reports which sections the reader may edit', function () {
-    Sanctum::actingAs(demoUser('nurul'));
+    Sanctum::actingAs(demoUser('ellie'));
     $this->getJson('/api/v1/settings')->assertJsonPath('meta.can_edit', ['kpi.configure']);
 
     Sanctum::actingAs(demoUser('tang'));

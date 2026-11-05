@@ -4,6 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Version
+    |--------------------------------------------------------------------------
+    |
+    | Semantic version of this install, plus the build date and commit written by
+    | the deploy script (M8). Shown to users and by GET /api/v1/version.
+    |
+    */
+
+    'version' => [
+        'number' => env('MERIDIAN_VERSION', '0.6.0'),
+        'build' => env('MERIDIAN_BUILD', 'dev'),
+        'commit' => env('MERIDIAN_COMMIT', 'local'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Public IDs
     |--------------------------------------------------------------------------
     |
@@ -21,6 +37,8 @@ return [
             'employee' => 'emp',
             'team' => 'team',
             'file' => 'file',
+            'department' => 'dept',
+            'device' => 'dev',
         ],
     ],
 
@@ -105,6 +123,13 @@ return [
                 'max_bytes' => 3 * 1024 * 1024,
                 'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
                 'permission' => 'people.edit',
+                'normalise' => 'photo',
+            ],
+            // A user's own picture: shown only to themselves (others see the first letter of their display name).
+            'avatar' => [
+                'max_bytes' => 3 * 1024 * 1024,
+                'mimes' => ['image/jpeg', 'image/png', 'image/webp'],
+                'permission' => null,
                 'normalise' => 'photo',
             ],
             'logo' => [

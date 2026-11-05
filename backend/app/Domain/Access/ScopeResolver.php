@@ -9,13 +9,15 @@ use Illuminate\Support\Facades\DB;
  * Works out a user's Scope (brief §5.2), once per request:
  *
  * - sysadmin, exec, hr: everyone.
- * - lead: themselves and everyone below them, plus the members of every team they
- *   lead and everyone below those members.
- * - staff: themselves and everyone below them in the reporting chain (a senior
- *   who supervises juniors sees those juniors).
+ * - anyone with an employee record: themselves and everyone below them in the
+ *   reporting lines (a senior who supervises juniors sees those juniors);
+ * - plus, for a team lead (any role): the members of every group they lead and
+ *   everyone below those members;
+ * - plus, for a head of department (any role): everyone in that department.
  * - an account with no employee record (other than the roles above): nobody.
  *
- * "Below" means reports_of(): the recursive closure of superior_id.
+ * "Below" means reports_of(): the recursive closure of superior_id. Reporting
+ * lines are set per person (plan 01 §9.2), never derived from team leads.
  */
 final class ScopeResolver
 {
@@ -30,22 +32,26 @@ final class ScopeResolver
     private function resolve(User $user): Scope
     {
         $self = $user->employee_id;
-        $leadTeamIds = $self === null ? [] : DB::table('teams')->where('lead_employee_id', $self)->pluck('id')->all();
+        $leadTeamIds = $self === null ? [] : DB::table('team_leads')->where('employee_id', $self)->pluck('team_id')->all();
+        $headOf = $self === null ? [] : DB::table('departments')->where('head_employee_id', $self)->pluck('id')->all();
         $hasReports = $self !== null && DB::table('employees')->where('superior_id', $self)->whereNull('deleted_at')->exists();
 
         if (in_array($user->roleKey(), [RoleKey::Sysadmin, RoleKey::Exec, RoleKey::Hr], true)) {
-            return Scope::everyone($hasReports, $leadTeamIds !== []);
+            return Scope::everyone($hasReports, $leadTeamIds !== [], $headOf !== []);
         }
         if ($self === null) {
-            return Scope::only([], false, false);
+            return Scope::only([], false, false, false);
         }
 
         $roots = [$self];
-        if ($user->roleKey() === RoleKey::Lead && $leadTeamIds !== []) {
+        if ($leadTeamIds !== []) {
             $roots = array_merge($roots, DB::table('team_members')->whereIn('team_id', $leadTeamIds)->pluck('employee_id')->all());
         }
+        if ($headOf !== []) {
+            $roots = array_merge($roots, DB::table('employees')->whereIn('department_id', $headOf)->whereNull('deleted_at')->pluck('id')->all());
+        }
 
-        return Scope::only($this->withReports($roots), $hasReports, $leadTeamIds !== []);
+        return Scope::only($this->withReports(array_map('intval', $roots)), $hasReports, $leadTeamIds !== [], $headOf !== []);
     }
 
     /**

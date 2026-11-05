@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Auth\TwoFactorDevice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PragmaRX\Google2FA\Google2FA;
@@ -33,16 +34,23 @@ function fromWebApp(): array
     return ['Origin' => 'http://meridian.localhost', 'Referer' => 'http://meridian.localhost/'];
 }
 
-/** The authenticator-app code for a user's 2FA secret, optionally some 30-second steps ago. */
-function totpFor(User $user, int $stepsAgo = 0): string
+/**
+ * The authenticator-app code for one of a user's devices (their first one by default),
+ * optionally some 30-second steps ago.
+ */
+function totpFor(User $user, int $stepsAgo = 0, ?TwoFactorDevice $device = null): string
 {
-    $google2fa = new Google2FA;
-    $secret = decrypt((string) $user->fresh()?->two_factor_secret);
+    $device ??= $user->twoFactorDevices()->orderBy('id')->firstOrFail();
 
-    return $google2fa->oathTotp($secret, (int) floor(now()->getTimestamp() / 30) - $stepsAgo);
+    return totpForSecret($device->secret, $stepsAgo);
 }
 
-/** A demo-company account by first name, e.g. demoUser('kevin'). Seed DemoCompanySeeder first. */
+function totpForSecret(string $secret, int $stepsAgo = 0): string
+{
+    return (new Google2FA)->oathTotp($secret, (int) floor(now()->getTimestamp() / 30) - $stepsAgo);
+}
+
+/** A demo-company account by first name, e.g. demoUser('teechienyap'). Seed DemoCompanySeeder first. */
 function demoUser(string $name): User
 {
     return User::query()->where('email', 'like', $name.'@%')->firstOrFail();

@@ -96,9 +96,10 @@ class FileController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $allowed = $file->uploaded_by === $user->id
-            || $file->purpose === 'logo'
-            || $user->can('system.settings');
+        // A personal picture is shown only to its owner (plan 01 §9.2), even to admins.
+        $allowed = $file->purpose === 'avatar'
+            ? $file->uploaded_by === $user->id
+            : $file->uploaded_by === $user->id || $file->purpose === 'logo' || $user->can('system.settings');
 
         if (! $allowed) {
             throw new ApiProblem(403, 'FORBIDDEN', 'Forbidden', 'You can\'t view this file.');

@@ -102,7 +102,7 @@ it('leaves no audit row when the change is rolled back', function () {
     try {
         DB::transaction(function () {
             $settings = CompanySettings::current();
-            $settings->session_timeout_minutes = 480;
+            $settings->session_timeout_minutes = 240;
             $settings->save();
 
             throw new RuntimeException('something failed after the save');

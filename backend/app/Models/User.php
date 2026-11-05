@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Domain\Access\AccessRole;
 use App\Domain\Access\RoleKey;
 use App\Domain\Auth\Notifications\ResetPasswordNotification;
+use App\Domain\Auth\TwoFactorDevice;
 use App\Domain\People\Employee;
 use App\Domain\Settings\CompanySettings;
 use App\Domain\Shared\HasPublicId;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -23,6 +25,8 @@ use Laravel\Sanctum\HasApiTokens;
  * A login account. Changes to accounts are audited explicitly by the services
  * that make them (not with the Auditable trait), because Fortify also saves
  * users outside our transactions (e.g. when a recovery code is used).
+ * Fortify's TwoFactorAuthenticatable is kept only for its recovery-code helpers;
+ * authenticator secrets live on TwoFactorDevice (up to two per user).
  *
  * @property int $id
  * @property string $public_id
@@ -31,16 +35,16 @@ use Laravel\Sanctum\HasApiTokens;
  * @property int $role_id
  * @property ?int $employee_id
  * @property string $status
- * @property ?string $two_factor_secret
- * @property ?Carbon $two_factor_confirmed_at
- * @property string $ui_layout
+ * @property ?string $display_name
+ * @property ?int $avatar_file_id
+ * @property string $locale
  * @property ?Carbon $last_login_at
  * @property ?Carbon $password_changed_at
  * @property int $version
  * @property-read AccessRole $role
  */
-#[Fillable(['name', 'email', 'password', 'role_id', 'status', 'ui_layout'])]
-#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
+#[Fillable(['name', 'display_name', 'email', 'password', 'role_id', 'status', 'locale'])]
+#[Hidden(['password', 'remember_token', 'two_factor_recovery_codes'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -66,7 +70,6 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'two_factor_confirmed_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password_changed_at' => 'datetime',
             'version' => 'integer',
@@ -101,9 +104,22 @@ class User extends Authenticatable
         return $this->status === self::STATUS_ACTIVE;
     }
 
+    /** @return HasMany<TwoFactorDevice, $this> */
+    public function twoFactorDevices(): HasMany
+    {
+        return $this->hasMany(TwoFactorDevice::class);
+    }
+
+    /** The name others see; its first letter is this user's avatar for everyone else. */
+    public function displayName(): string
+    {
+        return $this->display_name !== null && trim($this->display_name) !== '' ? $this->display_name : $this->name;
+    }
+
+    /** 2FA is on when at least one authenticator device is confirmed (plan 01 §9.2). */
     public function hasTwoFactorEnabled(): bool
     {
-        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+        return $this->twoFactorDevices()->whereNotNull('confirmed_at')->exists();
     }
 
     /** True when company settings force this user's role to use 2FA. */

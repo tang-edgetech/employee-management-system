@@ -7,8 +7,9 @@ use App\Exceptions\ApiProblem;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Team membership and leads. Rule (brief §6.1): the lead must be a member, so
- * making someone lead adds them, and the lead can't be removed while leading.
+ * Group membership and team leads (plan 01 §9.2). A group may have no team lead,
+ * one, or several; every team lead must be a member (also enforced by a foreign
+ * key). Removing a member also removes them as a team lead.
  */
 final class TeamService
 {
@@ -24,28 +25,34 @@ final class TeamService
 
     public function removeMember(Team $team, Employee $employee): void
     {
-        if ($team->lead_employee_id === $employee->id) {
-            throw ApiProblem::conflict('TEAM_LEAD_MEMBERSHIP', 'Choose a new lead before removing the current lead from the team.');
-        }
-
         DB::transaction(function () use ($team, $employee) {
+            $wasLead = $team->leads()->detach($employee->id) > 0;
             if ($team->members()->detach($employee->id) > 0) {
-                app(AuditLogger::class)->record('teams.member_removed', $team, ['before' => ['employee_id' => $employee->id]]);
+                app(AuditLogger::class)->record('teams.member_removed', $team, [
+                    'before' => ['employee_id' => $employee->id, 'team_lead' => $wasLead],
+                ]);
             }
         });
     }
 
-    public function setLead(Team $team, ?Employee $lead): void
+    public function addLead(Team $team, Employee $employee): void
     {
-        DB::transaction(function () use ($team, $lead) {
-            if ($lead !== null) {
-                $this->addMember($team, $lead);
-            }
+        if (! $team->members()->whereKey($employee->id)->exists()) {
+            throw ApiProblem::unprocessable('TEAM_LEAD_NOT_MEMBER', 'Add this person to the group before making them a team lead.');
+        }
 
-            $team->lead_employee_id = $lead?->id;
-            if ($team->isDirty('lead_employee_id')) {
-                $team->version = $team->version + 1;
-                $team->save();
+        DB::transaction(function () use ($team, $employee) {
+            if ($team->leads()->syncWithoutDetaching([$employee->id])['attached'] !== []) {
+                app(AuditLogger::class)->record('teams.lead_added', $team, ['after' => ['employee_id' => $employee->id]]);
+            }
+        });
+    }
+
+    public function removeLead(Team $team, Employee $employee): void
+    {
+        DB::transaction(function () use ($team, $employee) {
+            if ($team->leads()->detach($employee->id) > 0) {
+                app(AuditLogger::class)->record('teams.lead_removed', $team, ['before' => ['employee_id' => $employee->id]]);
             }
         });
     }

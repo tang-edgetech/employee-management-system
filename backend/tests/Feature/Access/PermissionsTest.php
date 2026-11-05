@@ -31,9 +31,9 @@ it('grants the defaults of brief §5.3', function () {
 });
 
 it('answers Gate checks from the matrix and denies by default', function () {
-    expect(demoUser('nurul')->can('people.salary.view'))->toBeTrue()
-        ->and(demoUser('kevin')->can('people.salary.view'))->toBeFalse()
-        ->and(demoUser('aiman')->can('system.settings'))->toBeFalse()
+    expect(demoUser('ellie')->can('people.salary.view'))->toBeTrue()
+        ->and(demoUser('teechienyap')->can('people.salary.view'))->toBeFalse()
+        ->and(demoUser('ahfa')->can('system.settings'))->toBeFalse()
         ->and(demoUser('tang')->can('system.settings'))->toBeTrue()
         ->and(demoUser('tang')->can('not.a.permission'))->toBeFalse();
 });
@@ -46,27 +46,28 @@ it('tells each user their permissions and navigation scope', function (string $a
     expect($data['scope'])->toBe($expected)
         ->and($data['permissions'])->toBe(app(PermissionMatrix::class)->permissionsFor(demoUser($account)->roleKey()));
 })->with([
-    'sysadmin' => ['tang', ['all' => true, 'has_reports' => false, 'leads_teams' => false]],
-    'hr' => ['nurul', ['all' => true, 'has_reports' => true, 'leads_teams' => true]],
-    'lead' => ['kevin', ['all' => false, 'has_reports' => true, 'leads_teams' => true]],
-    'senior' => ['nadia', ['all' => false, 'has_reports' => true, 'leads_teams' => false]],
-    'junior' => ['hafiz', ['all' => false, 'has_reports' => false, 'leads_teams' => false]],
+    'sysadmin' => ['tang', ['all' => true, 'has_reports' => false, 'leads_teams' => false, 'heads_department' => false]],
+    'hr (leads the Admin group)' => ['ellie', ['all' => true, 'has_reports' => false, 'leads_teams' => true, 'heads_department' => false]],
+    'head of department' => ['teechienyap', ['all' => false, 'has_reports' => true, 'leads_teams' => false, 'heads_department' => true]],
+    'team lead with reports' => ['jeffyeoh', ['all' => false, 'has_reports' => true, 'leads_teams' => true, 'heads_department' => false]],
+    'junior' => ['sinyee', ['all' => false, 'has_reports' => false, 'leads_teams' => false, 'heads_department' => false]],
 ]);
 
-it('shows the linked employee on /me, and none for the System Admin', function () {
-    Sanctum::actingAs(demoUser('nadia'));
-    $this->getJson('/api/v1/me')->assertJsonPath('data.employee.full_name', 'Nadia Hassan')
-        ->assertJsonPath('data.employee.employee_no', 'HJ-0036');
+it('shows the linked employee and department on /me, and none for the System Admin', function () {
+    Sanctum::actingAs(demoUser('jeffyeoh'));
+    $this->getJson('/api/v1/me')->assertJsonPath('data.employee.full_name', 'Jeff Yeoh')
+        ->assertJsonPath('data.employee.employee_no', 'HJ-0030')
+        ->assertJsonPath('data.employee.department', 'Front End');
 
     Sanctum::actingAs(demoUser('tang'));
     $this->getJson('/api/v1/me')->assertJsonPath('data.employee', null);
 });
 
-it('saves the theme preference', function () {
-    Sanctum::actingAs($user = demoUser('hafiz'));
+it('saves the language preference', function () {
+    Sanctum::actingAs($user = demoUser('sinyee'));
 
-    $this->patchJson('/api/v1/me/preferences', ['ui_layout' => 'kopi'])->assertOk()->assertJsonPath('data.ui_layout', 'kopi');
-    $this->patchJson('/api/v1/me/preferences', ['ui_layout' => 'neon'])->assertStatus(422);
+    $this->patchJson('/api/v1/me/preferences', ['locale' => 'zh-CN'])->assertOk()->assertJsonPath('data.locale', 'zh-CN');
+    $this->patchJson('/api/v1/me/preferences', ['locale' => 'fr'])->assertStatus(422);
 
-    expect($user->fresh()->ui_layout)->toBe('kopi');
+    expect($user->fresh()->locale)->toBe('zh-CN');
 });

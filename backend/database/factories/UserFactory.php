@@ -47,13 +47,17 @@ class UserFactory extends Factory
         return $this->state(fn () => ['status' => $status]);
     }
 
-    /** A user with confirmed 2FA; the TOTP secret is available as ->two_factor_secret. */
+    /** A user with one confirmed authenticator device and two known recovery codes. */
     public function withTwoFactor(): static
     {
         return $this->state(fn () => [
-            'two_factor_secret' => encrypt(app(TwoFactorAuthenticationProvider::class)->generateSecretKey()),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-one', 'recovery-code-two'])),
-            'two_factor_confirmed_at' => now(),
-        ]);
+        ])->afterCreating(function (User $user) {
+            $user->twoFactorDevices()->create([
+                'name' => 'Test phone',
+                'secret' => app(TwoFactorAuthenticationProvider::class)->generateSecretKey(),
+                'confirmed_at' => now(),
+            ]);
+        });
     }
 }

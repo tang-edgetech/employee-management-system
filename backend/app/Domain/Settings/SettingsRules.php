@@ -76,7 +76,7 @@ final class SettingsRules
             'two_fa_enabled' => ['sometimes', 'boolean'],
             'two_fa_roles' => ['sometimes', 'array'],
             'two_fa_roles.*' => ['string', Rule::in(RoleKey::values()), 'distinct'],
-            'session_timeout_minutes' => ['sometimes', 'integer', Rule::in([15, 30, 60, 480])],
+            'session_timeout_minutes' => ['sometimes', 'integer', Rule::in([15, 30, 60, 120, 240])],
 
             'default_probation_months' => ['sometimes', 'integer', 'between:0,6'],
             'probation_reminder_days' => ['sometimes', 'integer', Rule::in([7, 14, 30])],

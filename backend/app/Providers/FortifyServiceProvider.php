@@ -6,6 +6,7 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Domain\Auth\CredentialsCheck;
 use App\Domain\Auth\EnsureLoginIsNotLocked;
+use App\Domain\Auth\RequireTwoFactorChallenge;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -16,7 +17,6 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Actions\AttemptToAuthenticate;
 use Laravel\Fortify\Actions\CanonicalizeUsername;
 use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -43,7 +43,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateThrough(fn () => [
             EnsureLoginIsNotLocked::class,
             config('fortify.lowercase_usernames') ? CanonicalizeUsername::class : null,
-            RedirectIfTwoFactorAuthenticatable::class,
+            // Our own step: the code can come from any of up to two devices (plan 01 §9.2).
+            RequireTwoFactorChallenge::class,
             AttemptToAuthenticate::class,
             // Regenerates the session ID, so a session fixed before login is useless.
             PrepareAuthenticatedSession::class,

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Domain\Audit\AuditLogger;
+use App\Domain\Auth\TwoFactorDevice;
+use App\Domain\Auth\TwoFactorDevices;
 use App\Exceptions\ApiProblem;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -10,72 +12,56 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
-use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
-use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\Actions\GenerateNewRecoveryCodes;
 
 /**
- * Authenticator-app 2FA for the signed-in user (plan 01 §4). Every route needs a
- * recently confirmed password. Enabling is two steps: setup returns the secret
- * and QR code, confirm proves the app works and returns the recovery codes.
+ * The signed-in user's authenticator devices (up to two) and recovery codes
+ * (plan 01 §9.2). Every route needs a recently confirmed password.
  */
 class TwoFactorController extends Controller
 {
-    public function setup(Request $request, EnableTwoFactorAuthentication $enable): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $user = $this->user($request);
 
-        if ($user->hasTwoFactorEnabled()) {
-            throw ApiProblem::conflict('TWO_FACTOR_ALREADY_ENABLED', 'Two-factor authentication is already on. Turn it off first to set up a new device.');
-        }
-
-        // A fresh secret each time, so an abandoned setup can't be completed later with an old QR code.
-        $enable($user, force: true);
-        $user->refresh();
-
         return response()->json(['data' => [
-            'secret' => decrypt((string) $user->two_factor_secret),
-            'otpauth_url' => $user->twoFactorQrCodeUrl(),
-            'qr_svg' => $user->twoFactorQrCodeSvg(),
+            'enabled' => $user->hasTwoFactorEnabled(),
+            'enforced' => $user->twoFactorEnforced(),
+            'max_devices' => TwoFactorDevice::MAX_PER_USER,
+            'devices' => $user->twoFactorDevices()->whereNotNull('confirmed_at')->orderBy('confirmed_at')->get()->map(fn (TwoFactorDevice $d) => [
+                'id' => $d->public_id,
+                'name' => $d->name,
+                'added_at' => $d->confirmed_at?->toIso8601String(),
+                'last_used_at' => $d->last_used_at?->toIso8601String(),
+            ]),
         ]]);
     }
 
-    public function confirm(Request $request, ConfirmTwoFactorAuthentication $confirm): JsonResponse
+    public function store(Request $request, TwoFactorDevices $devices): JsonResponse
     {
-        $user = $this->user($request);
-        $request->validate(['code' => ['required', 'string', 'digits:6']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:60']]);
+        $result = $devices->begin($this->user($request), $data['name']);
 
-        if ($user->two_factor_secret === null) {
-            throw ApiProblem::conflict('TWO_FACTOR_NOT_SET_UP', 'Start the setup first.');
-        }
-        if ($user->hasTwoFactorEnabled()) {
-            throw ApiProblem::conflict('TWO_FACTOR_ALREADY_ENABLED', 'Two-factor authentication is already on.');
-        }
-
-        DB::transaction(function () use ($user, $request, $confirm) {
-            $confirm($user, (string) $request->input('code'));
-            app(AuditLogger::class)->record('user.two_factor_enabled', $user);
-        });
-
-        return response()->json(['data' => ['recovery_codes' => $user->fresh()?->recoveryCodes() ?? []]]);
+        return response()->json(['data' => [
+            'id' => $result['device']->public_id,
+            'name' => $result['device']->name,
+            'secret' => $result['secret'],
+            'otpauth_url' => $result['otpauth_url'],
+            'qr_svg' => $result['qr_svg'],
+        ]], 201);
     }
 
-    public function disable(Request $request, DisableTwoFactorAuthentication $disable): Response
+    public function confirm(Request $request, TwoFactorDevice $device, TwoFactorDevices $devices): JsonResponse
     {
-        $user = $this->user($request);
+        $request->validate(['code' => ['required', 'string', 'digits:6']]);
+        $codes = $devices->confirm($this->user($request), $device, (string) $request->input('code'));
 
-        if ($user->twoFactorEnforced()) {
-            throw ApiProblem::conflict('TWO_FACTOR_ENFORCED', 'Your role requires two-factor authentication, so it can\'t be turned off.');
-        }
+        return response()->json(['data' => ['id' => $device->public_id, 'recovery_codes' => $codes]]);
+    }
 
-        DB::transaction(function () use ($user, $disable) {
-            $wasEnabled = $user->hasTwoFactorEnabled();
-            $disable($user);
-            if ($wasEnabled) {
-                app(AuditLogger::class)->record('user.two_factor_disabled', $user);
-            }
-        });
+    public function destroy(Request $request, TwoFactorDevice $device, TwoFactorDevices $devices): Response
+    {
+        $devices->remove($this->user($request), $device);
 
         return response()->noContent();
     }

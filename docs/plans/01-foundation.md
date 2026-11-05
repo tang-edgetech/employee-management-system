@@ -233,7 +233,7 @@ Each milestone ends with a short report, then **I ask before committing**. Pushi
 | M3 | Auth + 2FA (F3) + tests | — |
 | M4 | Access roles, permissions, scope engine, people core, demo seed + parity test (F4, F10) | — |
 | M5 | File service (F6) + tests | — |
-| M6 | Frontend shell, auth screens, Settings, Access Roles, Security page (F7) + Vitest + Playwright smoke | — |
+| M6 | **M6a** backend changes from the mockup reviews (§9.2), then **M6b** frontend shell, auth screens, My Profile, Settings, Access Roles, System Updates (§9.3) + Vitest + Playwright smoke | Owner approves §9 before M6a starts |
 | M7 | OpenAPI generation + TS client (F8); CI + Dependabot (F9) | **Ask:** before the first push to GitHub (CI only runs there) |
 | M8 | `meridian:install` command + deploy skeleton (F11) | — |
 
@@ -290,3 +290,50 @@ Icons: AntD ships `@ant-design/icons`; the mockup used Lucide. Decision D4.
 | D8 | Password rules | **Owner, 2026-11-05: 8-128 characters with upper and lower case, a number and a symbol.** Below the OWASP ASVS L2 guidance (12+ characters, breached-password check), accepted by the owner | M3 |
 | D9 | Endpoint for a signed-in user to change their password | **Owner, 2026-11-05: yes**, `PUT /auth/password` | M3 |
 | D10 | Audit writes vs. a separate audit DB user | **Owner, 2026-11-05: same transaction as the change** (ADR 0001 §5.14 amended) | M2 |
+
+---
+
+## 9. Amendment: mockup reviews (2026-11-05, approved by owner 2026-11-05)
+
+The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/meridian-mockup.html`, commits `be80faf`, `6a9004f`, `a92e96f`). M6 is split into **M6a** (backend changes) and **M6b** (screens), in that order (owner decision D11).
+
+### 9.1 Owner decisions
+
+| # | Decision |
+|---|---|
+| D11 | M6a backend changes first, then M6b screens. |
+| D12 | A minimal `departments` table moves into Foundation (name, optional HOD); groups belong to a department. The Organization module adds the rest later. |
+| D13 | English / Chinese via our own JSON dictionaries (`en.json`, `zh-CN.json`) and a typed `t()` helper; no i18n library. The user's language is saved on their account. |
+| D14 | Demo data follows the mockup: the owner's organisation (CEO, GM, 9 departments, 51 people, groups, team leads, per-person reporting lines) and its six demo logins. **Real names: replace with fictional ones before any client or prospect sees the demo.** |
+| D15 | Design option 6 (Atlas layout, Straits colours, Plus Jakarta Sans); one look, no theme switcher. Supersedes the "5 themes" of F7 and `ui_layout`. |
+| D16 | Component classes use the `mw-` naming in `docs/design/components.md`. |
+
+### 9.2 M6a: backend changes
+
+| Change | Detail |
+|---|---|
+| Session timeout options | 15, 30, 60, **120, 240** minutes (480 removed): CHECK constraint, validation, default stays 30. |
+| Departments (D12) | `departments`: `public_id`, `name` UNIQUE, `head_employee_id` NULL (at most one HOD; any designation). `employees.department_id`, `teams.department_id`. CEO and GM sit in a "Management" department that the org chart shows above the others. |
+| Team leads | A group has **zero, one or several** team leads: new `team_leads (team_id, employee_id)`; `teams.lead_employee_id` is dropped. A team lead must be a member. |
+| Reporting lines | Stay per person (`employees.superior_id`), never derived from the team lead; loops refused by the service and the trigger. |
+| Scope | Team leads see their groups' members and everyone below them; an HOD sees their whole department; everyone sees the people below them in the reporting lines; sysadmin, exec, HR see everyone. |
+| Display name and pictures | `users.display_name` (others see its first letter as the avatar), `users.avatar_file_id` (personal picture, shown to the user only). The official photo (`employees.photo_file_id`, set by HR, used in org chart and HR views) arrives with the People module. |
+| Language | `users.locale` (`en`, `zh-CN`), `PATCH /me/preferences` accepts it. `ui_layout` is removed (D15). |
+| Two 2FA devices | New `two_factor_devices` (`user_id`, `name`, encrypted secret, `confirmed_at`, `last_used_at`), **at most 2 per user**. Sign-in accepts a code from any confirmed device; recovery codes stay per user. Endpoints: `GET/POST /auth/2fa/devices`, `POST /auth/2fa/devices/{id}/confirm`, `DELETE /auth/2fa/devices/{id}` (the last device can't be removed while 2FA is required for the role). Replaces Fortify's single-secret setup endpoints. |
+| Forced 2FA setup | Unchanged rule: when 2FA is required for the role and the user has no device, only 2FA setup, `/me` and logout are allowed. |
+| Version | `GET /api/v1/version` (signed in): semantic version, build date and commit, from `config/meridian.php` (set by the deploy). The update log table and the cron deploy script come with M8. |
+| Demo seed (D14) | Seeder, parity tests and demo logins switched to the mockup's organisation. |
+
+### 9.3 M6b: screens (Next.js static export)
+
+| Area | Screens and behaviour |
+|---|---|
+| Sign-in | Login (fits the window; demo accounts scroll; dev builds only, D6), 2FA code, forgot / reset password, language switch, version. |
+| Shell | Sidebar labelled by default, collapsible to an icon rail (remembered); profile card (picture + display name + role) opens My Profile; version line; top bar with page title, **ⓘ user guide** (right slide-in panel), search placeholder, EN / 中文 switch; themed scrollbars. |
+| Dashboard | Greeting band and placeholder tiles (filled by later modules). |
+| My Profile | Overview (display name, own picture, employment details read-only), Security (change password with live rules; 2FA devices: add with QR, remove, recovery codes), Preferences (language). Personal information arrives with the People module. |
+| System | Global Settings (labelled 2FA toggle, timeouts above, other sections per permission), Access Roles (matrix), System Updates (version now; update log in M8). |
+| Other menu items | "Coming in <module>" page (D3). |
+| Tests | Vitest for the dictionary, menu filtering and Problem Details mapping; Playwright: each demo account signs in, sees exactly its menu, opens each allowed page with no console errors; screenshots of login, a failed attempt and the dashboard. |
+
+The milestones after M6 are unchanged: M7 (OpenAPI, CI; ask before the first push), M8 (installer, deploy, update log).

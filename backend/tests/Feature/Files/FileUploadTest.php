@@ -62,10 +62,10 @@ it('enforces size, type and purpose permission at presign', function () {
         ->assertStatus(413)->assertJsonPath('code', 'FILE_TOO_LARGE');
     $this->postJson('/api/v1/files/presign', ['purpose' => 'photo', 'filename' => 'a.gif', 'size' => 10, 'mime' => 'image/gif'])
         ->assertStatus(415)->assertJsonPath('code', 'FILE_TYPE_NOT_ALLOWED');
-    $this->postJson('/api/v1/files/presign', ['purpose' => 'avatar', 'filename' => 'a.jpg', 'size' => 10, 'mime' => 'image/jpeg'])
+    $this->postJson('/api/v1/files/presign', ['purpose' => 'passport', 'filename' => 'a.jpg', 'size' => 10, 'mime' => 'image/jpeg'])
         ->assertStatus(422);
 
-    Sanctum::actingAs(demoUser('hafiz'));
+    Sanctum::actingAs(demoUser('sinyee'));
     $this->postJson('/api/v1/files/presign', ['purpose' => 'logo', 'filename' => 'a.png', 'size' => 10, 'mime' => 'image/png'])
         ->assertStatus(403);
     $this->postJson('/api/v1/files/presign', ['purpose' => 'evidence', 'filename' => 'a.pdf', 'size' => 10, 'mime' => 'application/pdf'])
@@ -96,27 +96,27 @@ it('rejects a file whose content is not what it claims (PDF sent as PNG)', funct
 });
 
 it('rejects a checksum that does not match', function () {
-    [$id] = startUpload($this, 'hafiz', 'evidence', pdfBytes(), 'application/pdf');
+    [$id] = startUpload($this, 'sinyee', 'evidence', pdfBytes(), 'application/pdf');
 
     $this->postJson("/api/v1/files/{$id}/complete", ['sha256' => str_repeat('a', 64)])
         ->assertStatus(422)->assertJsonPath('code', 'FILE_CHECKSUM_MISMATCH');
 });
 
 it('lets only the uploader complete, and only after the bytes arrive', function () {
-    Sanctum::actingAs(demoUser('hafiz'));
+    Sanctum::actingAs(demoUser('sinyee'));
     $presign = $this->postJson('/api/v1/files/presign', ['purpose' => 'evidence', 'filename' => 'a.pdf', 'size' => 10, 'mime' => 'application/pdf']);
     $id = $presign->json('data.file.id');
 
     $this->postJson("/api/v1/files/{$id}/complete")->assertStatus(409)->assertJsonPath('code', 'FILE_NOT_UPLOADED');
 
-    Sanctum::actingAs(demoUser('nadia'));
+    Sanctum::actingAs(demoUser('jeffyeoh'));
     $this->postJson("/api/v1/files/{$id}/complete")->assertStatus(403);
 });
 
 it('queues the scan after completing and keeps the file unusable until clean', function () {
     Queue::fake();
     $pdf = pdfBytes();
-    [$id] = startUpload($this, 'hafiz', 'evidence', $pdf, 'application/pdf');
+    [$id] = startUpload($this, 'sinyee', 'evidence', $pdf, 'application/pdf');
 
     $this->postJson("/api/v1/files/{$id}/complete", ['sha256' => hash('sha256', $pdf)])
         ->assertOk()->assertJsonPath('data.status', 'pending');
@@ -126,7 +126,7 @@ it('queues the scan after completing and keeps the file unusable until clean', f
 });
 
 it('re-encodes photos to a 240x240 WebP without metadata', function () {
-    [$id] = startUpload($this, 'nurul', 'photo', pngBytes(800, 500), 'image/png', 'me.png');
+    [$id] = startUpload($this, 'ellie', 'photo', pngBytes(800, 500), 'image/png', 'me.png');
 
     $this->postJson("/api/v1/files/{$id}/complete")->assertOk();
 
@@ -143,7 +143,7 @@ it('re-encodes photos to a 240x240 WebP without metadata', function () {
 
 it('serves a clean file through a short-lived signed URL with safe headers', function () {
     $pdf = pdfBytes();
-    [$id] = startUpload($this, 'hafiz', 'evidence', $pdf, 'application/pdf', 'proof.pdf');
+    [$id] = startUpload($this, 'sinyee', 'evidence', $pdf, 'application/pdf', 'proof.pdf');
     $this->postJson("/api/v1/files/{$id}/complete")->assertOk();
 
     $url = $this->getJson("/api/v1/files/{$id}/url")->assertOk()->json('data.url');
@@ -160,12 +160,12 @@ it('serves a clean file through a short-lived signed URL with safe headers', fun
 });
 
 it('does not let other users see someone else\'s file, but everyone sees the logo', function () {
-    [$evidence] = startUpload($this, 'hafiz', 'evidence', pdfBytes(), 'application/pdf');
+    [$evidence] = startUpload($this, 'sinyee', 'evidence', pdfBytes(), 'application/pdf');
     $this->postJson("/api/v1/files/{$evidence}/complete");
     [$logo] = startUpload($this, 'tang', 'logo', pngBytes(), 'image/png');
     $this->postJson("/api/v1/files/{$logo}/complete");
 
-    Sanctum::actingAs(demoUser('nadia'));
+    Sanctum::actingAs(demoUser('jeffyeoh'));
     $this->getJson("/api/v1/files/{$evidence}/url")->assertStatus(403);
     $this->getJson("/api/v1/files/{$logo}/url")->assertOk();
 });
@@ -178,7 +178,7 @@ it('removes infected files and refuses to serve them', function () {
             return false;
         }
     });
-    [$id] = startUpload($this, 'hafiz', 'evidence', pdfBytes(), 'application/pdf');
+    [$id] = startUpload($this, 'sinyee', 'evidence', pdfBytes(), 'application/pdf');
 
     $this->postJson("/api/v1/files/{$id}/complete")->assertOk();
 
@@ -196,7 +196,7 @@ it('keeps the file pending when the scanner cannot answer', function () {
             throw new ScanFailed('clamd down');
         }
     });
-    [$id] = startUpload($this, 'hafiz', 'evidence', pdfBytes(), 'application/pdf');
+    [$id] = startUpload($this, 'sinyee', 'evidence', pdfBytes(), 'application/pdf');
 
     $this->postJson("/api/v1/files/{$id}/complete")->assertOk();
 
@@ -205,18 +205,18 @@ it('keeps the file pending when the scanner cannot answer', function () {
 
 it('stores the same content twice but links it by checksum', function () {
     $pdf = pdfBytes();
-    [$a] = startUpload($this, 'hafiz', 'evidence', $pdf, 'application/pdf');
+    [$a] = startUpload($this, 'sinyee', 'evidence', $pdf, 'application/pdf');
     $this->postJson("/api/v1/files/{$a}/complete");
-    [$b] = startUpload($this, 'hafiz', 'evidence', $pdf, 'application/pdf');
+    [$b] = startUpload($this, 'sinyee', 'evidence', $pdf, 'application/pdf');
     $this->postJson("/api/v1/files/{$b}/complete");
 
     expect(StoredFile::query()->where('sha256', hash('sha256', $pdf))->count())->toBe(2);
 });
 
 it('prunes uploads that were never completed', function () {
-    Sanctum::actingAs(demoUser('hafiz'));
+    Sanctum::actingAs(demoUser('sinyee'));
     $this->postJson('/api/v1/files/presign', ['purpose' => 'evidence', 'filename' => 'a.pdf', 'size' => 10, 'mime' => 'application/pdf']);
-    [$done] = startUpload($this, 'hafiz', 'evidence', pdfBytes(), 'application/pdf');
+    [$done] = startUpload($this, 'sinyee', 'evidence', pdfBytes(), 'application/pdf');
     $this->postJson("/api/v1/files/{$done}/complete");
 
     $this->travel(25)->hours();
