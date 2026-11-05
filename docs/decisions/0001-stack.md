@@ -113,9 +113,9 @@ Serving frontend and API from **one origin** means Sanctum cookies work without 
 
 | Piece | Setup |
 |---|---|
-| Laravel | Apache vhost `meridian.test` → `backend/public`, PHP 8.3 from XAMPP |
+| Laravel | Apache vhost `meridian.localhost` → `backend/public`, PHP 8.3 from XAMPP |
 | MySQL | **MySQL 8.4 LTS installed alongside XAMPP on port 3307.** XAMPP's MariaDB 10.11 stays on 3306 for other projects. |
-| Next.js | `npm run dev` on `:3000`, reverse-proxied by the `meridian.test` vhost (`mod_proxy`), so the browser sees one origin, as in production |
+| Next.js | `npm run dev` on `:3000`, reverse-proxied by the `meridian.localhost` vhost (`mod_proxy`), so the browser sees one origin, as in production |
 | Queue and cache | `database` drivers; run `php artisan queue:work` in a terminal |
 | Files | `local` disk; ClamAV scan replaced by a stub that always returns "clean" in dev |
 | Mail | Log driver, or Mailpit if installed |
