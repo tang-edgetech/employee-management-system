@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Domain\Access\AccessRole;
 use App\Domain\Access\RoleKey;
 use App\Domain\Auth\Notifications\ResetPasswordNotification;
+use App\Domain\People\Employee;
 use App\Domain\Settings\CompanySettings;
 use App\Domain\Shared\HasPublicId;
 use Database\Factories\UserFactory;
@@ -82,6 +83,12 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(AccessRole::class, 'role_id');
+    }
+
+    /** @return BelongsTo<Employee, $this> */
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
     }
 
     public function roleKey(): RoleKey

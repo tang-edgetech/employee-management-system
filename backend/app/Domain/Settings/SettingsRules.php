@@ -14,11 +14,24 @@ use Illuminate\Validation\Rule;
 final class SettingsRules
 {
     /**
-     * Which permission may change which fields (plan 01 §4). "system" fields need
-     * system.settings; "kpi" fields need kpi.configure. Enforced from M4.
+     * Who may read each section (GET /settings). null = every signed-in user,
+     * because the app needs them (e.g. "check-in required every N working days").
+     * Otherwise any one of the listed permissions.
      */
-    public const SECTIONS = [
-        'system' => [
+    public const READ_SECTIONS = [
+        'company' => [null, ['company_name', 'timezone', 'country', 'currency', 'working_days', 'holiday_region']],
+        'work' => [null, ['checkin_every_workdays', 'checkin_mandatory', 'extension_approval', 'auto_late_delay']],
+        'security' => [['system.settings'], ['two_fa_enabled', 'two_fa_roles', 'session_timeout_minutes']],
+        'employment' => [['system.settings', 'people.lifecycle'], ['default_probation_months', 'probation_reminder_days', 'pip_default_days', 'data_review_month', 'data_review_window_days']],
+        'recruitment' => [['system.settings', 'candidate.create'], ['require_resume', 'candidate_retention_months', 'former_employee_policy']],
+        'kpi' => [['kpi.configure', 'kpi.view_all'], ['kpi_mode', 'kpi_weights']],
+    ];
+
+    /**
+     * Which permission may change which fields (plan 01 §4, PATCH /settings).
+     */
+    public const WRITE_PERMISSIONS = [
+        'system.settings' => [
             'company_name', 'timezone', 'country', 'currency', 'working_days', 'holiday_region',
             'two_fa_enabled', 'two_fa_roles', 'session_timeout_minutes',
             'default_probation_months', 'probation_reminder_days', 'pip_default_days',
@@ -26,8 +39,25 @@ final class SettingsRules
             'data_review_month', 'data_review_window_days',
             'require_resume', 'candidate_retention_months', 'former_employee_policy',
         ],
-        'kpi' => ['kpi_mode', 'kpi_weights'],
+        'kpi.configure' => ['kpi_mode', 'kpi_weights'],
     ];
+
+    /** @return list<string> every field PATCH /settings accepts */
+    public static function writableFields(): array
+    {
+        return array_merge(...array_values(self::WRITE_PERMISSIONS));
+    }
+
+    public static function permissionToWrite(string $field): ?string
+    {
+        foreach (self::WRITE_PERMISSIONS as $permission => $fields) {
+            if (in_array($field, $fields, true)) {
+                return $permission;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * @return array<string, mixed>

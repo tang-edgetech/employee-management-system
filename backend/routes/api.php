@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccessRoleController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\TwoFactorController;
 use App\Http\Controllers\Api\V1\MeController;
+use App\Http\Controllers\Api\V1\SettingsController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\ConfirmablePasswordController;
@@ -12,7 +14,7 @@ use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController;
 
 // Every route here is served under /api/v1 (bootstrap/app.php) and rate limited
 // by the "api" limiter. The web app authenticates with Sanctum's session cookie
-// and CSRF token. Access roles and settings arrive in M4, files in M5.
+// and CSRF token. Files arrive in M5.
 
 // "signed-in": a valid, active, non-idle session.
 // "app": additionally blocks users who must set up 2FA first (TWO_FACTOR_SETUP_REQUIRED).
@@ -46,5 +48,14 @@ Route::middleware($signedIn)->group(function () {
 });
 
 Route::middleware($app)->group(function () {
-    // Module endpoints (M4+) go here.
+    Route::get('me/permissions', [MeController::class, 'permissions']);
+    Route::patch('me/preferences', [MeController::class, 'updatePreferences']);
+
+    Route::get('settings', [SettingsController::class, 'show']);
+    Route::patch('settings', [SettingsController::class, 'update'])->middleware('if-match');
+
+    Route::middleware('can:system.settings')->group(function () {
+        Route::get('access-roles', [AccessRoleController::class, 'index']);
+        Route::put('access-roles/{role:key}/permissions', [AccessRoleController::class, 'updatePermissions'])->middleware('if-match');
+    });
 });

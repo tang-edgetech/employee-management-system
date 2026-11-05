@@ -2,11 +2,16 @@
 
 namespace App\Providers;
 
+use App\Domain\Access\Permission;
+use App\Domain\Access\PermissionMatrix;
+use App\Domain\Access\ScopeResolver;
 use App\Domain\Shared\Crypto\BlindIndex;
 use App\Domain\Shared\Crypto\FieldEncrypter;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -22,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
             FieldEncrypter::parseKeys((string) config('meridian.data_keys')),
         ));
 
+        // Per request: permissions and scope are worked out once and reused.
+        $this->app->scoped(PermissionMatrix::class);
+        $this->app->scoped(ScopeResolver::class);
+
         $this->app->singleton(BlindIndex::class, function () {
             $key = (string) config('meridian.blind_index_key');
 
@@ -36,6 +45,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerSchemaMacros();
         $this->registerRateLimiters();
+
+        // Permission keys are Gate abilities: `can:system.settings`, $user->can('people.edit').
+        // Deny by default; abilities that aren't permission keys fall through to policies.
+        Gate::before(function (User $user, string $ability) {
+            return in_array($ability, Permission::values(), true)
+                ? app(PermissionMatrix::class)->allows($user, $ability)
+                : null;
+        });
 
         // Owner's choice (2026-11-05): 8+ characters, mixed case, a number and a symbol.
         Password::defaults(fn () => Password::min(8)->max(128)->mixedCase()->numbers()->symbols());

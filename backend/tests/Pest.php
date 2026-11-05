@@ -41,3 +41,9 @@ function totpFor(User $user, int $stepsAgo = 0): string
 
     return $google2fa->oathTotp($secret, (int) floor(now()->getTimestamp() / 30) - $stepsAgo);
 }
+
+/** A demo-company account by first name, e.g. demoUser('kevin'). Seed DemoCompanySeeder first. */
+function demoUser(string $name): User
+{
+    return User::query()->where('email', 'like', $name.'@%')->firstOrFail();
+}

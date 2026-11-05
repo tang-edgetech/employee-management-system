@@ -151,7 +151,7 @@ Conventions for every table: `id BIGINT UNSIGNED AUTO_INCREMENT` primary key (ne
 
 | Table | Columns and constraints | Why |
 |---|---|---|
-| `employees` | `public_id`, `employee_no VARCHAR(20) UNIQUE`, `full_name VARCHAR(150)`, `work_email VARCHAR(190) UNIQUE`, `superior_id FK employees NULL ON DELETE RESTRICT`, `CHECK (superior_id <> id)`, `status ENUM(8 values from brief)`, `join_date DATE`, `left_at DATE NULL`, `version`, `deleted_at` | Enough for scope rules and demo logins. Cycle prevention by the domain service (ADR 0001 §5.12). Index on `superior_id` for the recursive CTE. |
+| `employees` | `public_id`, `employee_no VARCHAR(20) UNIQUE`, `full_name VARCHAR(150)`, `work_email VARCHAR(190) UNIQUE`, `superior_id FK employees NULL ON DELETE RESTRICT`, loop-blocking trigger (self-reference included: MariaDB allows no CHECK on the auto-increment `id`), `status ENUM(8 values from brief)`, `join_date DATE`, `left_at DATE NULL`, `version`, `deleted_at` | Enough for scope rules and demo logins. Cycle prevention by the domain service (`EmployeeHierarchy`) and the trigger (ADR 0001 §5.12). Index on `superior_id` for the recursive CTE. |
 | `teams` | `public_id`, `name VARCHAR(100) UNIQUE`, `lead_employee_id FK`, `version` | Lead scope |
 | `team_members` | PK `(team_id, employee_id)`, index `(employee_id)` | Rule "lead must be a member" enforced in the domain service + test |
 
@@ -185,7 +185,7 @@ All under `/api/v1`, JSON, `snake_case`. Errors are RFC 7807 Problem Details wit
 | `GET /me` | authenticated | User, role, linked employee, `ui_layout`, `two_factor_required` |
 | `GET /me/permissions` | authenticated | Permission keys + nav scope flags (e.g. `has_reports`) |
 | `PATCH /me/preferences` | self | `ui_layout` |
-| `GET /settings` | authenticated (sections filtered by permission) | Returns `ETag` |
+| `GET /settings` | authenticated (sections filtered by permission) | Returns `ETag`. Everyone reads `company` and `work`; `security` needs system.settings; `employment` system.settings or people.lifecycle; `recruitment` system.settings or candidate.create; `kpi` kpi.configure or kpi.view_all (M4) |
 | `PATCH /settings` | `system.settings` for security/work/employment/recruitment fields; `kpi.configure` for `kpi_mode`/`kpi_weights`; needs `If-Match` | 412 on a stale version; audited |
 | `GET /access-roles` | `system.settings` | Roles + full matrix |
 | `PUT /access-roles/{key}/permissions` | `system.settings`; `sysadmin` → 409 `ROLE_LOCKED` | Audited; invalidates permission cache |
