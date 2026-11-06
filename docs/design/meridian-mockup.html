@@ -815,8 +815,201 @@ const tag = c => DB.tags.find(t=>t.code===c);
 // Each tag owns its levels (at least one). Older data with a 5-point array is converted once.
 DB.tags.forEach(t=>{if(!t.levels){t.levels=(t.pts||[]).map((p,i)=>({name:DB.levelNames[i]||'Level '+(i+1),pts:p}));delete t.pts}});
 const tagLevel = t => {const L=tag(t.tag)?.levels||[];return L[Math.min(t.level,L.length)-1]||{name:'',pts:0}};
-const tpts = t => tagLevel(t).pts;
-const ename = id => !id?'—':String(id).startsWith('ext')?String(id).replace(/^ext:?/,'')||'External':(emp(id)?.display||emp(id)?.name||'—');
+const tpts = t => isGuest(t.who)?0:tagLevel(t).pts; // partners' tasks carry no points
+const ename = id => !id?'—':String(id).startsWith('ext')?String(id).replace(/^ext:?/,'')||'External':isGuest(id)?(guest(id)?.name||'—'):(emp(id)?.display||emp(id)?.name||'—');
+/* =================== EXTERNAL PARTNERS (guests) =================== */
+// Third-party vendors (marketing agencies, freelance designers…) and their people. People sign in with the
+// Guest role and see only the projects, tasks and meetings they are added to. They are not employees:
+// no org chart, payroll, leave or KPI, and tasks assigned to them carry no points. Client data reaches
+// them only through requests the project team fulfils.
+const VENDOR_TYPES=['Marketing','Design','Content','Video & photo','Other'];
+const REQ_TYPES=['Client statistics','Content & copy','Brand assets','Feedback & approval','Other'];
+DB.vendors=[
+  {id:'V1',name:'Bright Spark Marketing',type:'Marketing',owner:'E002',email:'hello@brightspark.example',phone:'+60 3-7710 2200',since:'2026-09-01',until:'2027-08-31',status:'Active',note:'Launch campaigns, social media and email marketing for Hajimi and selected clients.'},
+  {id:'V2',name:'Pixelfold Studio',type:'Design',owner:'E006',email:'studio@pixelfold.example',phone:'+60 12-880 4512',since:'2026-10-01',until:'2027-03-31',status:'Active',note:'Freelance graphic and UI design: banners, app icons, marketing visuals.'},
+];
+DB.guests=[
+  {id:'G01',vendor:'V1',name:'Mei Ling',title:'Account Manager',email:'meiling@brightspark.example',access:'Active',last:'2026-11-03'},
+  {id:'G02',vendor:'V1',name:'Farid',title:'Social Media Executive',email:'farid@brightspark.example',access:'Invited',last:null},
+  {id:'G03',vendor:'V2',name:'Aaron Tan',title:'Graphic Designer',email:'aaron@pixelfold.example',access:'Active',last:'2026-11-02'},
+];
+const isGuest = id => /^G\d/.test(String(id||''));
+const guest = id => DB.guests.find(g=>g.id===id);
+const vendor = id => DB.vendors.find(v=>v.id===id);
+const vendorOf = id => vendor(guest(id)?.vendor);
+const activeGuest = id => guest(id)?.access!=='Disabled' && vendorOf(id)?.status==='Active';
+const uid = () => S.user?.eid || S.user?.gid || null;
+const isGuestUser = () => S.user?.roleKey==='guest';
+const myProjects = () => DB.projects.filter(p=>(p.guests||[]).includes(uid()));
+const visProjects = () => isGuestUser()?myProjects():DB.projects;
+const whoLabel = id => esc(ename(id))+(isGuest(id)?' <span class="chip" style="padding:0 6px;font-size:10px">'+esc(vendorOf(id)?.name||'External')+'</span>':'');
+
+ACCOUNTS.push(
+  {email:'meiling@brightspark.example',name:'Mei Ling',role:'Guest · Bright Spark Marketing',roleKey:'guest',sub:'Marketing partner (external)',eid:null,gid:'G01'},
+  {email:'aaron@pixelfold.example',name:'Aaron Tan',role:'Guest · Pixelfold Studio',roleKey:'guest',sub:'Designer (external)',eid:null,gid:'G03'},
+);
+ACCESS.exec.push('vendors');ACCESS.hr.push('vendors');
+ACCESS.guest=['dashboard','profile','mytasks','projects','meetings'];
+NAV.find(g=>g[0]==='Organization')[1].push(['vendors','handshake','External Partners']);
+DB.roles.push({id:'guest',name:'Guest',note:'External partners: only what they are added to',locked:true,fixed:true});
+{const at=l=>DB.perms.findIndex(p=>p[1]===l)+1;
+  DB.perms.splice(at('Manage task tags & points'),0,['Organization','Manage external partners & guest access',{exec:1,hr:1,lead:0,staff:0}]);
+  DB.perms.splice(at('Record delays & blockers'),0,['Work','Add external partners to projects & meetings',{exec:1,hr:0,lead:1,staff:0}],['Work','Raise requests for data or files',{guest:1}],['Work','Submit deliverables for review',{guest:1}]);}
+
+proj('P002').guests=['G01','G02','G03'];
+proj('P003').guests=['G03'];
+DB.tasks.push(
+  {id:'K30',project:'P002',title:'Homepage hero & service banners (6 designs)',tag:'D',level:3,who:'G03',start:'2026-10-27',due:'2026-11-06',status:'Review',pct:90,deps:[],
+    ci:[['2026-10-30',40,9,'Three hero concepts shared'],['2026-11-02',90,8,'v2 after feedback; waiting for approval','Review']],
+    files:[{name:'hero-concepts-v1.pdf',by:'G03',on:'2026-10-30',note:'Three directions'},{name:'hero-banners-v2.fig',by:'G03',on:'2026-11-02',note:'Direction B, 6 banners'}],dod:'6 banners approved by Wong Wei Yee, exported for web (WebP + 2x)'},
+  {id:'K31',project:'P002',title:'Launch campaign plan (social + email)',tag:'E',level:2,who:'G01',start:'2026-11-02',due:'2026-11-11',status:'In progress',pct:40,deps:['K32'],
+    ci:[['2026-11-03',40,6,'Channel plan drafted; sizing needs the Q3 figures']],files:[]},
+  {id:'K32',project:'P002',kind:'request',reqType:'Client statistics',requester:'G01',title:'Q3 website traffic & leads by service',
+    details:'Monthly visitors, top pages and quote-form leads per service (Jul–Sep) to size the launch campaign. Totals only.',tag:'F',level:2,who:'E021',start:'2026-11-02',due:'2026-11-05',status:'In progress',pct:50,deps:[],
+    ci:[['2026-11-03',50,2,'GA4 export done; leads summary next']],files:[]},
+  {id:'K33',project:'P003',title:'App icon & splash screen concepts',tag:'D',level:2,who:'G03',start:'2026-11-10',due:'2026-11-17',status:'To do',pct:0,deps:['K34'],ci:[],files:[]},
+  {id:'K34',project:'P003',kind:'request',reqType:'Brand assets',requester:'G03',title:'Kopi Lim logo files & brand colours',
+    details:'Vector logo (AI or SVG), brand colour codes and fonts from the client.',tag:'F',level:1,who:'E006',start:'2026-11-03',due:'2026-11-10',status:'To do',pct:0,deps:[],ci:[],files:[]},
+);
+DB.meetings.push({id:'MT5',title:'Launch campaign kick-off with Bright Spark',date:'2026-11-09',time:'14:00',dur:60,mode:'Google Meet',where:'meet.google.com/bsm-lnch-kof',organizer:'E021',project:'P002',
+  attendees:['E021','E002','E003','G01','G02'],status:'Scheduled',objectives:'Agree launch dates, channels and the client figures Marketing needs.',
+  agenda:'1. Campaign goals\n2. Q3 figures (request K32)\n3. Banner approvals (Pixelfold)\n4. Timeline',minutes:'',decisions:'',actions:[],att:{}});
+DB.activity.unshift(
+  {d:'2026-11-03',t:'10:05',p:'P002',who:'G01',k:'task',x:'requested “Q3 website traffic & leads by service” (Client statistics) from Wong Wei Yee.'},
+  {d:'2026-11-02',t:'17:40',p:'P002',who:'G03',k:'checkin',x:'submitted “Homepage hero & service banners (6 designs)” for review.'});
+
+/* guest screens */
+function guestBanner(){const v=vendorOf(uid());return `<div class="banner mb-4">${ic('handshake')}<span class="text-sm">You are signed in as a guest from <b>${esc(v?.name||'an external partner')}</b>. You see only the projects, tasks and meetings Hajimi Technologies adds you to. Need client figures, files or approvals? Use <b>Request info</b>.</span></div>`}
+const meetRow = m => `<button class="check-row w-full text-left" onclick="viewMeeting('${m.id}')">${ic('presentation','w-4 h-4 muted')}<span class="flex-1 min-w-0"><span class="block text-sm font-semibold truncate">${esc(m.title)}</span><span class="block text-xs muted">${fmtS(m.date)} · ${m.time} · ${m.dur} min · ${esc(m.mode)}</span></span></button>`;
+function fileRows(files){
+  if(!files.length)return '<p class="text-sm muted">Nothing shared yet.</p>';
+  return `<div class="flex flex-col">${files.map(f=>`<div class="flex items-center gap-3 py-2 border-b last:border-0" style="border-color:var(--line)"><span class="chip" style="padding:6px">${ic('file','w-4 h-4')}</span><div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">${esc(f.name)}</div><div class="text-xs muted truncate">${esc(ename(f.by))} · ${fmtS(f.on)}${f.note?' · '+esc(f.note):''}${f.t?` · <a href="javascript:viewTask('${f.t.id}')" style="color:var(--accent)">${esc(f.t.title)}</a>`:''}</div></div>${ib('download','Download',`toast('Downloading ${esc(f.name)}','download')`)}</div>`).join('')}</div>`;
+}
+function guestProjCard(p){
+  const mine=DB.tasks.filter(t=>t.project===p.id&&(t.who===uid()||t.requester===uid())),open=mine.filter(t=>t.status!=='Done').length;
+  return `<a href="#project-${p.id.toLowerCase()}" class="card p-5 flex flex-col gap-3 hover:-translate-y-0.5 transition-transform"><div><div class="text-xs muted mono">${p.id} · ${esc(p.client)}</div><h3 class="font-bold text-lg leading-tight mt-1">${esc(p.name)}</h3></div>
+    <div class="flex gap-1">${p.phases.map((ph,i)=>`<span class="flex-1 h-1.5 rounded-full" style="background:${i<p.phase?'var(--ok)':i===p.phase?'var(--accent)':'var(--surface-2)'}" data-tip="${ph[0]}"></span>`).join('')}</div>
+    <div class="flex justify-between text-sm"><span>${chip(p.phases[p.phase][0],'acc')}</span><span class="muted tnum">${fmtS(p.start)} → ${fmtS(p.end)}</span></div>
+    <div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2"><span class="muted">PM</span>${av(ename(p.pm),22)}${esc(ename(p.pm))}</span><span class="text-xs muted">${open} open · ${mine.length} yours</span></div></a>`;
+}
+function dashGuest(){
+  const mine=DB.tasks.filter(t=>t.who===uid()),open=mine.filter(t=>t.status!=='Done'),reqs=DB.tasks.filter(t=>t.requester===uid());
+  const meets=DB.meetings.filter(m=>m.status==='Scheduled'&&mAtt(m).includes(uid())).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const tiles=[['Open tasks',open.length,'list-todo','info','mytasks'],['Awaiting review',mine.filter(t=>t.status==='Review').length,'eye','warn','mytasks'],['Open requests',reqs.filter(t=>t.status!=='Done').length,'message-square-share','acc','mytasks'],['Upcoming meetings',meets.length,'presentation','ok','meetings']];
+  return guestBanner()+`<div class="grid gap-3 sm:grid-cols-4 mb-4">${tiles.map(([l,n,i,tn,h])=>`<a href="#${h}" class="card p-4 flex items-center gap-3"><span class="chip ${tn}" style="padding:8px">${ic(i,'!w-5 !h-5')}</span><div><div class="text-xs muted">${l}</div><div class="head text-2xl font-extrabold tnum">${n}</div></div></a>`).join('')}</div>
+  <section class="card overflow-hidden mb-4"><div class="p-5 pb-2"><h3 class="card-title">${ic('list-checks','w-4 h-4')}Your tasks</h3></div>${taskTable(open,{compact:true})}</section>
+  <section class="card overflow-hidden mb-4"><div class="p-5 pb-2 flex items-center justify-between gap-2"><h3 class="card-title">${ic('message-square-share','w-4 h-4')}Your requests</h3><button class="btn btn-ghost h-9" onclick="newRequest()">${ic('plus')}Request info</button></div>${taskTable(reqs)}</section>
+  <div class="grid gap-4 xl:grid-cols-2"><section><h3 class="sec-h" style="margin-top:0">${ic('folder-kanban')}Your projects</h3><div class="grid gap-4">${myProjects().map(guestProjCard).join('')||'<p class="muted text-sm">You have not been added to a project yet.</p>'}</div></section>
+  <section><h3 class="sec-h" style="margin-top:0">${ic('calendar-days')}Upcoming meetings</h3><div class="flex flex-col gap-2">${meets.map(meetRow).join('')||'<p class="muted text-sm">No meetings scheduled.</p>'}</div></section></div>`;
+}
+function pgProjectsGuest(){
+  const list=myProjects();
+  return guestBanner()+(list.length?`<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${list.map(guestProjCard).join('')}</div>`:'<p class="muted text-sm">You have not been added to a project yet.</p>');
+}
+function pgProjectGuest(p){
+  if(!(p.guests||[]).includes(uid()))return `<section class="card p-8 text-center">${ic('lock','w-8 h-8 mx-auto muted')}<p class="mt-3 font-semibold">This project is not shared with you.</p><a href="#projects" class="btn btn-ghost mt-4 inline-flex">${ic('arrow-left')}Back to your projects</a></section>`;
+  const mine=DB.tasks.filter(t=>t.project===p.id&&t.who===uid()),reqs=DB.tasks.filter(t=>t.project===p.id&&t.requester===uid());
+  const files=[...mine,...reqs].flatMap(t=>(t.files||[]).map(f=>({...f,t})));
+  const meets=DB.meetings.filter(m=>m.project===p.id&&mAtt(m).includes(uid()));
+  return guestBanner()+`<section class="card p-5 mb-4"><div class="flex flex-wrap gap-2 mb-2">${chip(p.client,'','building')}${chip(fmt(p.start)+' → '+fmt(p.end),'','calendar')}</div><p class="text-sm muted max-w-2xl">${esc(p.desc)}</p>
+    <div class="flex items-center gap-3 mt-3 text-sm"><span class="muted">Project manager</span>${av(ename(p.pm),26)}<b>${esc(ename(p.pm))}</b></div>
+    <div class="phases mt-5">${p.phases.map((ph,i)=>`<div class="ph ${i<p.phase?'done':i===p.phase?'now':''}"><div class="n">${i+1} · ${fmtS(ph[1])} – ${fmtS(ph[2])}</div><div class="font-bold text-sm flex items-center gap-1.5">${i<p.phase?ic('check','w-3.5 h-3.5'):''}${ph[0]}</div></div>`).join('')}</div></section>
+  <section class="card overflow-hidden mb-4"><div class="p-5 pb-2"><h3 class="card-title">${ic('list-checks','w-4 h-4')}Your tasks</h3></div>${taskTable(mine,{project:true,compact:true})}</section>
+  <section class="card overflow-hidden mb-4"><div class="p-5 pb-2 flex items-center justify-between gap-2"><h3 class="card-title">${ic('message-square-share','w-4 h-4')}Your requests</h3><button class="btn btn-ghost h-9" onclick="newRequest('${p.id}')">${ic('plus')}Request info</button></div>${taskTable(reqs,{project:true})}</section>
+  <div class="grid gap-4 xl:grid-cols-2"><section class="card p-5"><h3 class="card-title mb-3">${ic('paperclip','w-4 h-4')}Shared files</h3>${fileRows(files)}</section>
+  <section class="card p-5"><h3 class="card-title mb-3">${ic('presentation','w-4 h-4')}Meetings</h3><div class="flex flex-col gap-2">${meets.map(meetRow).join('')||'<p class="text-sm muted">None.</p>'}</div></section></div>`;
+}
+
+/* requests, files, review */
+function newRequest(pid){
+  const projs=myProjects();if(!projs.length){toast('You are not on a project yet','circle-alert');return}
+  openModal({title:'Request info',icon:'message-square-share',size:'lg',body:`<p class="text-sm muted mb-4">Ask the project team for data, files or approvals. The request goes to the project manager, who prepares it or passes it on. You see only what is shared back on the request.</p>
+    <div class="grid sm:grid-cols-2 gap-4">${fld('Project',sel('rq-p',projs.map(p=>[p.id,p.name]),pid||projs[0].id),'',true)}${fld('Type',sel('rq-y',REQ_TYPES))}
+    ${fld('What do you need?',inp('rq-t','','text','e.g. Q3 website traffic by service'),'sm:col-span-2',true)}
+    ${fld('Details',txt('rq-x','','Period, format, and what it is for',3),'sm:col-span-2')}${fld('Needed by',inp('rq-d',addD(TODAY,3),'date'),'',true)}</div>
+    <div class="banner mt-4">${ic('shield-check')}<span class="text-xs">Client statistics are shared as totals and summaries. Personal data of the client's customers is never shared.</span></div>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveRequest()">${ic('send')}Send request</button>`});
+}
+function saveRequest(){
+  if(!val('rq-t')||!val('rq-d')){toast('Say what you need and by when','circle-alert');return}
+  const p=proj(val('rq-p')),t={id:'K'+(DB.tasks.length+20),project:p.id,kind:'request',reqType:val('rq-y'),requester:uid(),title:val('rq-t'),details:val('rq-x'),tag:'F',level:1,who:p.pm,start:TODAY,due:val('rq-d'),status:'To do',pct:0,deps:[],ci:[],files:[]};
+  DB.tasks.push(t);act(p.id,'task',`requested “${t.title}” (${t.reqType}) from ${ename(p.pm)}.`,uid());closeModal();rerender();toast(`Request sent to ${ename(p.pm)}`,'send');
+}
+function shareFile(id){
+  const t=task(id),fulfil=t.requester&&t.who===uid()&&t.status!=='Done';
+  openModal({title:'Share file',icon:'paperclip',body:`<p class="text-sm mb-4">${tagc(t)} <b>${esc(t.title)}</b></p><div class="grid gap-4">${fld('File',`<input type="file" id="sf-f" class="input" style="padding-top:8px">`)}${fld('Note',txt('sf-n','','What is in it, what changed',2))}
+    ${fulfil?`<label class="check-row"><input type="checkbox" id="sf-done" checked><span class="text-sm">Mark the request as fulfilled</span></label>`:''}</div>
+    ${t.reqType==='Client statistics'&&!isGuestUser()?`<div class="banner mt-4">${ic('shield-alert')}<span class="text-xs">Share totals and summaries only. Never include personal data of the client's customers (names, phone numbers, emails).</span></div>`:''}
+    <p class="text-xs muted mt-3">${isGuestUser()?'Shared with the project team on this task.':'The external partner on this task can see and download it.'}</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveShare('${id}')">${ic('upload')}Share</button>`});
+}
+function saveShare(id){
+  const t=task(id),f=$('#sf-f')?.files?.[0],name=f?f.name:(t.reqType==='Client statistics'?'q3-traffic-leads-summary.xlsx':'shared-file.pdf'),done=$('#sf-done')?.checked;
+  (t.files ||= []).push({name,by:uid()||'E002',on:TODAY,note:val('sf-n')});act(t.project,'task',`shared “${name}” on “${t.title}”.`,uid());
+  if(done){doComplete(id);toast('Shared · request fulfilled','circle-check')}else{closeModal();rerender();toast('File shared','paperclip')}
+}
+function submitReview(id){
+  const t=task(id);t.status='Review';t.pct=Math.max(t.pct,90);t.ci.push([TODAY,t.pct,0,'Submitted for review','Review']);
+  act(t.project,'checkin',`submitted “${t.title}” for review.`,uid());rerender();toast('Sent to '+ename(pmOf(t))+' for review','send');
+}
+function guestPick(name,selected){
+  return DB.vendors.filter(v=>v.status==='Active').map(v=>{const ppl=DB.guests.filter(g=>g.vendor===v.id&&g.access!=='Disabled');return ppl.length?`<div class="text-xs font-bold uppercase tracking-wider muted mt-2 mb-1">${esc(v.name)} · ${esc(v.type)}</div><div class="grid sm:grid-cols-2 gap-2">${ppl.map(g=>`<label class="check-row" style="padding:6px 10px"><input type="checkbox" name="${name}" value="${g.id}" ${selected.includes(g.id)?'checked':''}>${av(g.name,24)}<span class="text-sm flex-1 min-w-0 truncate">${esc(g.name)} <span class="muted text-xs">· ${esc(g.title)}</span></span></label>`).join('')}</div>`:''}).join('');
+}
+function editProjGuests(id){
+  const p=proj(id),list=guestPick('pg',p.guests||[]);
+  openModal({title:'External collaborators',icon:'handshake',body:`<p class="text-sm muted mb-3">Guests see this project's overview, their own tasks and requests, and meetings they are invited to. They never see other tasks, delays, prerequisites or anyone's KPI.</p>${list||'<p class="muted text-sm">No active partners. Add one under Organization → External Partners.</p>'}`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="proj('${id}').guests=picked('pg');closeModal();rerender();toast('External collaborators updated','handshake')">${ic('check')}Save</button>`});
+}
+
+/* partners page */
+function pgVendors(){
+  const openReq=DB.tasks.filter(t=>t.requester&&t.status!=='Done');
+  const stats=[['Active partners',DB.vendors.filter(v=>v.status==='Active').length,'handshake','info'],['Guest people',DB.guests.length,'user-round','acc'],['Can sign in',DB.guests.filter(g=>g.access==='Active').length,'log-in','ok'],['Open requests',openReq.length,'message-square-share','warn']];
+  return `<div class="banner mb-4">${ic('info')}<span class="text-sm">External partners are vendors such as marketing agencies and freelance designers. Their people sign in as <b>Guests</b> and see only the projects, tasks and meetings they are added to. They are not employees: they are left out of the org chart, payroll, leave and KPI, and their tasks carry no points. Client data reaches them only through requests your team fulfils.</span></div>
+  <div class="grid gap-3 sm:grid-cols-4 mb-4">${stats.map(([l,n,i,tn])=>`<div class="card p-4 flex items-center gap-3"><span class="chip ${tn}" style="padding:8px">${ic(i,'!w-5 !h-5')}</span><div><div class="text-xs muted">${l}</div><div class="head text-2xl font-extrabold tnum">${n}</div></div></div>`).join('')}</div>
+  <div class="grid gap-4 xl:grid-cols-2">${DB.vendors.map(vendorCard).join('')}</div>`;
+}
+function vendorCard(v){
+  const ed=isHR()||S.user.roleKey==='sysadmin',ppl=DB.guests.filter(g=>g.vendor===v.id),ids=ppl.map(g=>g.id);
+  const projs=DB.projects.filter(p=>(p.guests||[]).some(g=>ids.includes(g))),reqs=DB.tasks.filter(t=>ids.includes(t.requester)&&t.status!=='Done').length;
+  return `<section class="card p-5 flex flex-col gap-4"><div class="flex items-start gap-3">${av(v.name,40)}<div class="flex-1 min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="font-bold text-lg leading-tight">${esc(v.name)}</h3>${chip(v.type,'info')}${chip(v.status,v.status==='Active'?'ok':'bad')}</div><div class="text-xs muted mt-1">${esc(v.note||'')}</div></div>
+    ${ed?`<div class="actions">${ib('pencil','Edit partner',`editVendor('${v.id}')`)}${ib('user-plus','Add person',`editGuest('${v.id}')`)}</div>`:''}</div>
+    <dl class="mw-facts"><div><dt>Internal owner</dt><dd>${esc(ename(v.owner))}</dd></div><div><dt>Contract</dt><dd class="tnum">${fmtS(v.since)} → ${v.until?fmt(v.until):'open-ended'}</dd></div><div><dt>Contact</dt><dd class="text-xs">${esc(v.email)}${v.phone?'<br>'+esc(v.phone):''}</dd></div><div><dt>Projects · open requests</dt><dd>${projs.length?projs.map(p=>`<a href="#project-${p.id.toLowerCase()}" style="color:var(--accent)">${esc(p.name)}</a>`).join(', '):'—'} · ${reqs}</dd></div></dl>
+    <div class="flex flex-col">${ppl.map(g=>`<div class="flex items-center gap-3 py-2 border-b last:border-0" style="border-color:var(--line)">${av(g.name,30)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold">${esc(g.name)} <span class="muted font-normal">· ${esc(g.title)}</span></div><div class="text-xs muted truncate">${esc(g.email)} · ${g.last?'last sign-in '+fmtS(g.last):'not signed in yet'}</div></div>${chip(g.access,{Active:'ok',Invited:'warn',Disabled:'bad'}[g.access])}
+      ${ed?`<div class="actions">${g.access==='Invited'?ib('mail','Resend invite',`toast('Invite resent to ${esc(g.email)}','mail')`):''}${ib('pencil','Edit person',`editGuest('${v.id}','${g.id}')`)}${ib(g.access==='Disabled'?'lock-open':'lock',g.access==='Disabled'?'Restore access':'Disable sign-in',`toggleGuest('${g.id}')`,g.access==='Disabled'?'':'bad')}</div>`:''}</div>`).join('')||'<p class="text-sm muted">No people yet.</p>'}</div></section>`;
+}
+function editVendor(id){
+  const v=id?vendor(id):{name:'',type:'Marketing',owner:S.user.eid||'E002',email:'',phone:'',since:TODAY,until:'',status:'Active',note:''};
+  openModal({title:id?'Edit partner':'Add external partner',icon:'handshake',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Company or freelancer name',inp('v-n',v.name,'text','e.g. Bright Spark Marketing'),'sm:col-span-2',true)}${fld('Type',sel('v-t',VENDOR_TYPES,v.type))}${fld('Internal owner',sel('v-o',DB.employees.filter(e=>des(e.desig).level>=3).map(e=>[e.id,e.name+' · '+e.pos]),v.owner))}
+    ${fld('Email',inp('v-e',v.email,'email'),'',true)}${fld('Phone',inp('v-p',v.phone,'tel'))}${fld('Contract start',inp('v-s',v.since,'date'))}${fld('Contract end',inp('v-u',v.until,'date'))}${fld('Status',sel('v-st',['Active','Inactive'],v.status))}
+    ${fld('What they do for us',txt('v-x',v.note,'Scope of work',2),'sm:col-span-2')}</div><p class="text-xs muted mt-3">Setting a partner to Inactive disables sign-in for all its people. Their past work stays on the projects.</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveVendor('${id||''}')">${ic('check')}Save</button>`});
+}
+function saveVendor(id){
+  if(!val('v-n')||!val('v-e')){toast('Name and email are required','circle-alert');return}
+  const o={name:val('v-n'),type:val('v-t'),owner:val('v-o'),email:val('v-e'),phone:val('v-p'),since:val('v-s'),until:val('v-u'),status:val('v-st'),note:val('v-x')};
+  let v=id?vendor(id):null;if(v)Object.assign(v,o);else{v={id:nextId(DB.vendors,'V'),...o};DB.vendors.push(v)}
+  if(v.status!=='Active')DB.guests.filter(g=>g.vendor===v.id).forEach(g=>g.access='Disabled');
+  closeModal();rerender();toast(id?'Partner updated':'Partner added','handshake');
+}
+function editGuest(vid,gid){
+  const g=gid?guest(gid):{name:'',title:'',email:''},v=vendor(vid);
+  openModal({title:gid?'Edit person':'Add person · '+esc(v.name),icon:'user-plus',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Name',inp('g-n',g.name),'',true)}${fld('Role',inp('g-t',g.title,'text','e.g. Graphic Designer'))}${fld('Email (used to sign in)',inp('g-e',g.email,'email'),'sm:col-span-2',true)}</div>
+    ${gid?'':'<p class="text-xs muted mt-3">An invite email lets them set a password. They sign in as a Guest and see nothing until you add them to a project or meeting.</p>'}`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveGuest('${vid}','${gid||''}')">${ic(gid?'check':'send')}${gid?'Save':'Send invite'}</button>`});
+}
+function saveGuest(vid,gid){
+  if(!val('g-n')||!val('g-e')){toast('Name and email are required','circle-alert');return}
+  const o={name:val('g-n'),title:val('g-t'),email:val('g-e').toLowerCase()};
+  if(gid)Object.assign(guest(gid),o);
+  else{if(vendor(vid).status!=='Active'){toast('This partner is inactive','circle-alert');return}DB.guests.push({id:nextId(DB.guests,'G'),vendor:vid,...o,access:'Invited',last:null})}
+  closeModal();rerender();toast(gid?'Saved':'Invite sent to '+o.email,gid?'check':'mail');
+}
+function toggleGuest(gid){
+  const g=guest(gid);
+  if(g.access==='Disabled'){if(vendorOf(gid)?.status!=='Active'){toast('Reactivate the partner first','circle-alert');return}g.access=g.last?'Active':'Invited';rerender();toast('Access restored','lock-open');return}
+  confirmBox('Disable sign-in?',`<b>${esc(g.name)}</b> can no longer sign in. Their tasks and files stay on the projects; reassign open tasks if needed.`,`${ic('lock')}Disable`,`guest('${gid}').access='Disabled';closeModal();rerender();toast('Sign-in disabled','lock')`);
+}
 const deptNames = () => DB.departments.map(d=>d.name);
 const dcol = n => DB.departments.find(d=>d.name===n)?.color || '#94a3b8';
 const POOL = {id:null,pool:true,title:'Talent pool',dept:null,dFrom:'D0',dTo:'D9',type:'Permanent',manager:'E004'};
@@ -829,7 +1022,7 @@ const av = (name,sz=32,photo) => { photo = photo ?? photoOf(name);
   return photo ? `<img class="av" src="${photo}" alt="" style="width:${sz}px;height:${sz}px;object-fit:cover">`
   : `<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:hsl(${hue(name)} 62% 86%);color:hsl(${hue(name)} 50% 26%)">${initials(name)}</span>`; };
 const avs = (ids,sz=26,max=6) => `<div class="flex -space-x-2 items-center">${ids.slice(0,max).map(i=>`<span data-tip="${esc(ename(i))}">${av(ename(i),sz)}</span>`).join('')}${ids.length>max?`<span class="av text-xs" style="width:${sz}px;height:${sz}px;background:var(--surface-2);color:var(--muted)">+${ids.length-max}</span>`:''}</div>`;
-const tagc = t => `<span class="tagc" style="background:${tag(t.tag).color}" data-tip="${esc(tag(t.tag).name)} · L${t.level} ${esc(tagLevel(t).name)} · ${tpts(t)} pts">${t.tag}<small>L${t.level}</small></span>`;
+const tagc = t => isGuest(t.who)?'<span class="tagc" style="background:#64748b" data-tip="External partner · no points or KPI">EXT</span>':`<span class="tagc" style="background:${tag(t.tag).color}" data-tip="${isGuestUser()?esc(tag(t.tag).name):esc(tag(t.tag).name)+' · L'+t.level+' '+esc(tagLevel(t).name)+' · '+tpts(t)+' pts'}">${t.tag}<small>L${t.level}</small></span>`;
 const fld = (label,inner,cls='',req=false) => `<label class="fld ${cls}"><span>${label}${req?' <b>*</b>':''}</span>${inner}</label>`;
 const inp = (id,val='',type='text',ph='',extra='') => `<input id="${id}" class="input" type="${type}" value="${esc(val)}" placeholder="${esc(ph)}" ${extra}>`;
 const sel = (id,opts,val,extra='') => `<select id="${id}" class="input" ${extra}>${opts.map(o=>{const [v,l]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${v==val?'selected':''}>${esc(l)}</option>`}).join('')}</select>`;
@@ -976,7 +1169,7 @@ function loginForm(){
     </div>
     <div class="mt-8">
       <div class="text-xs font-bold uppercase tracking-wider muted mb-2">${t('Demo accounts')}</div>
-      <div class="flex flex-col gap-2 acct-list">${ACCOUNTS.map(a=>`<button type="button" class="check-row w-full text-left" onclick="$('#l-email').value='${a.email}';doLogin()">${av(a.name,28)}<span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${a.name}</span><span class="block text-xs muted truncate">${a.sub}</span></span>${chip(a.role.split(' · ')[0],{sysadmin:'acc',exec:'hi',hr:'ok',lead:'info',staff:''}[a.roleKey])}</button>`).join('')}</div>
+      <div class="flex flex-col gap-2 acct-list">${ACCOUNTS.map(a=>`<button type="button" class="check-row w-full text-left" onclick="$('#l-email').value='${a.email}';doLogin()">${av(a.name,28)}<span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${a.name}</span><span class="block text-xs muted truncate">${a.sub}</span></span>${chip(a.role.split(' · ')[0],{sysadmin:'acc',exec:'hi',hr:'ok',lead:'info',staff:'',guest:'warn'}[a.roleKey])}</button>`).join('')}</div>
     </div>
   </form>`;
 }
@@ -993,6 +1186,8 @@ function otpForm(){
 function doLogin(){
   const acc=ACCOUNTS.find(a=>a.email===val('l-email').toLowerCase());
   if(!acc){toast('No account for that email. Pick a demo account.','circle-alert');return}
+  if(acc.gid&&!activeGuest(acc.gid)){toast('Sign-in is disabled for this guest. Contact your Hajimi contact person.','lock');return}
+  if(acc.gid)guest(acc.gid).last=TODAY;
   if((acc.devices||[]).length){S.pending2FA=acc;renderLogin();setTimeout(()=>$('#otp0')?.focus(),50);return}
   S.user=acc;enterApp();
 }
@@ -1024,7 +1219,7 @@ function renderShell(){
       <header class="topbar mw-topbar">
         <button class="icon-btn menu-btn" data-tip="Menu" onclick="toggleSb(true)">${ic('menu')}</button>
         <div class="flex-1 min-w-0"><div class="crumb" id="crumb"></div><div class="mw-page-heading"><h1 class="page-title truncate" id="ptitle"></h1><button type="button" class="icon-btn mw-help-btn" id="help-btn" onclick="openGuide()" aria-label="${t('User guide')}" aria-haspopup="dialog" data-tip="${t('User guide')}">${ic('info')}</button></div></div>
-        <div class="hidden md:flex items-center gap-2 input" style="width:240px;height:38px"><span class="muted">${ic('search','w-4 h-4')}</span><input class="bg-transparent outline-none flex-1 min-w-0 text-sm" placeholder="${t('Search people, NRIC, tasks…')}" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
+        <div class="hidden md:flex items-center gap-2 input" style="width:240px;height:38px"><span class="muted">${ic('search','w-4 h-4')}</span><input class="bg-transparent outline-none flex-1 min-w-0 text-sm" placeholder="${t(u.roleKey==='guest'?'Search your tasks…':'Search people, NRIC, tasks…')}" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
         <span class="hidden sm:inline-flex">${langSwitch()}</span><span class="hidden sm:inline-flex">${ib('bell',t('Notifications'),'showNotifs()')}</span>
         <span id="top-action" class="flex gap-2"></span>
       </header>
@@ -1054,13 +1249,15 @@ function globalSearch(q){
   if(e&&(isHR()||scope().includes(e.id))){viewEmployee(e.id);return}
   const c=DB.candidates.find(x=>(x.name+x.idNo).toLowerCase().includes(q));
   if(c&&can('candidates')){viewCandidate(c.id);return}
-  const t=DB.tasks.find(x=>x.title.toLowerCase().includes(q));
+  const t=(isGuestUser()?myTasks():DB.tasks).find(x=>x.title.toLowerCase().includes(q));
   if(t){viewTask(t.id);return}
   toast('Nothing matched "'+q+'"','search-x');
 }
 function showNotifs(){
   const items=[];
   pendingApprovals().forEach(({t,x})=>items.push(['clock-alert','bad',`${ename(x.by)} requests +${x.days} days on “${t.title}”`,`viewTask('${t.id}')`]));
+  if(S.user.eid)DB.tasks.filter(t=>t.status==='Review'&&isGuest(t.who)&&pmOf(t)===S.user.eid).forEach(t=>items.push(['eye','warn',`${ename(t.who)} submitted “${t.title}” for review`,`viewTask('${t.id}')`]));
+  if(S.user.eid)DB.tasks.filter(t=>t.requester&&t.who===S.user.eid&&t.status!=='Done').forEach(t=>items.push(['message-square-share','hi',`${ename(t.requester)} requests: ${t.title}`,`viewTask('${t.id}')`]));
   myTasks().filter(t=>t.status!=='Done'&&needsCheckin(t)).forEach(t=>items.push(['message-square-warning','warn',`Check-in due: ${t.title}`,`checkin('${t.id}')`]));
   DB.employees.filter(e=>e.probEnd&&days(e.probEnd)<=14&&isHR()).forEach(e=>items.push(['hourglass','warn',`${e.name}: probation ends ${fmtS(e.probEnd)}`,`viewEmployee('${e.id}')`]));
   if(me()&&DB.review.items[me().id]?.st!=='Approved'&&DB.review.items[me().id]?.st!=='Submitted')items.push(['clipboard-pen','hi',`Confirm your personal details for ${DB.review.year}`,`location.hash='profile'`]);
@@ -1270,7 +1467,7 @@ function reviewBanner(){
   const m=me();if(!m)return '';const it=DB.review.items[m.id];if(it&&['Approved','Submitted'].includes(it.st))return '';
   return `<div class="banner mb-4"><span class="chip hi" style="padding:8px">${ic('clipboard-pen','!w-5 !h-5')}</span><div class="flex-1 min-w-0"><b>Annual personal data review ${DB.review.year}</b><div class="text-sm muted">Please confirm your address, mobile and emergency contact by ${fmt(DB.review.due)}. Last updated ${fmt(m.infoUpdated)}.</div></div><a href="#profile" class="btn btn-primary">${ic('arrow-right')}Review now</a></div>`;
 }
-function pgDashboard(){ return S.user.roleKey==='staff'||S.user.roleKey==='lead' ? dashWork() : dashHR(); }
+function pgDashboard(){ if(isGuestUser())return dashGuest(); return S.user.roleKey==='staff'||S.user.roleKey==='lead' ? dashWork() : dashHR(); }
 function dashWork(){
   const m=me(),mine=myTasks().filter(t=>t.status!=='Done'),due=mine.filter(needsCheckin),k=kpiOf(m.id),reps=scope();
   const meets=DB.meetings.filter(x=>x.status==='Scheduled'&&mAtt(x).includes(m.id)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
@@ -2026,9 +2223,9 @@ async function exportOrg(kind){
 /* =================== ACCESS ROLES =================== */
 function pgAccess(){
   let g='';const cnt=r=>ACCOUNTS.filter(a=>a.roleKey===r).length;
-  return `<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5 mb-4">${DB.roles.map(r=>`<div class="card p-4"><div class="flex items-center justify-between"><span class="font-bold">${r.name}</span>${r.locked?`<span data-tip="Built-in, cannot be edited" class="muted">${ic('lock','w-4 h-4')}</span>`:''}</div><div class="text-xs muted mt-1">${r.note}</div><div class="text-xs mt-3"><b class="tnum">${cnt(r.id)}</b> demo account(s)</div></div>`).join('')}</div>
+  return `<div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-6 mb-4">${DB.roles.map(r=>`<div class="card p-4"><div class="flex items-center justify-between"><span class="font-bold">${r.name}</span>${r.locked?`<span data-tip="Built-in, cannot be edited" class="muted">${ic('lock','w-4 h-4')}</span>`:''}</div><div class="text-xs muted mt-1">${r.note}</div><div class="text-xs mt-3"><b class="tnum">${cnt(r.id)}</b> demo account(s)</div></div>`).join('')}</div>
   <section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Permission</th>${DB.roles.map(r=>`<th class="text-center">${r.name}</th>`).join('')}</tr></thead><tbody>
-  ${DB.perms.map((p,i)=>{const head=p[0]!==g?(g=p[0],`<tr><td colspan="6" class="text-xs font-bold uppercase tracking-wider muted" style="background:var(--surface-2)">${p[0]}</td></tr>`):'';return head+`<tr><td>${p[1]}</td>${DB.roles.map(r=>`<td class="text-center"><label class="switch inline-block align-middle"><input type="checkbox" ${r.locked||p[2][r.id]?'checked':''} ${r.locked?'disabled':''} onchange="DB.perms[${i}][2]['${r.id}']=+this.checked;toast('Permission updated','shield-check')" aria-label="${esc(p[1])} for ${r.name}"><span></span></label></td>`).join('')}</tr>`}).join('')}
+  ${DB.perms.map((p,i)=>{const head=p[0]!==g?(g=p[0],`<tr><td colspan="${DB.roles.length+1}" class="text-xs font-bold uppercase tracking-wider muted" style="background:var(--surface-2)">${p[0]}</td></tr>`):'';return head+`<tr><td>${p[1]}</td>${DB.roles.map(r=>`<td class="text-center"><label class="switch inline-block align-middle"><input type="checkbox" ${(r.locked&&!r.fixed)||p[2][r.id]?'checked':''} ${r.locked?'disabled':''} onchange="DB.perms[${i}][2]['${r.id}']=+this.checked;toast('Permission updated','shield-check')" aria-label="${esc(p[1])} for ${r.name}"><span></span></label></td>`).join('')}</tr>`}).join('')}
   </tbody></table></div></section>
   <p class="text-xs muted mt-3">Access roles control what a person can do. They are separate from designations (career level): a Senior 1 can supervise juniors and approve their extensions without being a team lead.</p>`;
 }
@@ -2130,8 +2327,8 @@ function submitApply(vid){
 
 /* =================== WORK: helpers =================== */
 const effDue = t => t.due;
-const myTasks = () => S.user.eid ? DB.tasks.filter(t=>t.who===S.user.eid) : DB.tasks;
-const superiorOf = t => emp(t.who)?.reports;
+const myTasks = () => S.user.eid ? DB.tasks.filter(t=>t.who===S.user.eid) : S.user.gid ? DB.tasks.filter(t=>t.who===S.user.gid||t.requester===S.user.gid) : DB.tasks;
+const superiorOf = t => isGuest(t.who) ? vendorOf(t.who)?.owner : emp(t.who)?.reports;
 const pmOf = t => t.project ? proj(t.project).pm : superiorOf(t);
 function needsCheckin(t){
   if(!['In progress','Blocked'].includes(t.status))return false;
@@ -2161,8 +2358,8 @@ function taskTable(list,{compact=false,project=false}={}){
   if(!list.length)return `<p class="muted text-sm p-5">No tasks here.</p>`;
   return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Task</th><th>Tag</th>${compact?'':'<th>Assignee</th>'}<th>Due</th><th>Progress</th><th>Status</th><th class="text-right">Actions</th></tr></thead><tbody>
   ${list.map(t=>{const p=proj(t.project),od=overdue(t),pend=(t.ext||[]).some(x=>x.status==='Pending'),dl=DB.delays.filter(d=>d.task===t.id);return `<tr>
-    <td><button class="text-left" onclick="viewTask('${t.id}')"><div class="font-semibold">${esc(t.title)}</div><div class="text-xs muted">${p&&!project?esc(p.name):p?'':'Standalone'}${t.deps.length?` · depends on ${t.deps.length}`:''}</div></button></td>
-    <td>${tagc(t)}</td>${compact?'':`<td><span class="flex items-center gap-2">${av(ename(t.who),26)}<span class="text-sm">${esc(ename(t.who))}</span></span></td>`}
+    <td><button class="text-left" onclick="viewTask('${t.id}')"><div class="font-semibold">${esc(t.title)}</div><div class="text-xs muted">${t.requester?`<span style="color:var(--hi)">${ic('message-square-share','w-3 h-3 inline')} ${esc(t.reqType||'Request')} from ${esc(ename(t.requester))}</span> · `:''}${p&&!project?esc(p.name):p?'':'Standalone'}${t.deps.length?` · depends on ${t.deps.length}`:''}</div></button></td>
+    <td>${tagc(t)}</td>${compact?'':`<td><span class="flex items-center gap-2">${av(ename(t.who),26)}<span class="text-sm">${whoLabel(t.who)}</span></span></td>`}
     <td class="tnum">${fmtS(t.due)}${t.origDue?`<div class="text-xs muted">was ${fmtS(t.origDue)}</div>`:''}${od?`<div class="text-xs" style="color:var(--bad)">${-days(t.due)}d overdue</div>`:''}</td>
     <td><div class="flex items-center gap-2"><div class="pct" style="width:70px"><i style="width:${t.pct}%"></i></div><span class="text-xs tnum">${t.pct}%</span></div></td>
     <td><div class="flex flex-col gap-1 items-start">${chip(t.status,TASK_TONE[t.status])}${needsCheckin(t)?chip('Check-in due','warn','message-square-warning'):''}${pend?chip('Ext. pending','hi','clock'):''}${dl.length?chip(dl.length+' delay','bad','flag'):''}</div></td>
@@ -2170,13 +2367,16 @@ function taskTable(list,{compact=false,project=false}={}){
   </tbody></table></div>`;
 }
 function taskActions(t){
-  const mine=t.who===S.user.eid||S.user.roleKey==='sysadmin',p=proj(t.project),mgr=p?canManageProj(p):isHR()||S.user.roleKey==='lead';
+  const g=isGuestUser(),mine=t.who===uid()||S.user.roleKey==='sysadmin',p=proj(t.project),mgr=!g&&(p?canManageProj(p):isHR()||S.user.roleKey==='lead'),ext=isGuest(t.who);
   let h=ib('eye','Open task',`viewTask('${t.id}')`);
   if(t.status!=='Done'){
     if(mine)h+=ib('message-square-plus','Check in / update status',`checkin('${t.id}')`,needsCheckin(t)?'acc':'');
     if(mine&&!(t.ext||[]).some(x=>x.status==='Pending'))h+=ib('calendar-plus','Request extension',`requestExt('${t.id}')`);
-    h+=ib('flag','Record delay / blocker',`recordDelay('${t.id}')`,'bad');
-    if(mine)h+=ib('circle-check','Mark complete',`completeTask('${t.id}')`,'ok');
+    if((ext||t.requester)&&(mine||t.requester===uid()||mgr))h+=ib('paperclip',t.requester&&!g?'Share file with requester':'Share file',`shareFile('${t.id}')`);
+    if(!g)h+=ib('flag','Record delay / blocker',`recordDelay('${t.id}')`,'bad');
+    // Partners submit deliverables for review; the PM approves them.
+    if(ext){if(mine&&g&&t.status!=='Review')h+=ib('send','Submit for review',`submitReview('${t.id}')`,'ok');if(mgr&&t.status==='Review')h+=ib('circle-check','Approve deliverable',`completeTask('${t.id}')`,'ok')}
+    else if(mine)h+=ib('circle-check','Mark complete',`completeTask('${t.id}')`,'ok');
   }else if(mgr)h+=ib('rotate-ccw','Reopen (rework)',`reopenTask('${t.id}')`);
   return h;
 }
@@ -2225,7 +2425,8 @@ function taskViewCfg(){
     sorts:{due:['Due date',cmpStr(t=>t.due)],title:['Title',cmpStr(t=>t.title)],status:['Status',cmpNum(t=>TASK_STATUS.indexOf(t.status))],pct:['Progress',cmpNum(t=>t.pct)],pts:['Points',cmpNum(t=>tpts(t)||0)],who:['Assignee',cmpStr(t=>ename(t.who))]},
     filters:[
       {id:'tag',label:'Tag',opts:DB.tags.map(t=>[t.code,t.code+' · '+t.name]),test:(t,v)=>t.tag===v},
-      {id:'project',label:'Project',opts:[['-','Standalone']].concat(DB.projects.map(p=>[p.id,p.name])),test:(t,v)=>v==='-'?!t.project:t.project===v},
+      {id:'project',label:'Project',opts:[['-','Standalone']].concat(visProjects().map(p=>[p.id,p.name])),test:(t,v)=>v==='-'?!t.project:t.project===v},
+      {id:'people',label:'People',opts:[['int','Internal staff'],['ext','External partners'],['req','Partner requests']],test:(t,v)=>v==='ext'?isGuest(t.who):v==='req'?!!t.requester:!isGuest(t.who)},
       {id:'status',label:'Status',opts:TASK_STATUS.map(x=>[x,x]),test:(t,v)=>t.status===v},
       {id:'due',label:'Due',opts:[['overdue','Overdue'],['week','Next 7 days'],['month','Next 30 days']],test:(t,v)=>v==='overdue'?overdue(t):t.status!=='Done'&&days(t.due)>=0&&days(t.due)<=(v==='week'?7:30)}],
     text:t=>t.title+' '+ename(t.who)+' '+(proj(t.project)?.name||'')};
@@ -2272,7 +2473,7 @@ function meetViewCfg(){
     filters:[
       {id:'when',label:'When',opts:[['up','Upcoming'],['past','Past']],test:(m,v)=>v==='up'?m.status==='Scheduled':m.status==='Completed'},
       {id:'mode',label:'Mode',opts:[...new Set(DB.meetings.map(m=>m.mode))].map(x=>[x,x]),test:(m,v)=>m.mode===v},
-      {id:'project',label:'Project',opts:[['-','No project']].concat(DB.projects.map(p=>[p.id,p.name])),test:(m,v)=>v==='-'?!m.project:m.project===v},
+      {id:'project',label:'Project',opts:[['-','No project']].concat(visProjects().map(p=>[p.id,p.name])),test:(m,v)=>v==='-'?!m.project:m.project===v},
       {id:'org',label:'Organiser',opts:[...new Set(DB.meetings.map(m=>m.organizer))].map(id=>[id,ename(id)]),test:(m,v)=>m.organizer===v}],
     text:m=>m.title+' '+m.objectives+' '+ename(m.organizer)};
 }
@@ -2280,8 +2481,8 @@ function pgMyTasks(){
   const all=myTasks(),tabs={Open:t=>t.status!=='Done','Check-in due':needsCheckin,Overdue:overdue,Blocked:t=>t.status==='Blocked',Done:t=>t.status==='Done'};
   const f=tabs[S.taskTab]||tabs.Open,list=all.filter(f).sort((a,b)=>a.due.localeCompare(b.due));
   const m=me();
-  return `${!S.user.eid?`<div class="banner mb-4">${ic('info')}<span class="text-sm">System admin has no employee record, so this shows every task in the system.</span></div>`:''}
-  <div class="grid gap-3 sm:grid-cols-4 mb-4">${[['Open',all.filter(tabs.Open).length,'list-todo','info'],['Check-ins due',all.filter(needsCheckin).length,'message-square-warning','warn'],['Points earned (Q4)',m?kpiOf(m.id).pts:'—','sparkles','acc'],['Hours logged (Q4)',all.reduce((a,t)=>a+hoursOf(t),0),'timer','ok']].map(([l,n,i,t])=>`<div class="card p-4 flex items-center gap-3"><span class="chip ${t}" style="padding:8px">${ic(i,'!w-5 !h-5')}</span><div><div class="text-xs muted">${l}</div><div class="head text-2xl font-extrabold tnum">${n}</div></div></div>`).join('')}</div>
+  return `${S.user.roleKey==='sysadmin'?`<div class="banner mb-4">${ic('info')}<span class="text-sm">System admin has no employee record, so this shows every task in the system.</span></div>`:''}
+  <div class="grid gap-3 sm:grid-cols-4 mb-4">${[['Open',all.filter(tabs.Open).length,'list-todo','info'],['Check-ins due',all.filter(needsCheckin).length,'message-square-warning','warn'],isGuestUser()?['Open requests',all.filter(t=>t.requester===uid()&&t.status!=='Done').length,'message-square-share','acc']:['Points earned (Q4)',m?kpiOf(m.id).pts:'—','sparkles','acc'],['Hours logged (Q4)',all.reduce((a,t)=>a+hoursOf(t),0),'timer','ok']].map(([l,n,i,t])=>`<div class="card p-4 flex items-center gap-3"><span class="chip ${t}" style="padding:8px">${ic(i,'!w-5 !h-5')}</span><div><div class="text-xs muted">${l}</div><div class="head text-2xl font-extrabold tnum">${n}</div></div></div>`).join('')}</div>
   <div class="flex flex-wrap items-center gap-3 mb-4"><div class="tabs">${Object.keys(tabs).map(k=>`<button class="tab ${S.taskTab===k?'on':''}" onclick="S.taskTab='${k}';rerender()">${k}<span class="n tnum">${all.filter(tabs[k]).length}</span></button>`).join('')}</div>
   <span class="text-xs muted">Check-in is required every ${DB.settings.checkinEvery} working days on in-progress and blocked tasks.</span></div>
   ${taskView('mytasks',list,{compact:!!S.user.eid})}`;
@@ -2289,6 +2490,7 @@ function pgMyTasks(){
 
 /* =================== PROJECTS =================== */
 function pgProjects(){
+  if(isGuestUser())return pgProjectsGuest();
   let list=DB.projects;if(['staff','lead'].includes(S.user.roleKey))list=list.filter(p=>p.members.includes(S.user.eid)||p.pm===S.user.eid);
   const appr=pendingApprovals();
   return `${appr.length?`<section class="card p-5 mb-4">${approvalsCard(appr)}</section>`:''}
@@ -2296,14 +2498,16 @@ function pgProjects(){
   <h3 class="sec-h">${ic('list')}Standalone tasks</h3><p class="text-xs muted -mt-2 mb-3">Quick tasks and support tickets outside a project.</p>${taskView('standalone',DB.tasks.filter(t=>!t.project&&(isHR()||S.user.roleKey==='sysadmin'||scope().includes(t.who)||t.who===S.user.eid)))}`;
 }
 function projActions(p){
+  if(isGuestUser())return (p.guests||[]).includes(uid())?`<button class="btn btn-primary" onclick="newRequest('${p.id}')">${ic('message-square-share')}<span class="hidden sm:inline">Request info</span></button>`:'';
   if(!canManageProj(p))return `<button class="btn btn-ghost" onclick="recordDelay(null,'${p.id}')">${ic('flag')}<span class="hidden sm:inline">Record delay</span></button>`;
   return `<button class="btn btn-ghost" onclick="recordDelay(null,'${p.id}')">${ic('flag')}<span class="hidden sm:inline">Record delay</span></button><button class="btn btn-primary" onclick="addTask('${p.id}')">${ic('plus')}<span class="hidden sm:inline">Add task</span></button>`;
 }
 function pgProject(p){
+  if(isGuestUser())return pgProjectGuest(p);
   const ts=DB.tasks.filter(t=>t.project===p.id),h=projHealth(p),pr=projProgress(p),dl=DB.delays.filter(d=>d.project===p.id),mg=canManageProj(p);
   return `<section class="card p-5 mb-4"><div class="flex flex-wrap gap-4 items-start">
       <div class="flex-1 min-w-[240px]"><div class="flex flex-wrap gap-2 mb-2">${chip(h[0],h[1])}${chip(esc(p.client),'','building')}${chip(`${fmt(p.start)} → ${fmt(p.end)}`,'','calendar')}</div><p class="text-sm muted max-w-2xl">${esc(p.desc)}</p>
-      <div class="flex items-center gap-3 mt-3 text-sm"><span class="muted">PM</span>${av(ename(p.pm),26)}<b>${esc(ename(p.pm))}</b><span class="muted ml-3">Team</span>${avs(p.members,26,10)}${mg?ib('user-plus','Edit members',`editProjMembers('${p.id}')`):''}</div></div>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3 text-sm"><span class="muted">PM</span>${av(ename(p.pm),26)}<b>${esc(ename(p.pm))}</b><span class="muted ml-3">Team</span>${avs(p.members,26,10)}${mg?ib('user-plus','Edit members',`editProjMembers('${p.id}')`):''}${(p.guests||[]).length||mg?`<span class="muted ml-3">External</span>${(p.guests||[]).length?avs(p.guests,26,6):'<span class="text-xs muted">none</span>'}${mg?ib('handshake','Edit external collaborators',`editProjGuests('${p.id}')`):''}`:''}</div></div>
       <div class="kv" style="min-width:300px;flex:0 1 420px"><div><span class="text-xs muted">Progress</span><b class="tnum">${pr}%</b></div><div><span class="text-xs muted">Tasks done</span><b class="tnum">${ts.filter(t=>t.status==='Done').length}/${ts.length}</b></div><div><span class="text-xs muted">Days lost</span><b class="tnum" style="color:${dl.length?'var(--bad)':'inherit'}">${dl.reduce((a,d)=>a+d.days,0)}</b></div></div></div>
     <div class="phases mt-5">${p.phases.map((ph,i)=>`<div class="ph ${i<p.phase?'done':i===p.phase?'now':''}"><div class="n">${i+1} · ${fmtS(ph[1])} – ${fmtS(ph[2])}</div><div class="font-bold text-sm flex items-center gap-1.5">${i<p.phase?ic('check','w-3.5 h-3.5'):''}${ph[0]}</div></div>`).join('')}</div>
     ${mg&&p.phase<4?`<div class="flex justify-end mt-3"><button class="btn btn-ghost h-9" onclick="advancePhase('${p.id}')">${ic('skip-forward')}Move to ${p.phases[p.phase+1][0]}</button></div>`:''}
@@ -2369,10 +2573,10 @@ function saveProject(){
 
 /* add task */
 function addTask(pid){
-  const p=proj(pid),pool=p?p.members:scope().concat(S.user.eid||[]);
+  const p=proj(pid),pool=p?p.members.concat((p.guests||[]).filter(activeGuest)):scope().concat(S.user.eid||[]);
   openModal({title:p?`Add task · ${esc(p.name)}`:'Add standalone task',icon:'list-plus',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">
     ${fld('Task title',inp('tk-t','','text','What needs to be delivered'),'sm:col-span-2',true)}
-    ${fld('Tag',sel('tk-g',DB.tags.filter(t=>t.code!=='M').map(t=>[t.code,`${t.code} · ${t.name} (${t.range})`]),'E',`onchange="tkLevels()"`))}${fld('Assignee',sel('tk-w',pool.map(m=>[m,`${ename(m)} · ${des(emp(m).desig).name}`]),pool[1]||pool[0]))}
+    ${fld('Tag',sel('tk-g',DB.tags.filter(t=>t.code!=='M').map(t=>[t.code,`${t.code} · ${t.name} (${t.range})`]),'E',`onchange="tkLevels()"`))}${fld('Assignee',sel('tk-w',pool.map(m=>[m,isGuest(m)?`${ename(m)} · ${vendorOf(m)?.name} (external, no points)`:`${ename(m)} · ${des(emp(m).desig).name}`]),pool[1]||pool[0],'onchange="tkLevels()"'))}
     <div class="fld sm:col-span-2"><span>Difficulty level (team lead judges)</span><div class="grid grid-cols-5 gap-2" id="tk-lv"></div></div>
     ${fld('Start',inp('tk-s',TODAY,'date'),'',true)}${fld('Due',inp('tk-d',addD(TODAY,3),'date'),'',true)}
     ${fld('Estimated hours',inp('tk-h',8,'number'))}${fld('Deliverable / definition of done',inp('tk-dod','','text','e.g. API merged + Postman collection'))}
@@ -2380,7 +2584,7 @@ function addTask(pid){
   </div>`,foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask('${pid||''}')">${ic('check')}Create task</button>`});
   tkLevels();
 }
-function tkLevels(){const t=tag(val('tk-g'));$('#tk-lv').innerHTML=t.levels.map(({pts:p,name:ln},i)=>`<label class="check-row flex-col !items-start" style="padding:8px"><span class="flex items-center gap-2"><input type="radio" name="tk-l" value="${i+1}" ${i===Math.min(1,t.levels.length-1)?'checked':''}><b>L${i+1}</b></span><span class="text-xs muted">${esc(ln)}</span><span class="text-sm font-bold" style="color:${t.color}">${p} pts</span></label>`).join('')}
+function tkLevels(){const t=tag(val('tk-g'));if(isGuest(val('tk-w'))){$('#tk-lv').innerHTML='<input type="radio" name="tk-l" value="1" checked hidden><p class="text-sm muted" style="grid-column:1/-1">External partner: no difficulty points or KPI. The tag is kept for reporting only.</p>';return}$('#tk-lv').innerHTML=t.levels.map(({pts:p,name:ln},i)=>`<label class="check-row flex-col !items-start" style="padding:8px"><span class="flex items-center gap-2"><input type="radio" name="tk-l" value="${i+1}" ${i===Math.min(1,t.levels.length-1)?'checked':''}><b>L${i+1}</b></span><span class="text-xs muted">${esc(ln)}</span><span class="text-sm font-bold" style="color:${t.color}">${p} pts</span></label>`).join('')}
 function saveTask(pid){
   if(!val('tk-t')||val('tk-d')<val('tk-s')){toast('Title and a valid date range are required','circle-alert');return}
   const t={id:'K'+(DB.tasks.length+20),project:pid||null,title:val('tk-t'),tag:val('tk-g'),level:+$('input[name=tk-l]:checked').value,who:val('tk-w'),start:val('tk-s'),due:val('tk-d'),status:'To do',pct:0,deps:picked('tk-dep'),ci:[],est:+val('tk-h'),dod:val('tk-dod')};
@@ -2389,18 +2593,21 @@ function saveTask(pid){
 
 /* view task */
 function viewTask(id){
+  if(isGuestUser()){const x=task(id);if(x.who!==uid()&&x.requester!==uid()){toast('This task is not shared with you','lock');return}}
   S.drawerFn=()=>viewTask(id);
   const t=task(id),p=proj(t.project),deps=t.deps.map(task),dl=DB.delays.filter(d=>d.task===id||(d.affected.includes(t.who)&&t.deps.includes(d.task)));
   const blockers=DB.tasks.filter(x=>x.deps.includes(id));
   openDrawer(`<div class="modal-h">${tagc(t)}<div class="flex-1 min-w-0"><div class="font-bold text-lg leading-tight">${esc(t.title)}</div><div class="text-xs muted">${t.id} · ${p?`<a href="#project-${p.id.toLowerCase()}" style="color:var(--accent)">${esc(p.name)}</a>`:'Standalone task'}</div></div>${ib('x','Close','closeDrawer()')}</div>
   <div class="modal-b flex-1">
-    <div class="flex flex-wrap gap-2">${chip(t.status,TASK_TONE[t.status])}${overdue(t)?chip(-days(t.due)+' days overdue','bad'):''}${needsCheckin(t)?chip('Check-in due','warn'):''}${chip(`${tag(t.tag).name} · L${t.level} ${DB.levelNames[t.level-1]} · ${tpts(t)} pts`,'','sparkles')}</div>
+    <div class="flex flex-wrap gap-2">${chip(t.status,TASK_TONE[t.status])}${overdue(t)?chip(-days(t.due)+' days overdue','bad'):''}${needsCheckin(t)?chip('Check-in due','warn'):''}${isGuestUser()?'':isGuest(t.who)?chip('External partner · no points or KPI','','handshake'):chip(`${tag(t.tag).name} · L${t.level} ${tagLevel(t).name} · ${tpts(t)} pts`,'','sparkles')}</div>
     <div class="kv mt-4"><div><span class="text-xs muted">Progress</span><b class="tnum">${t.pct}%</b></div><div><span class="text-xs muted">Hours logged</span><b class="tnum">${hoursOf(t)}${t.est?` / ${t.est}`:''}</b></div><div><span class="text-xs muted">${t.done?'Time taken':'Working days left'}</span><b class="tnum">${t.done?wdays(t.start,t.done)+' d':Math.max(0,wdays(TODAY,t.due))+' d'}</b></div></div>
     <div class="sec-h">${ic('info')}Details</div>
-    <dl class="dl"><dt>Assignee</dt><dd class="flex items-center gap-2">${av(ename(t.who),22)}${esc(ename(t.who))}</dd><dt>Superior</dt><dd>${esc(ename(superiorOf(t)))}</dd><dt>Project manager</dt><dd>${esc(ename(pmOf(t)))}</dd><dt>Planned</dt><dd>${fmt(t.start)} → ${fmt(t.due)}${t.origDue?` <span class="muted text-xs">(originally ${fmtS(t.origDue)})</span>`:''}</dd>${t.done?`<dt>Completed</dt><dd>${fmt(t.done)} ${t.done>(t.origDue||t.due)?chip('late','bad'):chip('on time','ok')}</dd>`:''}${t.dod?`<dt>Definition of done</dt><dd>${esc(t.dod)}</dd>`:''}</dl>
+    <dl class="dl"><dt>Assignee</dt><dd class="flex items-center gap-2">${av(ename(t.who),22)}${whoLabel(t.who)}</dd>${isGuestUser()?'':`<dt>${isGuest(t.who)?'Partner owner':'Superior'}</dt><dd>${esc(ename(superiorOf(t)))}</dd>`}<dt>Project manager</dt><dd>${esc(ename(pmOf(t)))}</dd><dt>Planned</dt><dd>${fmt(t.start)} → ${fmt(t.due)}${t.origDue?` <span class="muted text-xs">(originally ${fmtS(t.origDue)})</span>`:''}</dd>${t.done?`<dt>Completed</dt><dd>${fmt(t.done)} ${t.done>(t.origDue||t.due)?chip('late','bad'):chip('on time','ok')}</dd>`:''}${t.dod?`<dt>Definition of done</dt><dd>${esc(t.dod)}</dd>`:''}</dl>
     ${deps.length||blockers.length?`<div class="sec-h">${ic('git-merge')}Dependencies</div>${deps.map(d=>`<button class="check-row w-full text-left mb-2" onclick="viewTask('${d.id}')">${ic('arrow-down-to-line','w-4 h-4 muted')}<span class="text-xs muted w-14">Needs</span>${tagc(d)}<span class="flex-1 text-sm truncate">${esc(d.title)} · ${esc(ename(d.who))}</span>${chip(d.status,TASK_TONE[d.status])}</button>`).join('')}${blockers.map(d=>`<button class="check-row w-full text-left mb-2" onclick="viewTask('${d.id}')">${ic('arrow-up-from-line','w-4 h-4 muted')}<span class="text-xs muted w-14">Feeds</span>${tagc(d)}<span class="flex-1 text-sm truncate">${esc(d.title)} · ${esc(ename(d.who))}</span>${chip(d.status,TASK_TONE[d.status])}</button>`).join('')}`:''}
     ${(t.ext||[]).length?`<div class="sec-h">${ic('clock')}Extension requests</div>${t.ext.map(x=>`<div class="card p-3 mb-2" style="box-shadow:none"><div class="flex items-center justify-between gap-2"><b class="text-sm">+${x.days} days · ${fmt(x.on)}</b>${chip(x.status,{Approved:'ok',Rejected:'bad',Pending:'warn'}[x.status])}</div><p class="text-sm mt-1">${esc(x.reason)}</p><div class="flex flex-wrap gap-2 mt-2">${apprChip('Superior',x.sup)}${apprChip('PM',x.pm)}</div>${x.status==='Pending'&&[x.sup,x.pm].some(s=>s.st==='Pending'&&(s.who===S.user.eid||S.user.roleKey==='sysadmin'))?`<div class="flex gap-2 mt-2"><button class="btn btn-primary h-8" onclick="approveExt('${t.id}','${x.id}','Approved')">${ic('check')}Approve</button><button class="btn btn-ghost h-8" onclick="approveExt('${t.id}','${x.id}','Rejected')">${ic('x')}Reject</button></div>`:''}</div>`).join('')}`:''}
     ${dl.length?`<div class="sec-h">${ic('flag')}Delays linked to this task</div>${delayList(dl)}`:''}
+    ${t.requester?`<div class="sec-h">${ic('message-square-share')}Request</div><dl class="dl"><dt>Requested by</dt><dd>${whoLabel(t.requester)}</dd><dt>Type</dt><dd>${esc(t.reqType||'Other')}</dd>${t.details?`<dt>Details</dt><dd>${esc(t.details)}</dd>`:''}</dl>`:''}
+    ${isGuest(t.who)||t.requester||(t.files||[]).length?`<div class="sec-h">${ic('paperclip')}Shared files</div>${fileRows(t.files||[])}`:''}
     <div class="sec-h">${ic('message-square-text')}Check-ins</div>
     ${t.ci.length?`<div class="timeline">${[...t.ci].reverse().map(c=>`<div class="tl" style="--tl:var(--${c[4]==='Blocked'?'bad':'accent'})"><div class="text-sm font-semibold">${fmt(c[0])} · ${c[1]}% · ${c[2]}h</div>${c[3]?`<div class="text-sm muted">${esc(c[3])}</div>`:''}</div>`).join('')}</div>`:'<p class="text-sm muted">No check-ins yet.</p>'}
   </div><div class="modal-f flex-wrap">${taskActions(t).replace(/^.*?<\/button>/,'')}</div>`);
@@ -2456,7 +2663,7 @@ function recordDelay(tid,pid){
   openModal({title:'Record delay / blocker',icon:'flag',size:'lg',body:`<p class="text-sm muted mb-4">Use this when someone's late, incomplete or inaccurate work holds up others. It stays on the project trace and affects the responsible person's KPI (except external parties).</p>
   <div class="grid sm:grid-cols-2 gap-4">
     ${fld('Related task',sel('dl-t',tasks.map(x=>[x.id,`${x.title} (${ename(x.who)})`]),t?.id),'sm:col-span-2')}
-    ${fld('Responsible (caused the delay)',sel('dl-r',[...ppl.map(m=>[m,ename(m)]),['ext:Client','Client / external party']],t?(t.deps[0]?task(t.deps[0]).who:t.who):ppl[0]),'',true)}${fld('Cause',sel('dl-c',DELAY_CAUSES))}
+    ${fld('Responsible (caused the delay)',sel('dl-r',[...ppl.concat(p?.guests||[]).map(m=>[m,ename(m)+(isGuest(m)?' (external)':'')]),['ext:Client','Client / external party']],t?(t.deps[0]?task(t.deps[0]).who:t.who):ppl[0]),'',true)}${fld('Cause',sel('dl-c',DELAY_CAUSES))}
     ${fld('Date it happened',inp('dl-d',TODAY,'date'))}${fld('Working days lost',inp('dl-n',1,'number','','min="0"'))}
     ${fld('What happened',txt('dl-x','','e.g. API delivered without refresh-token endpoint; frontend blocked 1 day.',3),'sm:col-span-2',true)}
     ${fld('Evidence (optional)',`<input type="file" class="input" style="padding-top:8px">`,'sm:col-span-2')}</div>
@@ -2467,7 +2674,7 @@ function saveDelay(){
   if(!val('dl-x')){toast('Describe what happened','circle-alert');return}
   const t=task(val('dl-t')),d={id:'DL'+(DB.delays.length+1),task:t.id,project:t.project,date:val('dl-d'),resp:val('dl-r'),affected:picked('dl-a'),cause:val('dl-c'),days:+val('dl-n')||0,note:val('dl-x'),by:S.user.eid||'E002',status:'Open'};
   DB.delays.push(d);act(t.project,'delay',`recorded a delay against ${ename(d.resp)}: ${d.cause}, ${d.days} day(s) lost.`);
-  closeModal();rerender();toast(String(d.resp).startsWith('ext')?'Recorded (external, no KPI impact)':`Recorded · affects ${ename(d.resp)}'s KPI`,'flag');
+  closeModal();rerender();toast(String(d.resp).startsWith('ext')||isGuest(d.resp)?'Recorded (external, no KPI impact)':`Recorded · affects ${ename(d.resp)}'s KPI`,'flag');
 }
 function resolveDelay(id){DB.delays.find(d=>d.id===id).status='Resolved';rerender();toast('Marked resolved')}
 function completeTask(id){
@@ -2477,14 +2684,14 @@ function completeTask(id){
 function doComplete(id){
   const t=task(id);t.status='Done';t.pct=100;t.done=TODAY;t.ci.push([TODAY,100,0,'Completed','Done']);
   if(TODAY>t.due){const n=wdays(addD(t.due,1),TODAY);DB.delays.push({id:'DL'+(DB.delays.length+1),task:id,project:t.project,date:TODAY,resp:t.who,affected:DB.tasks.filter(x=>x.deps.includes(id)).map(x=>x.who),cause:'Late delivery',days:n,note:'Auto-recorded: completed after due date.',by:'system',status:'Resolved'})}
-  act(t.project,'done',`completed “${t.title}” (+${tpts(t)} pts).`,t.who);closeModal();rerender();toast(`Done · +${tpts(t)} points`,'circle-check');
+  act(t.project,'done',`completed “${t.title}” (+${tpts(t)} pts).`,t.who);closeModal();rerender();toast(isGuest(t.who)?'Deliverable approved':`Done · +${tpts(t)} points`,'circle-check');
 }
 function reopenTask(id){const t=task(id);t.status='In progress';t.pct=80;t.rework=(t.rework||0)+1;delete t.done;act(t.project,'checkin',`reopened “${t.title}” for rework (counts toward quality).`);rerender();toast('Reopened for rework','rotate-ccw')}
 
 /* =================== MEETINGS =================== */
 const mAtt = m => m.attendees==='ALL'?DB.employees.map(e=>e.id):m.attendees;
 function pgMeetings(){
-  const vis=DB.meetings.filter(m=>isHR()||S.user.roleKey==='sysadmin'||mAtt(m).includes(S.user.eid)||m.organizer===S.user.eid);
+  const vis=DB.meetings.filter(m=>isHR()||S.user.roleKey==='sysadmin'||mAtt(m).includes(uid())||m.organizer===uid());
   const up=vis.filter(m=>m.status==='Scheduled').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)),past=vis.filter(m=>m.status==='Completed').sort((a,b)=>b.date.localeCompare(a.date));
   const card=m=>{const d=new Date(m.date+'T00:00:00'),a=mAtt(m);return `<button class="card p-5 flex gap-4 text-left w-full" onclick="viewMeeting('${m.id}')">
     <div class="text-center rounded-xl px-3 py-2 flex-none self-start" style="background:var(--accent-soft)"><div class="text-xs font-bold uppercase" style="color:var(--accent)">${d.toLocaleDateString('en-GB',{month:'short'})}</div><div class="head text-2xl font-extrabold leading-none">${d.getDate()}</div></div>
@@ -2505,11 +2712,11 @@ function newMeeting(){
     ${fld('Duration',sel('mt-l',[[15,'15 min'],[30,'30 min'],[45,'45 min'],[60,'1 hour'],[90,'1.5 hours'],[120,'2 hours']],60))}${fld('Mode',sel('mt-m',['Google Meet','Microsoft Teams','Onsite','Hybrid']))}
     ${fld('Location / link',inp('mt-w','','text','Auto-generate if online'))}${fld('Related project',sel('mt-p',[['','— None —'],...DB.projects.map(p=>[p.id,p.name])]))}
     ${fld('Objectives',txt('mt-o','','What must be decided or achieved?',2),'sm:col-span-2',true)}${fld('Agenda',txt('mt-a','','1. …\n2. …',3),'sm:col-span-2')}</div>
-    <div class="sec-h">${ic('users')}Invite attendees <span class="normal-case font-normal tracking-normal">· any department, or everyone</span></div>${picker('mt',{selected:S.user.eid?[S.user.eid]:[]})}`,
+    <div class="sec-h">${ic('users')}Invite attendees <span class="normal-case font-normal tracking-normal">· any department, or everyone</span></div>${picker('mt',{selected:S.user.eid?[S.user.eid]:[]})}${guestPick('mt-g',[])?`<div class="sec-h">${ic('handshake')}External partners</div>${guestPick('mt-g',[])}`:''}`,
   foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMeeting()">${ic('send')}Schedule & invite</button>`});
 }
 function saveMeeting(){
-  const a=picked('mt');if(!val('mt-t')||!val('mt-o')||!a.length){toast('Title, objectives and attendees are required','circle-alert');return}
+  const a=picked('mt').concat(picked('mt-g'));if(!val('mt-t')||!val('mt-o')||!a.length){toast('Title, objectives and attendees are required','circle-alert');return}
   const m={id:'MT'+(DB.meetings.length+1),title:val('mt-t'),date:val('mt-d'),time:val('mt-h'),dur:+val('mt-l'),mode:val('mt-m'),where:val('mt-w')||(val('mt-m')==='Onsite'?'Level 8, Meeting Room Meranti':'meet.google.com/new-'+Math.random().toString(36).slice(2,6)),organizer:S.user.eid||'E002',project:val('mt-p')||null,
     attendees:a.length===DB.employees.length?'ALL':a,status:'Scheduled',objectives:val('mt-o'),agenda:val('mt-a'),minutes:'',decisions:'',actions:[],att:{}};
   DB.meetings.push(m);act(m.project,'meeting',`scheduled “${m.title}” for ${fmtS(m.date)} ${m.time}.`);closeModal();rerender();toast(`Invites sent to ${a.length} people`,'send');
@@ -2719,12 +2926,13 @@ function pgIntegrations(){
 function memberMap(n){openModal({title:`${n} member mapping`,icon:'link',body:`<p class="text-sm muted mb-3">External users are matched to employees by work email. Fix mismatches here once; future imports reuse the mapping.</p><div class="tbl-wrap"><table class="mini-tbl"><thead><tr><th>External user</th><th>Employee</th></tr></thead><tbody>${DB.employees.filter(e=>['WordPress','Mobile'].includes(e.dept)).map(e=>`<tr><td class="mono">${e.email}</td><td>${chip(e.name,'ok','check')}</td></tr>`).join('')}<tr class="row-err"><td class="mono">someone@agency.com</td><td>${sel('mm-x',[['','— Ignore (freelancer) —'],...DB.employees.map(e=>[e.id,e.name])],'','style="height:30px;font-size:12px"')}</td></tr></tbody></table></div>`,foot:`<button class="btn btn-primary" onclick="closeModal();toast('Mapping saved','link')">${ic('check')}Save</button>`})}
 
 /* =================== ROUTES & BOOT =================== */
+GUIDES.vendors={"intro":"Vendors outside the company, such as marketing agencies and freelance designers, and the people who work with you on projects.","steps":["Add the partner with its type, contract dates and the internal owner who manages the relationship.","Add each person who needs access. They get an invite and sign in as a Guest.","Open a project and use External collaborators to add them. Assign them tasks from Add task.","Partners ask for client figures or files through Request info. The project manager prepares what is needed and shares it on the request."],"tips":["Guests see only their own tasks, requests and meetings on the projects they are added to.","Partners are not in the org chart, payroll, leave or KPI, and their tasks carry no points.","Setting a partner to Inactive disables sign-in for all its people."]};
 const PAGES = {
   dashboard:{t:'Dashboard',c:'Overview',r:pgDashboard},
   profile:{t:'My Profile',c:'Overview',r:pgProfile},
-  mytasks:{t:'My Tasks',c:'Work',r:pgMyTasks,a:()=>['lead','exec','sysadmin'].includes(S.user.roleKey)?`<button class="btn btn-primary" onclick="addTask()">${ic('plus')}<span class="hidden sm:inline">Quick task</span></button>`:''},
-  projects:{t:'Projects',c:'Work',r:pgProjects,a:()=>['lead','exec','sysadmin'].includes(S.user.roleKey)?`<button class="btn btn-ghost" onclick="addTask()">${ic('list-plus')}<span class="hidden sm:inline">Standalone task</span></button><button class="btn btn-primary" onclick="newProject()">${ic('folder-plus')}<span class="hidden sm:inline">New project</span></button>`:''},
-  meetings:{t:'Meetings',c:'Work',r:pgMeetings,a:()=>`<button class="btn btn-primary" onclick="newMeeting()">${ic('calendar-plus')}<span class="hidden sm:inline">Schedule meeting</span></button>`},
+  mytasks:{t:'My Tasks',c:'Work',r:pgMyTasks,a:()=>isGuestUser()?`<button class="btn btn-primary" onclick="newRequest()">${ic('message-square-share')}<span class="hidden sm:inline">Request info</span></button>`:['lead','exec','sysadmin'].includes(S.user.roleKey)?`<button class="btn btn-primary" onclick="addTask()">${ic('plus')}<span class="hidden sm:inline">Quick task</span></button>`:''},
+  projects:{t:'Projects',c:'Work',r:pgProjects,a:()=>isGuestUser()?`<button class="btn btn-primary" onclick="newRequest()">${ic('message-square-share')}<span class="hidden sm:inline">Request info</span></button>`:['lead','exec','sysadmin'].includes(S.user.roleKey)?`<button class="btn btn-ghost" onclick="addTask()">${ic('list-plus')}<span class="hidden sm:inline">Standalone task</span></button><button class="btn btn-primary" onclick="newProject()">${ic('folder-plus')}<span class="hidden sm:inline">New project</span></button>`:''},
+  meetings:{t:'Meetings',c:'Work',r:pgMeetings,a:()=>isGuestUser()?'':`<button class="btn btn-primary" onclick="newMeeting()">${ic('calendar-plus')}<span class="hidden sm:inline">Schedule meeting</span></button>`},
   kpi:{t:'KPI',c:'Work',r:pgKpi,a:()=>['sysadmin','hr','exec'].includes(S.user.roleKey)?`<button class="btn btn-ghost" onclick="importExternal()">${ic('cloud-download')}<span class="hidden sm:inline">Import external</span></button><button class="btn btn-primary" onclick="exportKpi()">${ic('sheet')}<span class="hidden sm:inline">Export</span></button>`:''},
   vacancies:{t:'Vacancies',c:'Recruitment',r:pgVacancies,a:()=>isHR()?`<button class="btn btn-primary" onclick="editVacancy()">${ic('plus')}<span class="hidden sm:inline">New vacancy</span></button>`:''},
   candidates:{t:'Candidates',c:'Recruitment',r:pgCandidates,a:()=>isHR()?`<button class="btn btn-primary" onclick="addCandidate()">${ic('user-round-plus')}<span class="hidden sm:inline">Add candidate</span></button>`:''},
@@ -2737,6 +2945,7 @@ const PAGES = {
   departments:{t:'Departments',c:'Organization',r:pgDepartments,a:()=>`<button class="btn btn-primary" onclick="editDept()">${ic('plus')}<span class="hidden sm:inline">Add department</span></button>`},
   designations:{t:'Designations',c:'Organization',r:pgDesignations,a:()=>`<button class="btn btn-primary" onclick="editDesignation()">${ic('plus')}<span class="hidden sm:inline">Add level</span></button>`},
   emptypes:{t:'Employment Types',c:'Organization',r:pgEmpTypes,a:()=>`<button class="btn btn-primary" onclick="editEmpType()">${ic('plus')}<span class="hidden sm:inline">Add type</span></button>`},
+  vendors:{t:'External Partners',c:'Organization',r:pgVendors,a:()=>isHR()||S.user.roleKey==='sysadmin'?`<button class="btn btn-primary" onclick="editVendor()">${ic('plus')}<span class="hidden sm:inline">Add partner</span></button>`:''},
   tags:{t:'Task Tags & Points',c:'Organization',r:pgTags,a:()=>`<button class="btn btn-primary" onclick="editTag()">${ic('plus')}<span class="hidden sm:inline">Add tag</span></button>`},
   integrations:{t:'Integrations',c:'System',r:pgIntegrations},
   access:{t:'Access Roles',c:'System',r:pgAccess},

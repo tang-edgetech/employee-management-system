@@ -355,3 +355,15 @@ The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/merid
 | Tests | Vitest for the dictionary, menu filtering and Problem Details mapping; Playwright: each demo account signs in, sees exactly its menu, opens each allowed page with no console errors; screenshots of login, a failed attempt and the dashboard. |
 
 The milestones after M6 are unchanged: M7 (OpenAPI, CI; ask before the first push), M8 (installer, deploy, update log).
+
+### 9.5 External partners (2026-11-06, owner approved the mockup 2026-11-06)
+
+Third-party Marketing and Design people take part in tasks and projects without joining the organisation. Mockup only; the backend is built with the Tasks and Projects modules, not in Foundation. Walk-through: `docs/design/partner-journeys.pdf`.
+
+| # | Decision |
+|---|---|
+| D24 | Partners sign in as **guests**: a fixed, locked **Guest** access role (Dashboard, My Profile, My Tasks, Projects, Meetings only). Guests are not employees: no org chart, reporting lines, payroll, leave or KPI. |
+| D25 | A partner is a **vendor company** (name, service, internal owner) with its **people** (name, email, status Invited / Active / Disabled). Managed on an **External Partners** page under Organization (exec and HR). Disabled guests can't sign in. User Accounts listing for guests: not wanted (owner). |
+| D26 | Guests are added to individual projects and see only those projects, their own tasks, and meetings they're invited to. Their tasks carry an **EXT** tag and score **0 points**; difficulty levels are hidden when a guest is the assignee. |
+| D27 | Partners ask for client data (statistics, briefs) by raising a **request task** (type, details, requester) on a project; staff answer by **sharing files** on the task. |
+| D28 | Partners deliver work by **Submit for review** with files; the project manager **approves the deliverable**. A **Request changes** step is not in the mockup yet and is still to be designed. |
