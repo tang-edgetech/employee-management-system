@@ -47,7 +47,7 @@ it('tells each user their permissions and navigation scope', function (string $a
         ->and($data['permissions'])->toBe(app(PermissionMatrix::class)->permissionsFor(demoUser($account)->roleKey()));
 })->with([
     'sysadmin' => ['tang', ['all' => true, 'has_reports' => false, 'leads_teams' => false, 'heads_department' => false]],
-    'hr (leads the Admin group)' => ['ellie', ['all' => true, 'has_reports' => false, 'leads_teams' => true, 'heads_department' => false]],
+    'hr' => ['ellie', ['all' => true, 'has_reports' => false, 'leads_teams' => false, 'heads_department' => false]],
     'head of department' => ['teechienyap', ['all' => false, 'has_reports' => true, 'leads_teams' => false, 'heads_department' => true]],
     'team lead with reports' => ['jeffyeoh', ['all' => false, 'has_reports' => true, 'leads_teams' => true, 'heads_department' => false]],
     'junior' => ['sinyee', ['all' => false, 'has_reports' => false, 'leads_teams' => false, 'heads_department' => false]],

@@ -162,6 +162,39 @@ textarea.input{height:auto;padding:10px 12px;min-height:84px;resize:vertical}
 .org-node .ps{font-size:11.5px;color:var(--muted);margin-top:2px}
 .org-node .crown{position:absolute;top:8px;right:8px;color:var(--hi)}
 .org-node .crown svg{width:14px;height:14px}
+/* Reporting lines: one A4 landscape sheet (297 x 210 mm = 1123 x 794 px at 96 dpi) */
+.org-scroll{overflow:auto;padding:20px;background:var(--mist,#EFF4F3)}
+.mw-a4{width:1123px;height:794px;margin:0 auto;background:var(--surface);color:var(--ink);box-shadow:0 2px 14px rgba(0,0,0,.12);border-radius:4px;overflow:hidden;position:relative}
+.mw-a4-body{padding:22px 26px 18px;transform-origin:top left}
+.mw-a4-head{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:10px}
+.mw-a4-head b{font-size:16px}.mw-a4-head span{font-size:11px;color:var(--muted)}
+.mw-a4-top{display:flex;flex-direction:column;align-items:center}
+.mw-a4-top .stem{width:2px;height:12px;background:var(--line-strong)}
+.mw-a4-exec{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:8px;padding:6px 12px;background:var(--surface)}
+.mw-a4-exec .nm{font-weight:700;font-size:13px;line-height:1.15}.mw-a4-exec .ps{font-size:10.5px;color:var(--muted)}
+.mw-a4-bus{height:12px;margin:0 6%;border:2px solid var(--line-strong);border-bottom:0;border-radius:8px 8px 0 0}
+.mw-a4-row{display:flex;justify-content:center;align-items:flex-start;gap:8px;margin-top:8px}
+.mw-a4-row>.mw-branch{flex:0 0 calc((100% - 24px)/4)}
+.mw-a4-row.r3{padding:0 7%}
+.mw-a4-row.r3>.mw-branch{flex-basis:calc((100% - 16px)/3)}
+.mw-branch{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);break-inside:avoid}
+.mw-branch-head{display:flex;align-items:center;gap:7px;padding:6px 8px;border-top:4px solid;background:color-mix(in srgb,var(--line) 25%,transparent)}
+.mw-branch-head .nm{font-weight:700;font-size:12px;line-height:1.15;display:flex;align-items:center;gap:4px}
+.mw-branch-head .ps{font-size:10px;color:var(--muted);line-height:1.2}
+.mw-branch-head .ct{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap;align-self:flex-start}
+.mw-branch-list{padding:4px 8px 6px}
+.mw-branch-list.cols2{columns:2;column-gap:10px}
+.mw-branch-list ul{list-style:none;margin:0;padding:0}
+.mw-branch-list ul ul{margin-left:6px;padding-left:9px;border-left:1.5px solid var(--line-strong)}
+.mw-branch-list li{position:relative}
+.mw-org-p{break-inside:avoid}
+.mw-branch-list ul ul>li::before{content:"";position:absolute;left:-9px;top:9px;width:7px;border-top:1.5px solid var(--line-strong)}
+.mw-org-p{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:18px;white-space:nowrap;overflow:hidden}
+.mw-org-p b{font-weight:600}.mw-org-p .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.mw-org-p .st{color:var(--warn,#B7791F);font-size:9.5px}
+.mw-crown{color:var(--hi);display:inline-flex}.mw-crown svg{width:11px;height:11px}
+.mw-a4-legend{position:absolute;left:26px;right:26px;bottom:10px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:9.5px;color:var(--muted)}
+.mw-a4-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 
 /* login */
 .login{height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden;display:grid;grid-template-columns:1fr}
@@ -402,7 +435,7 @@ const DB = {
     {id:'DP4',name:'Back End',color:'#0B5D5E',head:'E005',kind:'Delivery'},
     {id:'DP5',name:'WordPress',color:'#21759B',head:'E021',kind:'Delivery'},
     {id:'DP6',name:'Front End',color:'#C2547A',head:'E007',kind:'Delivery'},
-    {id:'DP7',name:'Mobile',color:'#D9773A',head:'',kind:'Delivery'},
+    {id:'DP7',name:'Mobile',color:'#D9773A',head:'E006',kind:'Delivery'},
     {id:'DP8',name:'Product Team',color:'#7A5CC2',head:'',kind:'Delivery'},
     {id:'DP9',name:'Admin',color:'#6B7A3A',head:'',kind:'Support'},
     {id:'DP10',name:'Customer Service',color:'#B9452B',head:'E003',kind:'Support'},
@@ -438,14 +471,14 @@ const DB = {
     mkEmp('E028','HJ-0012','Chris','Senior Backend Developer','D4','Back End','Permanent','Permanent','2023-08-24','E008',7600,'F','1991-10-19'),
     mkEmp('E029','HJ-0013','Kai Seng (KS)','Backend Developer','D3','Back End','Permanent','Permanent','2024-01-04','E008',5800,'M','1997-01-04'),
     mkEmp('E030','HJ-0014','Yu Hang','Backend Developer','D3','Back End','Permanent','Permanent','2025-06-11','E008',5800,'F','1996-04-15'),
-    mkEmp('E031','HJ-0015','Adam Lai','Backend Developer','D3','Back End','Permanent','Permanent','2019-11-18','E028',5800,'M','1995-07-26'),
-    mkEmp('E032','HJ-0016','Leng','Backend Developer','D3','Back End','Permanent','Permanent','2020-04-25','E028',5800,'F','1994-10-11'),
+    mkEmp('E031','HJ-0015','Adam Lai','Backend Developer','D3','Back End','Permanent','Permanent','2019-11-18','E029',5800,'M','1995-07-26'),
+    mkEmp('E032','HJ-0016','Leng','Backend Developer','D3','Back End','Permanent','Permanent','2020-04-25','E029',5800,'F','1994-10-11'),
     mkEmp('E011','HJ-0017','Gary','Backend Developer','D2','Back End','Permanent','PIP','2021-09-05','E008',4300,'M','2000-01-22',{pipEnd:'2026-12-15'}),
     mkEmp('E033','HJ-0018','Adam Koh','Backend Developer','D2','Back End','Permanent','Permanent','2022-02-12','E008',4300,'F','1999-04-07'),
     mkEmp('E034','HJ-0019','Zhong Lin','Backend Developer','D2','Back End','Permanent','Permanent','2023-07-19','E008',4300,'M','1998-07-18'),
     mkEmp('E035','HJ-0020','Jun Onn','Backend Developer','D2','Back End','Permanent','Permanent','2024-12-26','E008',4300,'F','1997-10-03'),
     mkEmp('E036','HJ-0021','JY','Backend Developer','D2','Back End','Permanent','Permanent','2025-05-06','E008',4300,'M','2000-01-14'),
-    mkEmp('E037','HJ-0022','Darren','Backend Developer','D1','Back End','Permanent','Permanent','2019-10-13','E028',3400,'F','2001-04-25'),
+    mkEmp('E037','HJ-0022','Darren','Backend Developer','D1','Back End','Permanent','Permanent','2019-10-13','E029',3400,'F','2001-04-25'),
     mkEmp('E021','HJ-0023','Wong Wei Yee','Head of WordPress','D5','WordPress','Permanent','Permanent','2020-03-20','E002',9200,'M','1989-07-10'),
     mkEmp('E014','HJ-0024','Tang Sheng','WordPress Developer','D3','WordPress','Contract','Contract','2021-08-27','E021',5800,'F','1994-10-21',{endDate:'2026-11-30'}),
     mkEmp('E017','HJ-0025','James','WordPress Developer','D1','WordPress','Permanent','Probation','2022-01-07','E014',3400,'M','2002-01-06',{probEnd:'2026-11-16'}),
@@ -464,7 +497,7 @@ const DB = {
     mkEmp('E043','HJ-0038','Mei Yi','Mobile Developer','D3','Mobile','Permanent','Permanent','2021-06-17','E006',5800,'F','1996-04-19'),
     mkEmp('E013','HJ-0039','Jonathan','Mobile Developer','D2','Mobile','Permanent','Permanent','2022-11-24','E006',4300,'M','1998-07-04'),
     mkEmp('E044','HJ-0040','Joe Ho','Product Lead','D4','Product Team','Permanent','Permanent','2023-04-04','E002',7600,'F','1991-10-15'),
-    mkEmp('E045','HJ-0041','Ee Xin','Product Analyst','D3','Product Team','Permanent','Permanent','2024-09-11','E044',5800,'M','1997-01-26'),
+    mkEmp('E045','HJ-0041','Ee Xin','Product Analyst','D3','Product Team','Permanent','Permanent','2024-09-11','E002',5800,'M','1997-01-26'),
     mkEmp('E004','HJ-0042','Ellie','Admin & HR Executive','D3','Admin','Permanent','Permanent','2025-02-18','E002',5800,'F','1996-04-11'),
     mkEmp('E003','HJ-0043','Angie','Head of Customer Service','D5','Customer Service','Permanent','Permanent','2019-07-25','E002',9200,'M','1989-07-22'),
     mkEmp('E015','HJ-0044','Edwind','Customer Service Executive','D3','Customer Service','Permanent','Permanent','2020-12-05','E003',5800,'F','1994-10-07'),
@@ -480,16 +513,16 @@ const DB = {
   teams:[
     {id:'T1',name:'Team 1',dept:'General',leads:['E022'],members:['E022','E023']},
     {id:'T2',name:'Team 2',dept:'General',leads:['E024'],members:['E024','E025']},
-    {id:'T3',name:'Full Stack',dept:'General',leads:['E026'],members:['E026']},
+    {id:'T3',name:'Full Stack',dept:'General',leads:[],members:['E026']},
     {id:'T4',name:'Business Analyst',dept:'General',leads:[],members:[]},
     {id:'T5',name:'System',dept:'System',leads:['E018'],members:['E018','E027']},
-    {id:'T6',name:'Back End',dept:'Back End',leads:['E008','E028'],members:['E008','E028','E029','E030','E031','E032','E011','E033','E034','E035','E036','E037']},
-    {id:'T7',name:'WordPress',dept:'WordPress',leads:['E014'],members:['E014','E017','E038','E016']},
-    {id:'T8',name:'IT Support',dept:'WordPress',leads:['E039'],members:['E039']},
+    {id:'T6',name:'Back End',dept:'Back End',leads:['E008','E029'],members:['E008','E028','E029','E030','E031','E032','E011','E033','E034','E035','E036','E037']},
+    {id:'T7',name:'WordPress',dept:'WordPress',leads:['E021'],members:['E021','E014','E017','E038','E016']},
+    {id:'T8',name:'IT Support',dept:'WordPress',leads:[],members:['E039']},
     {id:'T9',name:'FE Developer',dept:'Front End',leads:['E019'],members:['E019','E040','E041','E009','E010','E042']},
     {id:'T10',name:'Mobile',dept:'Mobile',leads:['E006'],members:['E006','E012','E043','E013']},
-    {id:'T11',name:'Product Team',dept:'Product Team',leads:['E044'],members:['E044','E045']},
-    {id:'T12',name:'Admin',dept:'Admin',leads:['E004'],members:['E004']},
+    {id:'T11',name:'Product Team',dept:'Product Team',leads:[],members:['E044','E045']},
+    {id:'T12',name:'Admin',dept:'Admin',leads:[],members:['E004']},
     {id:'T13',name:'Customer Service',dept:'Customer Service',leads:[],members:['E015','E046','E047','E048','E049','E050','E051','E052']},
   ],
   vacancies:[
@@ -1172,7 +1205,7 @@ function checkUpdates(){toast(APP.version===APP.latest?t('Up to date')+' · v'+A
 
 /* =================== USER GUIDE =================== */
 // Short how-to for each page, opened from the Info button after the page title.
-const GUIDES = {"dashboard":{"intro":"Your day at a glance: tasks, check-ins due, your KPI so far and upcoming meetings. HR and management see company-wide figures instead.","steps":["Start with the greeting band: it tells you what needs attention today.","Click a tile to jump to the full list (e.g. Check-ins due opens My Tasks).","Handle anything in \"Needs your approval\" or \"Due soon\" first."],"tips":["Numbers update as soon as you or your team record work.","If a banner asks you to review your personal data, do it before the due date."]},"profile":{"intro":"Your own account: display name, picture, personal information, password and two-factor authentication.","steps":["Overview: change your display name or upload a picture (only you see it).","Personal information: fill in every required field; changes go to HR for approval.","Security: change your password and add up to two authenticator devices.","Preferences: choose English or 中文."],"tips":["Your official photo is set by HR and used in the org chart and HR records.","Keep at least one 2FA device if your organisation requires it."]},"mytasks":{"intro":"Every task assigned to you, with due dates and check-in status.","steps":["Open a task to see its details and history.","Post a check-in at the required interval: progress %, hours and a short note.","If you are blocked, say who or what is blocking you; this records a delay.","Need more time? Request an extension before the due date."],"tips":["Missed check-ins count against your KPI.","Tasks waiting on another task can't start until it's done."]},"projects":{"intro":"All projects you can see, their phase, progress and delivery health.","steps":["Open a project to see its timeline, tasks, prerequisites and delays.","Project managers move the phase forward one step at a time.","Use Standalone task for work that isn't part of a project."],"tips":["\"At risk\" means overdue tasks or open delays: check the delay log first."]},"meetings":{"intro":"Schedule meetings, record minutes and turn action items into tasks.","steps":["Click Schedule meeting, set objectives and pick attendees (or Everyone).","After the meeting, complete it with minutes and decisions.","Convert action items into tasks so they are tracked."],"tips":["Attendance locks 7 days after a meeting is completed."]},"kpi":{"intro":"Performance scores built from delivery data: points, on-time rate, delays, check-ins, quality, rating and meetings.","steps":["Pick the period, then open a person to see how each part of the score was calculated.","HR can import external task data or export scores to Excel."],"tips":["C-level staff are excluded from KPI.","Only confirmed delays count against someone."]},"vacancies":{"intro":"Open positions, their designation range and hiring manager.","steps":["Create a vacancy and share its public apply link.","Pause or close it when hiring is done."],"tips":["Candidates apply through the public form with PDPA consent."]},"candidates":{"intro":"Everyone who applied or was added to the talent pool, by stage.","steps":["Filter by stage with the tabs.","Open a candidate to schedule interviews or move their stage.","Convert a hired candidate into an employee in one step."],"tips":["Former employees are flagged for HR only."]},"interviews":{"intro":"All interview rounds, scheduled and completed.","steps":["Schedule a round with a panel, date and mode.","Record the result with remarks after the interview."],"tips":["\"Next round\" prompts you to schedule the following round."]},"employees":{"intro":"Employee records you are allowed to see.","steps":["Use the status tabs and search to find someone.","Open a person for details, history and lifecycle actions.","HR can add employees or import a CSV."],"tips":["Salary and full ID numbers are visible only to HR and management."]},"lifecycle":{"intro":"Probation, contract and PIP deadlines in one place.","steps":["Act before the end date: confirm, extend or start a PIP.","Each action is recorded in the employee's history."],"tips":["Probation can be extended up to twice the default length."]},"review":{"intro":"The annual personal-data review: who has confirmed their details and what is waiting for HR.","steps":["HR launches the review in the month set in Global Settings.","Employees confirm or update their details by the due date.","HR approves or returns each submission."],"tips":["Reminders go out 7 days and 1 day before the due date."]},"teams":{"intro":"Groups inside each department, their team leads and members.","steps":["Click Edit on a group to tick members and team leads.","Set \"Reports to\" for each person in the same table.","Use the crown to make or remove a team lead quickly."],"tips":["Team leads are optional: a group can have none, one or several.","Reporting lines are per person and can never loop."]},"orgchart":{"intro":"The organisation: by department (heads, groups, team leads) or as reporting lines.","steps":["Switch between By department and Reporting lines.","In Reporting lines, zoom and export a PNG."],"tips":["Official photos are shown here once HR adds them."]},"departments":{"intro":"Departments, their head (HOD) and their groups.","steps":["Add or rename a department; the change applies everywhere.","Set or clear the head of department."],"tips":["A department has at most one HOD; it can have none."]},"designations":{"intro":"The career ladder, from Intern to C-Level, with salary bands and KPI targets.","steps":["Add, rename or reorder levels to match your organisation.","Set each level's salary band and quarterly KPI target."],"tips":["The head of a department can hold any level."]},"emptypes":{"intro":"Employment types and their probation and duration rules.","steps":["Adjust the default probation and conversion path for each type."],"tips":[]},"tags":{"intro":"Task tags and the points each difficulty level is worth.","steps":["Edit a tag's points for levels 1 to 5."],"tips":["Points feed the delivery part of the KPI."]},"integrations":{"intro":"Connections to tools such as ClickUp, Asana or Google Sheets.","steps":["Map external users to employees by work email.","Import tasks for KPI."],"tips":[]},"access":{"intro":"What each role is allowed to do.","steps":["Switch permissions on or off per role.","The System Admin role always has everything."],"tips":["You can't remove Global Settings access from your own role."]},"config":{"intro":"Company-wide settings: security, work rules, employment defaults, recruitment and KPI.","steps":["Change a value; it applies to everyone.","Turn on two-factor authentication and choose which roles must use it."],"tips":["Session timeout signs people out after inactivity."]},"updates":{"intro":"The installed version and the history of automatic updates.","steps":["Check for updates to compare with the latest release.","Click a row in the log to see each step of that update."],"tips":["A failed health check rolls back to the previous release automatically."]}};
+const GUIDES = {"dashboard":{"intro":"Your day at a glance: tasks, check-ins due, your KPI so far and upcoming meetings. HR and management see company-wide figures instead.","steps":["Start with the greeting band: it tells you what needs attention today.","Click a tile to jump to the full list (e.g. Check-ins due opens My Tasks).","Handle anything in \"Needs your approval\" or \"Due soon\" first."],"tips":["Numbers update as soon as you or your team record work.","If a banner asks you to review your personal data, do it before the due date."]},"profile":{"intro":"Your own account: display name, picture, personal information, password and two-factor authentication.","steps":["Overview: change your display name or upload a picture (only you see it).","Personal information: fill in every required field; changes go to HR for approval.","Security: change your password and add up to two authenticator devices.","Preferences: choose English or 中文."],"tips":["Your official photo is set by HR and used in the org chart and HR records.","Keep at least one 2FA device if your organisation requires it."]},"mytasks":{"intro":"Every task assigned to you, with due dates and check-in status.","steps":["Open a task to see its details and history.","Post a check-in at the required interval: progress %, hours and a short note.","If you are blocked, say who or what is blocking you; this records a delay.","Need more time? Request an extension before the due date."],"tips":["Missed check-ins count against your KPI.","Tasks waiting on another task can't start until it's done."]},"projects":{"intro":"All projects you can see, their phase, progress and delivery health.","steps":["Open a project to see its timeline, tasks, prerequisites and delays.","Project managers move the phase forward one step at a time.","Use Standalone task for work that isn't part of a project."],"tips":["\"At risk\" means overdue tasks or open delays: check the delay log first."]},"meetings":{"intro":"Schedule meetings, record minutes and turn action items into tasks.","steps":["Click Schedule meeting, set objectives and pick attendees (or Everyone).","After the meeting, complete it with minutes and decisions.","Convert action items into tasks so they are tracked."],"tips":["Attendance locks 7 days after a meeting is completed."]},"kpi":{"intro":"Performance scores built from delivery data: points, on-time rate, delays, check-ins, quality, rating and meetings.","steps":["Pick the period, then open a person to see how each part of the score was calculated.","HR can import external task data or export scores to Excel."],"tips":["C-level staff are excluded from KPI.","Only confirmed delays count against someone."]},"vacancies":{"intro":"Open positions, their designation range and hiring manager.","steps":["Create a vacancy and share its public apply link.","Pause or close it when hiring is done."],"tips":["Candidates apply through the public form with PDPA consent."]},"candidates":{"intro":"Everyone who applied or was added to the talent pool, by stage.","steps":["Filter by stage with the tabs.","Open a candidate to schedule interviews or move their stage.","Convert a hired candidate into an employee in one step."],"tips":["Former employees are flagged for HR only."]},"interviews":{"intro":"All interview rounds, scheduled and completed.","steps":["Schedule a round with a panel, date and mode.","Record the result with remarks after the interview."],"tips":["\"Next round\" prompts you to schedule the following round."]},"employees":{"intro":"Employee records you are allowed to see.","steps":["Use the status tabs and search to find someone.","Open a person for details, history and lifecycle actions.","HR can add employees or import a CSV."],"tips":["Salary and full ID numbers are visible only to HR and management."]},"lifecycle":{"intro":"Probation, contract and PIP deadlines in one place.","steps":["Act before the end date: confirm, extend or start a PIP.","Each action is recorded in the employee's history."],"tips":["Probation can be extended up to twice the default length."]},"review":{"intro":"The annual personal-data review: who has confirmed their details and what is waiting for HR.","steps":["HR launches the review in the month set in Global Settings.","Employees confirm or update their details by the due date.","HR approves or returns each submission."],"tips":["Reminders go out 7 days and 1 day before the due date."]},"teams":{"intro":"Groups inside each department, their team leads and members.","steps":["Click Edit on a group to tick members and team leads.","Set \"Reports to\" for each person in the same table.","Use the crown to make or remove a team lead quickly."],"tips":["Team leads are optional: a group can have none, one or several.","Interns and juniors (Junior 1–2) can't be team leads.","Reporting lines are per person and can never loop."]},"orgchart":{"intro":"The organisation: by department (heads, groups, team leads) or as reporting lines.","steps":["Switch between By department and Reporting lines.","In Reporting lines, zoom and export a PNG."],"tips":["Official photos are shown here once HR adds them."]},"departments":{"intro":"Departments, their head (HOD) and their groups.","steps":["Add or rename a department; the change applies everywhere.","Set or clear the head of department."],"tips":["A department has at most one HOD; it can have none."]},"designations":{"intro":"The career ladder, from Intern to C-Level, with salary bands and KPI targets.","steps":["Add, rename or reorder levels to match your organisation.","Set each level's salary band and quarterly KPI target."],"tips":["The head of a department can hold any level."]},"emptypes":{"intro":"Employment types and their probation and duration rules.","steps":["Adjust the default probation and conversion path for each type."],"tips":[]},"tags":{"intro":"Task tags and the points each difficulty level is worth.","steps":["Edit a tag's points for levels 1 to 5."],"tips":["Points feed the delivery part of the KPI."]},"integrations":{"intro":"Connections to tools such as ClickUp, Asana or Google Sheets.","steps":["Map external users to employees by work email.","Import tasks for KPI."],"tips":[]},"access":{"intro":"What each role is allowed to do.","steps":["Switch permissions on or off per role.","The System Admin role always has everything."],"tips":["You can't remove Global Settings access from your own role."]},"config":{"intro":"Company-wide settings: security, work rules, employment defaults, recruitment and KPI.","steps":["Change a value; it applies to everyone.","Turn on two-factor authentication and choose which roles must use it."],"tips":["Session timeout signs people out after inactivity."]},"updates":{"intro":"The installed version and the history of automatic updates.","steps":["Check for updates to compare with the latest release.","Click a row in the log to see each step of that update."],"tips":["A failed health check rolls back to the previous release automatically."]}};
 function openGuide(){
   const key=S.page||'dashboard',g=GUIDES[key]||{intro:'Help for this page is coming soon.',steps:[],tips:[]},title=t(PAGES[key]?.t||'');
   closeGuide();
@@ -1750,10 +1783,13 @@ function pgTeams(){
      </div>
      <ul class="p-3 flex flex-col gap-1">${g.members.length?g.members.map(m=>{const e=emp(m);if(!e)return'';const lead=leads.includes(m);return `<li class="flex items-center gap-3 px-2 py-2 rounded-lg group" style="${lead?'background:color-mix(in srgb,var(--hi) 10%,transparent)':''}">
        ${av(e.display||e.name,32)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate flex items-center gap-1.5">${esc(e.display||e.name)}${lead?`<span style="color:var(--hi)" aria-hidden="true">${ic('crown','w-4 h-4')}</span>`:''}</div><div class="text-xs muted truncate">${esc(des(e.desig).name)} · ${t('Reports to')} ${esc(ename(e.reports))}</div></div>
-       ${lead?chip(t('Team lead'),'hi'):''}${hr?`<span class="actions opacity-40 group-hover:opacity-100">${ib('crown',lead?'Remove as team lead':'Make team lead',`toggleLead('${g.id}','${m}')`)}${ib('user-minus','Remove from group',`rmMember('${g.id}','${m}')`,'bad')}</span>`:''}</li>`}).join(''):'<li class="text-sm muted px-2 py-3">No members yet.</li>'}</ul>
-   </section>`}).join('')}</div><p class="text-xs muted mt-3">Team leads are optional: a group can have none, one or several. Who reports to whom is set per person, so members can sit under any colleague, a team lead, the HOD or the GM.</p>`;
+       ${lead?chip(t('Team lead'),'hi'):''}${hr?`<span class="actions opacity-40 group-hover:opacity-100">${lead||canLead(m)?ib('crown',lead?'Remove as team lead':'Make team lead',`toggleLead('${g.id}','${m}')`):''}${ib('user-minus','Remove from group',`rmMember('${g.id}','${m}')`,'bad')}</span>`:''}</li>`}).join(''):'<li class="text-sm muted px-2 py-3">No members yet.</li>'}</ul>
+   </section>`}).join('')}</div><p class="text-xs muted mt-3">Team leads are optional: a group can have none, one or several. Interns and juniors (Junior 1–2) can't be team leads. Who reports to whom is set per person, so members can sit under any colleague, a team lead, the HOD or the GM.</p>`;
 }
-function toggleLead(gid,m){const g=DB.teams.find(x=>x.id===gid);g.leads=g.leads||[];g.leads=g.leads.includes(m)?g.leads.filter(x=>x!==m):[...g.leads,m];rerender();toast(`${ename(m)}: ${g.leads.includes(m)?'now a team lead':'no longer a team lead'}`,'crown')}
+// Interns and juniors (Junior 1-2) can't be team leads.
+const MIN_LEAD_LEVEL=3;
+function canLead(id){const e=emp(id);return !!e&&des(e.desig).level>=MIN_LEAD_LEVEL}
+function toggleLead(gid,m){const g=DB.teams.find(x=>x.id===gid);g.leads=g.leads||[];if(!g.leads.includes(m)&&!canLead(m)){toast(`${ename(m)} is ${des(emp(m).desig).name}: interns and juniors can't be team leads`,'circle-alert');return}g.leads=g.leads.includes(m)?g.leads.filter(x=>x!==m):[...g.leads,m];rerender();toast(`${ename(m)}: ${g.leads.includes(m)?'now a team lead':'no longer a team lead'}`,'crown')}
 // True if making "sup" the superior of "id" would put "id" above itself.
 function wouldLoop(id,sup){for(let x=sup,i=0;x&&i<200;x=emp(x)?.reports,i++){if(x===id)return true}return false}
 function groupRows(dept,g){
@@ -1762,7 +1798,7 @@ function groupRows(dept,g){
   return `<div class="tbl-wrap mw-group-editor"><table class="tbl"><thead><tr><th>Employee</th><th class="text-center">${t('In group')}</th><th class="text-center">${t('Team lead')}</th><th>${t('Reports to (per person)')}</th></tr></thead><tbody>
     ${people.map(e=>`<tr><td><div class="flex items-center gap-2">${av(e.display||e.name,26)}<div><div class="font-semibold text-sm">${esc(e.display||e.name)}</div><div class="text-xs muted">${esc(des(e.desig).name)}</div></div></div></td>
       <td class="text-center"><input type="checkbox" class="ge-in" data-id="${e.id}" ${g.members.includes(e.id)?'checked':''} aria-label="${esc(e.name)} in group" style="width:18px;height:18px;accent-color:var(--accent)"></td>
-      <td class="text-center"><input type="checkbox" class="ge-lead" data-id="${e.id}" ${(g.leads||[]).includes(e.id)?'checked':''} aria-label="${esc(e.name)} team lead" style="width:18px;height:18px;accent-color:var(--accent)"></td>
+      <td class="text-center"><input type="checkbox" class="ge-lead" data-id="${e.id}" ${(g.leads||[]).includes(e.id)?'checked':''} ${canLead(e.id)?'':'disabled title="Interns and juniors can\'t be team leads"'} aria-label="${esc(e.name)} team lead" style="width:18px;height:18px;accent-color:var(--accent)"></td>
       <td style="min-width:230px">${sel('ge-rep-'+e.id,supOpts(e),e.reports||'')}</td></tr>`).join('')}
   </tbody></table></div>`;
 }
@@ -1770,7 +1806,7 @@ function editTeam(id){
   const g=id?DB.teams.find(x=>x.id===id):{name:'',dept:deptNames()[1],leads:[],members:[]};
   S.editGroup=g;
   openModal({title:id?`Edit ${esc(g.name)}`:'New group',icon:'users-round',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Group name',inp('tm-n',g.name,'text','e.g. FE Developer'),'',true)}${fld('Department',sel('tm-d',deptNames(),g.dept,'onchange="$(\'#ge-rows\').innerHTML=groupRows(this.value,S.editGroup)"'))}</div>
-  <div class="sec-h">${ic('users')}Members, team leads and reporting <span class="normal-case font-normal tracking-normal">· team leads are optional; tick as many as needed</span></div>
+  <div class="sec-h">${ic('users')}Members, team leads and reporting <span class="normal-case font-normal tracking-normal">· team leads are optional; tick as many as needed (Senior 1 and above)</span></div>
   <div id="ge-rows">${groupRows(g.dept,g)}</div>`,
     foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTeam('${id||''}')">${ic('check')}Save group</button>`});
 }
@@ -1779,6 +1815,7 @@ function saveTeam(id){
   const leads=$$('.ge-lead').filter(c=>c.checked).map(c=>c.dataset.id);
   if(!val('tm-n')){toast('Group name is required','circle-alert');return}
   if(leads.some(l=>!members.includes(l))){toast('A team lead must also be in the group','circle-alert');return}
+  const young=leads.find(l=>!canLead(l));if(young){toast(`${ename(young)} can't be a team lead: interns and juniors don't qualify`,'circle-alert');return}
   const reps=$$('[id^="ge-rep-"]').map(s=>[s.id.slice(7),s.value]);
   const loop=reps.find(([e,s])=>s&&wouldLoop(e,s));
   if(loop){toast(`${ename(loop[0])} can't report to ${ename(loop[1])}: that would make a loop`,'circle-alert');return}
@@ -1815,25 +1852,51 @@ function orgBoard(){
   </section><p class="text-xs muted mt-3">Each department shows its head (HOD), then its groups; a group may have no, one or several team leads. Built from departments and groups; switch to Reporting lines for the superior tree.</p>`;
 }
 function orgTree(){
-  const kids=id=>DB.employees.filter(e=>e.reports===id).sort((a,b)=>des(b.desig).level-des(a.desig).level);
-  const node=e=>{const k=kids(e.id),lead=DB.teams.some(t=>(t.leads||[]).includes(e.id));return `<li><div class="org-node"><span class="strip" style="background:${dcol(e.dept)}"></span>${lead?`<span class="crown">${ic('crown')}</span>`:''}${av(e.name,40)}<div class="nm">${esc(e.name)}</div><div class="ps">${esc(e.pos)}</div><div class="mt-2 flex justify-center gap-1 flex-wrap">${chip(des(e.desig).name,'acc')}${e.status!=='Permanent'?chip(e.status,STATUS_TONE[e.status]):''}</div></div>${k.length?`<ul>${k.map(node).join('')}</ul>`:''}</li>`};
-  return `<section class="card overflow-hidden">
-    <div class="p-4 flex flex-wrap items-center gap-3" style="border-bottom:1px solid var(--line)">
-      <div class="flex flex-wrap gap-3 flex-1 text-xs">${DB.departments.map(d=>`<span class="flex items-center gap-1.5"><i class="inline-block w-3 h-3 rounded-sm" style="background:${d.color}"></i>${esc(d.name)}</span>`).join('')}<span class="flex items-center gap-1.5" style="color:var(--hi)">${ic('crown','w-3.5 h-3.5')}<span style="color:var(--ink)">Team lead</span></span></div>
-      <div class="flex items-center gap-1">${ib('zoom-out','Zoom out','zoomOrg(-.1)')}<span class="text-xs tnum w-10 text-center" id="zl">${Math.round(S.orgZoom*100)}%</span>${ib('zoom-in','Zoom in','zoomOrg(.1)')}${ib('maximize','Reset zoom','S.orgZoom=1;zoomOrg(0)')}</div>
-      <button class="btn btn-primary" onclick="exportOrg()">${ic('image-down')}Export PNG</button>
-    </div>
-    <div class="org-scroll"><div class="tree" id="tree" style="transform:scale(${S.orgZoom})"><ul>${DB.employees.filter(e=>!e.reports).map(node).join('')}</ul></div></div>
-  </section><p class="text-xs muted mt-3">Built from each employee's superior. Seniors who supervise juniors appear as their own branch. Export renders at 3× pixel density.</p>`;
+  const kids=id=>DB.employees.filter(e=>e.reports===id).sort((a,b)=>des(b.desig).level-des(a.desig).level||a.name.localeCompare(b.name));
+  const isLead=id=>DB.teams.some(t=>(t.leads||[]).includes(id));
+  const crown=id=>isLead(id)?'<span class="mw-crown" data-tip="Team lead">'+ic('crown')+'</span>':'';
+  const count=id=>kids(id).reduce((n,k)=>n+1+count(k.id),0);
+  // The single chain at the top (CEO -> GM), then the GM's direct reports as branches.
+  const chain=[];let lvl=DB.employees.filter(e=>!e.reports);
+  while(lvl.length===1){chain.push(lvl[0]);lvl=kids(lvl[0].id)}
+  const order=d=>DB.departments.findIndex(x=>x.name===d);
+  const branches=lvl.slice().sort((a,b)=>order(a.dept)-order(b.dept)||des(b.desig).level-des(a.desig).level);
+  const rows=[];for(let i=0,n=3;i<branches.length;n=n===3?4:3){rows.push(branches.slice(i,i+n));i+=n}
+  const pers=e=>'<div class="mw-org-p">'+av(e.display||e.name,16,e.photo||null)+'<b>'+esc(e.display||e.name)+'</b>'+crown(e.id)+'<span class="d">· '+esc(des(e.desig).name)+'</span>'+(e.status!=='Permanent'?'<span class="st">'+esc(e.status)+'</span>':'')+'</div>';
+  const list=id=>{const k=kids(id);return k.length?'<ul>'+k.map(e=>'<li>'+pers(e)+list(e.id)+'</li>').join('')+'</ul>':''};
+  const branch=e=>{const n=count(e.id);return '<section class="mw-branch"><div class="mw-branch-head" style="border-top-color:'+dcol(e.dept)+'">'+av(e.display||e.name,28,e.photo||null)+'<div class="min-w-0"><div class="nm">'+esc(e.display||e.name)+crown(e.id)+'</div><div class="ps">'+esc(e.pos)+' · '+esc(des(e.desig).name)+'</div><div class="ps">'+esc(e.dept)+'</div></div>'+(n?'<span class="ct">'+n+'</span>':'')+'</div>'+(n?'<div class="mw-branch-list'+(n>8?' cols2':'')+'">'+list(e.id)+'</div>':'')+'</section>'};
+  const exec=e=>'<div class="mw-a4-exec">'+av(e.display||e.name,30,e.photo||null)+'<div><div class="nm">'+esc(e.display||e.name)+'</div><div class="ps">'+esc(e.pos)+'</div></div></div>';
+  setTimeout(fitOrg,0);
+  return '<section class="card overflow-hidden">'+
+    '<div class="p-4 flex flex-wrap items-center gap-3" style="border-bottom:1px solid var(--line)">'+
+      '<div class="text-xs muted flex-1">A4 landscape · '+DB.employees.length+' people · '+branches.length+' branches under '+esc(chain.at(-1)?.name||'')+'</div>'+
+      '<div class="flex items-center gap-1">'+ib('zoom-out','Zoom out','zoomOrg(-.1)')+'<span class="text-xs tnum w-12 text-center" id="zl">Fit</span>'+ib('zoom-in','Zoom in','zoomOrg(.1)')+ib('maximize','Fit to width','S.orgZoom=1;fitOrg()')+'</div>'+
+      '<button class="btn btn-primary" onclick="exportOrg()">'+ic('image-down')+'Export PNG</button>'+
+    '</div>'+
+    '<div class="org-scroll" id="org-scroll"><div class="mw-a4" id="tree"><div class="mw-a4-body" id="tree-body">'+
+      '<div class="mw-a4-head"><b>'+esc(DB.settings.company)+' · Reporting lines</b><span>As of '+fmt(TODAY)+'</span></div>'+
+      '<div class="mw-a4-top">'+chain.map(exec).join('<span class="stem"></span>')+'<span class="stem"></span></div>'+
+      '<div class="mw-a4-bus"></div>'+
+      rows.map(r=>'<div class="mw-a4-row r'+(r.length>3?4:3)+'">'+r.map(branch).join('')+'</div>').join('')+
+    '</div><div class="mw-a4-legend">'+DB.departments.map(d=>'<span><i style="background:'+d.color+'"></i>'+esc(d.name)+'</span>').join('')+'<span class="mw-crown">'+ic('crown')+'</span><span>Team lead</span></div></div></div>'+
+  '</section><p class="text-xs muted mt-3">One A4 landscape page. Branches under the General Manager run in rows of 3 and 4; each branch lists who reports to whom. Long branches use two columns. Export renders the page at 3× (3369 × 2382 px).</p>';
 }
-function zoomOrg(d){S.orgZoom=Math.min(1.6,Math.max(.4,+(S.orgZoom+d).toFixed(2)));$('#tree').style.transform=`scale(${S.orgZoom})`;$('#zl').textContent=Math.round(S.orgZoom*100)+'%'}
+// Shrinks the page content to fit the A4 sheet, then scales the sheet to the screen (times the user's zoom).
+function fitOrg(){
+  const sheet=$('#tree'),body=$('#tree-body'),box=$('#org-scroll');if(!sheet||!body||!box)return;
+  body.style.zoom=1;const room=794-34;const h=body.scrollHeight;body.style.zoom=h>room?(room/h).toFixed(3):1;
+  const fit=box.clientWidth>200?Math.min(1,(box.clientWidth-40)/1123):1;sheet.style.zoom=(fit*S.orgZoom).toFixed(3);
+  const zl=$('#zl');if(zl)zl.textContent=S.orgZoom===1?'Fit':Math.round(S.orgZoom*100)+'%';
+}
+window.addEventListener('resize',()=>{if(S.page==='orgchart'&&S.orgView==='tree')fitOrg()});
+function zoomOrg(d){S.orgZoom=Math.min(2.5,Math.max(.5,+(S.orgZoom+d).toFixed(2)));fitOrg()}
 async function exportOrg(){
   const el=$('#tree');if(!window.htmlToImage){toast('Export library not loaded','circle-alert');return}
-  toast('Rendering high-resolution image…','loader');const prev=el.style.transform;el.style.transform='none';
-  try{const url=await htmlToImage.toPng(el,{pixelRatio:3,backgroundColor:getComputedStyle(document.body).backgroundColor,skipFonts:true,width:el.scrollWidth,height:el.scrollHeight});el.style.transform=prev;
-    openModal({title:'Org chart exported',icon:'image-down',size:'lg',body:`<img src="${url}" alt="Organization chart" class="w-full rounded-lg" style="border:1px solid var(--line)"><p class="text-xs muted mt-2">${el.scrollWidth*3} × ${el.scrollHeight*3}px. If the download is blocked in this preview, right-click the image and save it.</p>`,
-      foot:`<button class="btn btn-ghost" onclick="closeModal()">Close</button><a class="btn btn-primary" href="${url}" download="org-chart-${TODAY}.png">${ic('download')}Download PNG</a>`});
-  }catch(err){el.style.transform=prev;toast('Export failed: '+err.message,'circle-alert')}
+  toast('Rendering high-resolution image…','loader');const prev=el.style.zoom;el.style.zoom=1;
+  try{const url=await htmlToImage.toPng(el,{pixelRatio:3,backgroundColor:getComputedStyle(el).backgroundColor,skipFonts:true,width:1123,height:794});el.style.zoom=prev;
+    openModal({title:'Org chart exported',icon:'image-down',size:'lg',body:'<img src="'+url+'" alt="Organization chart" class="w-full rounded-lg" style="border:1px solid var(--line)"><p class="text-xs muted mt-2">3369 × 2382px · A4 landscape. If the download is blocked in this preview, right-click the image and save it.</p>',
+      foot:'<button class="btn btn-ghost" onclick="closeModal()">Close</button><a class="btn btn-primary" href="'+url+'" download="org-chart-'+TODAY+'.png">'+ic('download')+'Download PNG</a>'});
+  }catch(err){el.style.zoom=prev;toast('Export failed: '+err.message,'circle-alert')}
 }
 
 /* =================== ACCESS ROLES =================== */

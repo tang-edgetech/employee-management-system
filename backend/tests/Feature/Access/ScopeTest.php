@@ -102,7 +102,7 @@ describe('reporting lines (set per person)', function () {
 
 describe('team leads (zero, one or several)', function () {
     it('allows several team leads in one group', function () {
-        app(TeamService::class)->addLead(group('Back End'), person('Kai Seng (KS)'));
+        app(TeamService::class)->addLead(group('Back End'), person('Chris'));
 
         expect(group('Back End')->leads()->pluck('full_name')->sort()->values()->all())->toBe(['Chris', 'Kai Seng (KS)', 'Rex']);
     });
@@ -124,7 +124,7 @@ describe('team leads (zero, one or several)', function () {
     });
 
     it('drops the team-lead role when someone leaves the group', function () {
-        app(TeamService::class)->removeMember(group('Back End'), person('Chris'));
+        app(TeamService::class)->removeMember(group('Back End'), person('Kai Seng (KS)'));
 
         expect(group('Back End')->leads()->pluck('full_name')->all())->toBe(['Rex']);
     });

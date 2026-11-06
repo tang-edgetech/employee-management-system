@@ -57,7 +57,7 @@ it('has the heads of department from the chart, and none where the chart shows n
 
     expect($heads)->toBe([
         'Management' => 'Ah Fa', 'General' => null, 'System' => null, 'Back End' => 'Gan Siong Yi', 'WordPress' => 'Wong Wei Yee',
-        'Front End' => 'Tee Chien Yap', 'Mobile' => null, 'Product Team' => null, 'Admin' => null, 'Customer Service' => 'Angie',
+        'Front End' => 'Tee Chien Yap', 'Mobile' => 'Nicholas', 'Product Team' => null, 'Admin' => null, 'Customer Service' => 'Angie',
     ]);
 });
 
@@ -67,14 +67,28 @@ it('has groups with zero, one or several team leads, each a member', function ()
     foreach ($leads as $team) {
         expect($team->members->pluck('id')->all())->toContain(...$team->leads->pluck('id')->all());
     }
-    expect($leads->firstWhere('name', 'Back End')->leads->pluck('full_name')->sort()->values()->all())->toBe(['Chris', 'Rex'])
+    expect($leads->firstWhere('name', 'Back End')->leads->pluck('full_name')->sort()->values()->all())->toBe(['Kai Seng (KS)', 'Rex'])
         ->and($leads->firstWhere('name', 'Customer Service')->leads)->toHaveCount(0)
         ->and($leads->firstWhere('name', 'Business Analyst')->members)->toHaveCount(0);
 });
 
+it('has the team leads confirmed by the owner (round 4)', function () {
+    $leads = Team::query()->with('leads')->orderBy('name')->get()
+        ->mapWithKeys(fn (Team $t) => [$t->name => $t->leads->pluck('full_name')->sort()->values()->all()])->all();
+
+    expect($leads)->toBe([
+        'Admin' => [], 'Back End' => ['Kai Seng (KS)', 'Rex'], 'Business Analyst' => [], 'Customer Service' => [],
+        'FE Developer' => ['Jeff Yeoh'], 'Full Stack' => [], 'IT Support' => [], 'Mobile' => ['Nicholas'],
+        'Product Team' => [], 'System' => ['Jun Yee'], 'Team 1' => ['Wilson Chia'], 'Team 2' => ['Winson'],
+        'WordPress' => ['Wong Wei Yee'],
+    ])->and(chainOf('Yau Long'))->toBe(['Yau Long', 'Leon Ong', 'Ah Fa'])
+        ->and(chainOf('Ee Xin'))->toBe(['Ee Xin', 'Leon Ong', 'Ah Fa'])
+        ->and(chainOf('Joe Ho'))->toBe(['Joe Ho', 'Leon Ong', 'Ah Fa']);
+});
+
 it('has per-person reporting lines up to the CEO', function () {
     expect(chainOf('Sin Yee'))->toBe(['Sin Yee', 'Jeff Yeoh', 'Tee Chien Yap', 'Leon Ong', 'Ah Fa'])
-        ->and(chainOf('Adam Lai'))->toBe(['Adam Lai', 'Chris', 'Rex', 'Gan Siong Yi', 'Leon Ong', 'Ah Fa'])
+        ->and(chainOf('Adam Lai'))->toBe(['Adam Lai', 'Kai Seng (KS)', 'Rex', 'Gan Siong Yi', 'Leon Ong', 'Ah Fa'])
         ->and(chainOf('Ronnie'))->toBe(['Ronnie', 'Angie', 'Leon Ong', 'Ah Fa']);
 });
 

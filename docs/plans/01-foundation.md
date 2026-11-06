@@ -307,6 +307,8 @@ The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/merid
 | D14 | Demo data follows the mockup: the owner's organisation (CEO, GM, 9 departments, 51 people, groups, team leads, per-person reporting lines) and its six demo logins. **Real names: replace with fictional ones before any client or prospect sees the demo.** |
 | D15 | Design option 6 (Atlas layout, Straits colours, Plus Jakarta Sans); one look, no theme switcher. Supersedes the "5 themes" of F7 and `ui_layout`. |
 | D16 | Component classes use the `mw-` naming in `docs/design/components.md`. |
+| D17 | (2026-11-06) Interns and juniors (Junior 1–2, level ≤ 2) can't be team leads. Enforced in the mockup now; the server rule (`TeamService::addLead` → 422 `TEAM_LEAD_LEVEL_TOO_LOW`) lands with designations in the People module. |
+| D18 | (2026-11-06) Reporting lines view is one A4 landscape page: CEO → GM at the top, the GM's direct reports as branches in rows of 3 and 4, each branch a compact list; PNG export at A4 × 3. |
 
 ### 9.2 M6a: backend changes
 

@@ -31,7 +31,7 @@ class DemoCompanySeeder extends Seeder
     /** [name, head (mockup id) or null] in display order. */
     private const DEPARTMENTS = [
         ['Management', 'E001'], ['General', null], ['System', null], ['Back End', 'E005'], ['WordPress', 'E021'],
-        ['Front End', 'E007'], ['Mobile', null], ['Product Team', null], ['Admin', null], ['Customer Service', 'E003'],
+        ['Front End', 'E007'], ['Mobile', 'E006'], ['Product Team', null], ['Admin', null], ['Customer Service', 'E003'],
     ];
 
     /** Mockup id => [name, department, status, superior (mockup id)]. Superiors first. */
@@ -50,14 +50,14 @@ class DemoCompanySeeder extends Seeder
         'E028' => ['Chris', 'Back End', 'Permanent', 'E008'],
         'E029' => ['Kai Seng (KS)', 'Back End', 'Permanent', 'E008'],
         'E030' => ['Yu Hang', 'Back End', 'Permanent', 'E008'],
-        'E031' => ['Adam Lai', 'Back End', 'Permanent', 'E028'],
-        'E032' => ['Leng', 'Back End', 'Permanent', 'E028'],
+        'E031' => ['Adam Lai', 'Back End', 'Permanent', 'E029'],
+        'E032' => ['Leng', 'Back End', 'Permanent', 'E029'],
         'E011' => ['Gary', 'Back End', 'PIP', 'E008'],
         'E033' => ['Adam Koh', 'Back End', 'Permanent', 'E008'],
         'E034' => ['Zhong Lin', 'Back End', 'Permanent', 'E008'],
         'E035' => ['Jun Onn', 'Back End', 'Permanent', 'E008'],
         'E036' => ['JY', 'Back End', 'Permanent', 'E008'],
-        'E037' => ['Darren', 'Back End', 'Permanent', 'E028'],
+        'E037' => ['Darren', 'Back End', 'Permanent', 'E029'],
         'E021' => ['Wong Wei Yee', 'WordPress', 'Permanent', 'E002'],
         'E014' => ['Tang Sheng', 'WordPress', 'Contract', 'E021'],
         'E017' => ['James', 'WordPress', 'Probation', 'E014'],
@@ -76,7 +76,7 @@ class DemoCompanySeeder extends Seeder
         'E043' => ['Mei Yi', 'Mobile', 'Permanent', 'E006'],
         'E013' => ['Jonathan', 'Mobile', 'Permanent', 'E006'],
         'E044' => ['Joe Ho', 'Product Team', 'Permanent', 'E002'],
-        'E045' => ['Ee Xin', 'Product Team', 'Permanent', 'E044'],
+        'E045' => ['Ee Xin', 'Product Team', 'Permanent', 'E002'],
         'E004' => ['Ellie', 'Admin', 'Permanent', 'E002'],
         'E003' => ['Angie', 'Customer Service', 'Permanent', 'E002'],
         'E015' => ['Edwind', 'Customer Service', 'Permanent', 'E003'],
@@ -93,16 +93,16 @@ class DemoCompanySeeder extends Seeder
     private const GROUPS = [
         'Team 1' => ['General', ['E022', 'E023'], ['E022']],
         'Team 2' => ['General', ['E024', 'E025'], ['E024']],
-        'Full Stack' => ['General', ['E026'], ['E026']],
+        'Full Stack' => ['General', ['E026'], []],
         'Business Analyst' => ['General', [], []],
         'System' => ['System', ['E018', 'E027'], ['E018']],
-        'Back End' => ['Back End', ['E008', 'E028', 'E029', 'E030', 'E031', 'E032', 'E011', 'E033', 'E034', 'E035', 'E036', 'E037'], ['E008', 'E028']],
-        'WordPress' => ['WordPress', ['E014', 'E017', 'E038', 'E016'], ['E014']],
-        'IT Support' => ['WordPress', ['E039'], ['E039']],
+        'Back End' => ['Back End', ['E008', 'E028', 'E029', 'E030', 'E031', 'E032', 'E011', 'E033', 'E034', 'E035', 'E036', 'E037'], ['E008', 'E029']],
+        'WordPress' => ['WordPress', ['E021', 'E014', 'E017', 'E038', 'E016'], ['E021']],
+        'IT Support' => ['WordPress', ['E039'], []],
         'FE Developer' => ['Front End', ['E019', 'E040', 'E041', 'E009', 'E010', 'E042'], ['E019']],
         'Mobile' => ['Mobile', ['E006', 'E012', 'E043', 'E013'], ['E006']],
-        'Product Team' => ['Product Team', ['E044', 'E045'], ['E044']],
-        'Admin' => ['Admin', ['E004'], ['E004']],
+        'Product Team' => ['Product Team', ['E044', 'E045'], []],
+        'Admin' => ['Admin', ['E004'], []],
         'Customer Service' => ['Customer Service', ['E015', 'E046', 'E047', 'E048', 'E049', 'E050', 'E051', 'E052'], []],
     ];
 
