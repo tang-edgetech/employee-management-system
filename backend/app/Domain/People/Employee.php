@@ -3,6 +3,8 @@
 namespace App\Domain\People;
 
 use App\Domain\Audit\Auditable;
+use App\Domain\Catalogue\Designation;
+use App\Domain\Catalogue\EmploymentType;
 use App\Domain\Shared\HasPublicId;
 use App\Domain\Shared\Model;
 use App\Models\User;
@@ -23,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @property string $full_name
  * @property string $work_email
  * @property ?int $department_id
+ * @property ?int $designation_id
+ * @property ?int $employment_type_id
  * @property ?int $superior_id
  * @property string $status
  * @property Carbon $join_date
@@ -60,6 +64,18 @@ class Employee extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /** @return BelongsTo<Designation, $this> */
+    public function designation(): BelongsTo
+    {
+        return $this->belongsTo(Designation::class);
+    }
+
+    /** @return BelongsTo<EmploymentType, $this> */
+    public function employmentType(): BelongsTo
+    {
+        return $this->belongsTo(EmploymentType::class);
     }
 
     /** @return BelongsTo<Employee, $this> */

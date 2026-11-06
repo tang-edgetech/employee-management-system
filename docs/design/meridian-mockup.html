@@ -10,6 +10,7 @@
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* Meridian Workforce mockup: one fixed design (option 6). Tokens below; structure from the original mockup. */
 :root{
@@ -162,39 +163,76 @@ textarea.input{height:auto;padding:10px 12px;min-height:84px;resize:vertical}
 .org-node .ps{font-size:11.5px;color:var(--muted);margin-top:2px}
 .org-node .crown{position:absolute;top:8px;right:8px;color:var(--hi)}
 .org-node .crown svg{width:14px;height:14px}
-/* Reporting lines: one A4 landscape sheet (297 x 210 mm = 1123 x 794 px at 96 dpi) */
-.org-scroll{overflow:auto;padding:20px;background:var(--mist,#EFF4F3)}
-.mw-a4{width:1123px;height:794px;margin:0 auto;background:var(--surface);color:var(--ink);box-shadow:0 2px 14px rgba(0,0,0,.12);border-radius:4px;overflow:hidden;position:relative}
-.mw-a4-body{padding:22px 26px 18px;transform-origin:top left}
-.mw-a4-head{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:10px}
-.mw-a4-head b{font-size:16px}.mw-a4-head span{font-size:11px;color:var(--muted)}
-.mw-a4-top{display:flex;flex-direction:column;align-items:center}
-.mw-a4-top .stem{width:2px;height:12px;background:var(--line-strong)}
-.mw-a4-exec{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:8px;padding:6px 12px;background:var(--surface)}
-.mw-a4-exec .nm{font-weight:700;font-size:13px;line-height:1.15}.mw-a4-exec .ps{font-size:10.5px;color:var(--muted)}
-.mw-a4-bus{height:12px;margin:0 6%;border:2px solid var(--line-strong);border-bottom:0;border-radius:8px 8px 0 0}
-.mw-a4-row{display:flex;justify-content:center;align-items:flex-start;gap:8px;margin-top:8px}
-.mw-a4-row>.mw-branch{flex:0 0 calc((100% - 24px)/4)}
-.mw-a4-row.r3{padding:0 7%}
-.mw-a4-row.r3>.mw-branch{flex-basis:calc((100% - 16px)/3)}
-.mw-branch{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);break-inside:avoid}
-.mw-branch-head{display:flex;align-items:center;gap:7px;padding:6px 8px;border-top:4px solid;background:color-mix(in srgb,var(--line) 25%,transparent)}
-.mw-branch-head .nm{font-weight:700;font-size:12px;line-height:1.15;display:flex;align-items:center;gap:4px}
-.mw-branch-head .ps{font-size:10px;color:var(--muted);line-height:1.2}
-.mw-branch-head .ct{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap;align-self:flex-start}
-.mw-branch-list{padding:4px 8px 6px}
-.mw-branch-list.cols2{columns:2;column-gap:10px}
-.mw-branch-list ul{list-style:none;margin:0;padding:0}
-.mw-branch-list ul ul{margin-left:6px;padding-left:9px;border-left:1.5px solid var(--line-strong)}
-.mw-branch-list li{position:relative}
-.mw-org-p{break-inside:avoid}
-.mw-branch-list ul ul>li::before{content:"";position:absolute;left:-9px;top:9px;width:7px;border-top:1.5px solid var(--line-strong)}
-.mw-org-p{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:18px;white-space:nowrap;overflow:hidden}
-.mw-org-p b{font-weight:600}.mw-org-p .d{color:var(--muted);overflow:hidden;text-overflow:ellipsis}
-.mw-org-p .st{color:var(--warn,#B7791F);font-size:9.5px}
-.mw-crown{color:var(--hi);display:inline-flex}.mw-crown svg{width:11px;height:11px}
-.mw-a4-legend{position:absolute;left:26px;right:26px;bottom:10px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:9.5px;color:var(--muted)}
-.mw-a4-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+/* Reporting lines: compact tree (managers branch out, people with no reports stack under them) */
+.org-scroll{overflow:auto;padding:20px;max-height:calc(100dvh - 220px)}
+.tree.compact{transform:none;display:block;width:max-content;min-width:100%;margin:0 auto}
+.tree.compact ul{padding-top:18px}
+.tree.compact>ul{padding-top:0}
+.tree.compact li{padding:18px 4px 0}
+.tree.compact li::before,.tree.compact li::after{height:18px}
+.tree.compact ul ul::before{height:18px}
+.org-node.sm{width:124px;padding:9px 6px 7px}
+.org-node.sm .nm{font-size:12px;margin-top:4px}
+.org-node.sm .ps{font-size:10.5px;line-height:1.2}
+.org-node.sm .lv{font-size:10px;color:var(--accent);font-weight:600;margin-top:2px}
+.org-node.sm .crown{top:6px;right:6px}
+.org-node .st,.org-leaf .st{color:var(--warn,#B7791F)}
+.org-team{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:999px;padding:1px 8px;margin-bottom:5px;white-space:nowrap;position:relative;z-index:1}
+.mw-viewbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
+.mw-viewbar .input{height:36px;font-size:13px}
+.mw-viewbar__search{position:relative;display:flex;align-items:center;flex:1 1 200px;max-width:280px}
+.mw-viewbar__search svg{position:absolute;left:10px;color:var(--muted);pointer-events:none}
+.mw-viewbar__search .input{padding-left:32px;width:100%}
+.mw-viewbar__sel{width:auto;padding-right:28px}
+.mw-viewbar__sel.is-on{border-color:var(--accent);color:var(--accent);font-weight:600}
+.mw-viewbar__count{font-size:12px;color:var(--muted)}
+.mw-viewbar__spacer{flex:1}
+.mw-viewbar__sort{display:flex;align-items:center;gap:4px;color:var(--muted)}
+.mw-seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--surface)}
+.mw-seg button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.mw-seg button.is-on{background:var(--accent);color:#fff}
+@media(max-width:640px){.mw-seg button span{display:none}}
+.mw-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.mw-tile{display:flex;flex-direction:column;gap:8px;text-align:left;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);transition:transform .12s}
+.mw-tile:hover{transform:translateY(-1px);border-color:var(--accent)}
+.mw-tile__title{font-weight:700;font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.mw-facts{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12.5px}
+.mw-facts dt{font-size:11px;color:var(--muted)}
+.mw-facts dd{font-weight:600}
+.mw-bad{color:var(--bad)}
+.mw-date{display:inline-flex;align-items:baseline;gap:3px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:2px 7px}
+.mw-date b{font-size:15px}
+.mw-levels{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:6px;margin-top:16px}
+.mw-levels__cell{text-align:center;border-radius:8px;padding:8px 4px}
+.mw-levels__name{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mw-add-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:180px;border-style:dashed;color:var(--accent);text-align:center;box-shadow:none}
+.mw-add-card:hover{background:var(--accent-soft)}
+.mw-add-card b{color:var(--ink)}
+.mw-repeater{display:grid;gap:8px}
+.mw-repeater__row{display:flex;align-items:center;gap:8px}
+.mw-repeater__row .input{height:36px}
+.mw-repeater__n{width:28px;font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--muted)}
+.mw-drag-row{cursor:grab}
+.mw-drag-row.is-dragging{opacity:.4}
+.mw-drag-row.is-moved td{background:color-mix(in srgb,var(--hi) 8%,transparent)}
+.mw-drag-row.drop-before td{box-shadow:inset 0 2px 0 var(--accent)}
+.mw-drag-row.drop-after td{box-shadow:inset 0 -2px 0 var(--accent)}
+.mw-grip{color:var(--muted);cursor:grab}
+.mw-unsaved{position:sticky;top:8px;z-index:5;align-items:center}
+.mw-menu{position:relative}
+.mw-menu>summary{list-style:none;cursor:pointer}.mw-menu>summary::-webkit-details-marker{display:none}
+.mw-menu__list{position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:240px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px}
+.mw-menu__list button{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:8px 10px;border-radius:8px;font-size:13px}
+.mw-menu__list button:hover{background:var(--surface-2)}
+.mw-menu__list button span{font-size:11.5px;color:var(--muted)}
+.org-stack{min-width:124px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 6px;box-shadow:var(--shadow)}
+.org-leaf{display:flex;align-items:center;gap:5px;font-size:11px;line-height:22px;white-space:nowrap}
+.org-leaf+.org-leaf{border-top:1px dashed var(--line)}
+.org-leaf .dot{width:3px;height:14px;border-radius:2px;flex:none}
+.org-leaf .nm{font-weight:600}
+.org-leaf .lv{color:var(--muted);font-size:10px;margin-left:auto;padding-left:6px}
+.org-leaf .st{font-size:9.5px}
+.org-leaf .crown{color:var(--hi);display:inline-flex}.org-leaf .crown svg{width:11px;height:11px}
 
 /* login */
 .login{height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden;display:grid;grid-template-columns:1fr}
@@ -441,20 +479,20 @@ const DB = {
     {id:'DP10',name:'Customer Service',color:'#B9452B',head:'E003',kind:'Support'},
   ],
   designations:[
-    {id:'D0',name:'Intern',level:0,track:'Entry',min:1000,max:1800},
-    {id:'D1',name:'Junior 1',level:1,track:'Individual Contributor',min:3000,max:3800},
-    {id:'D2',name:'Junior 2',level:2,track:'Individual Contributor',min:3800,max:4800},
-    {id:'D3',name:'Senior 1',level:3,track:'Individual Contributor',min:5000,max:6500},
-    {id:'D4',name:'Senior 2',level:4,track:'Individual Contributor',min:6500,max:8500},
-    {id:'D5',name:'Assistant Manager',level:5,track:'Management',min:8000,max:10000},
-    {id:'D6',name:'Manager',level:6,track:'Management',min:10000,max:14000},
-    {id:'D7',name:'General Manager',level:7,track:'Management',min:14000,max:22000},
-    {id:'D9',name:'C-Level',level:8,track:'Executive',min:22000,max:45000},
+    {id:'D0',canLead:false,name:'Intern',level:0,track:'Entry',min:1000,max:1800},
+    {id:'D1',canLead:false,name:'Junior 1',level:1,track:'Individual Contributor',min:3000,max:3800},
+    {id:'D2',canLead:false,name:'Junior 2',level:2,track:'Individual Contributor',min:3800,max:4800},
+    {id:'D3',canLead:true,name:'Senior 1',level:3,track:'Individual Contributor',min:5000,max:6500},
+    {id:'D4',canLead:true,name:'Senior 2',level:4,track:'Individual Contributor',min:6500,max:8500},
+    {id:'D5',canLead:true,name:'Assistant Manager',level:5,track:'Management',min:8000,max:10000},
+    {id:'D6',canLead:true,name:'Manager',level:6,track:'Management',min:10000,max:14000},
+    {id:'D7',canLead:true,name:'General Manager',level:7,track:'Management',min:14000,max:22000},
+    {id:'D9',canLead:true,name:'C-Level',level:8,track:'Executive',min:22000,max:45000},
   ],
   empTypes:[
-    {id:'Internship',probation:0,duration:'3–6 months',convert:'Contract or Permanent',icon:'graduation-cap',note:'Allowance-based. Ends on fixed date unless converted.'},
-    {id:'Contract',probation:1,duration:'6–24 months',convert:'Permanent',icon:'file-clock',note:'Renewable. Renewal reminder 30 days before end.'},
-    {id:'Permanent',probation:3,duration:'Open-ended',convert:'—',icon:'shield-check',note:'Probation 3 months, extendable up to 6 months total.'},
+    {id:'Internship',probation:0,duration:'3–6 months',convert:['Contract','Permanent'],fixedEnd:true,renewDays:30,icon:'graduation-cap',note:'Allowance-based. Ends on fixed date unless converted.'},
+    {id:'Contract',probation:1,duration:'6–24 months',convert:['Permanent'],fixedEnd:true,renewDays:30,icon:'file-clock',note:'Renewable. Renewal reminder 30 days before end.'},
+    {id:'Permanent',probation:3,duration:'Open-ended',convert:[],fixedEnd:false,icon:'shield-check',note:'Probation 3 months, extendable up to 6 months total.'},
   ],
   employees:[
     mkEmp('E001','HJ-0001','Ah Fa','Chief Executive Officer','D9','Management','Permanent','Permanent','2019-01-01',null,34000,'M','1981-01-02'),
@@ -774,7 +812,10 @@ const cand = id => DB.candidates.find(c=>c.id===id);
 const proj = id => DB.projects.find(p=>p.id===id);
 const task = id => DB.tasks.find(t=>t.id===id);
 const tag = c => DB.tags.find(t=>t.code===c);
-const tpts = t => tag(t.tag).pts[t.level-1];
+// Each tag owns its levels (at least one). Older data with a 5-point array is converted once.
+DB.tags.forEach(t=>{if(!t.levels){t.levels=(t.pts||[]).map((p,i)=>({name:DB.levelNames[i]||'Level '+(i+1),pts:p}));delete t.pts}});
+const tagLevel = t => {const L=tag(t.tag)?.levels||[];return L[Math.min(t.level,L.length)-1]||{name:'',pts:0}};
+const tpts = t => tagLevel(t).pts;
 const ename = id => !id?'—':String(id).startsWith('ext')?String(id).replace(/^ext:?/,'')||'External':(emp(id)?.display||emp(id)?.name||'—');
 const deptNames = () => DB.departments.map(d=>d.name);
 const dcol = n => DB.departments.find(d=>d.name===n)?.color || '#94a3b8';
@@ -788,7 +829,7 @@ const av = (name,sz=32,photo) => { photo = photo ?? photoOf(name);
   return photo ? `<img class="av" src="${photo}" alt="" style="width:${sz}px;height:${sz}px;object-fit:cover">`
   : `<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:hsl(${hue(name)} 62% 86%);color:hsl(${hue(name)} 50% 26%)">${initials(name)}</span>`; };
 const avs = (ids,sz=26,max=6) => `<div class="flex -space-x-2 items-center">${ids.slice(0,max).map(i=>`<span data-tip="${esc(ename(i))}">${av(ename(i),sz)}</span>`).join('')}${ids.length>max?`<span class="av text-xs" style="width:${sz}px;height:${sz}px;background:var(--surface-2);color:var(--muted)">+${ids.length-max}</span>`:''}</div>`;
-const tagc = t => `<span class="tagc" style="background:${tag(t.tag).color}" data-tip="${esc(tag(t.tag).name)} · L${t.level} ${DB.levelNames[t.level-1]} · ${tpts(t)} pts">${t.tag}<small>L${t.level}</small></span>`;
+const tagc = t => `<span class="tagc" style="background:${tag(t.tag).color}" data-tip="${esc(tag(t.tag).name)} · L${t.level} ${esc(tagLevel(t).name)} · ${tpts(t)} pts">${t.tag}<small>L${t.level}</small></span>`;
 const fld = (label,inner,cls='',req=false) => `<label class="fld ${cls}"><span>${label}${req?' <b>*</b>':''}</span>${inner}</label>`;
 const inp = (id,val='',type='text',ph='',extra='') => `<input id="${id}" class="input" type="${type}" value="${esc(val)}" placeholder="${esc(ph)}" ${extra}>`;
 const sel = (id,opts,val,extra='') => `<select id="${id}" class="input" ${extra}>${opts.map(o=>{const [v,l]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${v==val?'selected':''}>${esc(l)}</option>`}).join('')}</select>`;
@@ -1205,7 +1246,7 @@ function checkUpdates(){toast(APP.version===APP.latest?t('Up to date')+' · v'+A
 
 /* =================== USER GUIDE =================== */
 // Short how-to for each page, opened from the Info button after the page title.
-const GUIDES = {"dashboard":{"intro":"Your day at a glance: tasks, check-ins due, your KPI so far and upcoming meetings. HR and management see company-wide figures instead.","steps":["Start with the greeting band: it tells you what needs attention today.","Click a tile to jump to the full list (e.g. Check-ins due opens My Tasks).","Handle anything in \"Needs your approval\" or \"Due soon\" first."],"tips":["Numbers update as soon as you or your team record work.","If a banner asks you to review your personal data, do it before the due date."]},"profile":{"intro":"Your own account: display name, picture, personal information, password and two-factor authentication.","steps":["Overview: change your display name or upload a picture (only you see it).","Personal information: fill in every required field; changes go to HR for approval.","Security: change your password and add up to two authenticator devices.","Preferences: choose English or 中文."],"tips":["Your official photo is set by HR and used in the org chart and HR records.","Keep at least one 2FA device if your organisation requires it."]},"mytasks":{"intro":"Every task assigned to you, with due dates and check-in status.","steps":["Open a task to see its details and history.","Post a check-in at the required interval: progress %, hours and a short note.","If you are blocked, say who or what is blocking you; this records a delay.","Need more time? Request an extension before the due date."],"tips":["Missed check-ins count against your KPI.","Tasks waiting on another task can't start until it's done."]},"projects":{"intro":"All projects you can see, their phase, progress and delivery health.","steps":["Open a project to see its timeline, tasks, prerequisites and delays.","Project managers move the phase forward one step at a time.","Use Standalone task for work that isn't part of a project."],"tips":["\"At risk\" means overdue tasks or open delays: check the delay log first."]},"meetings":{"intro":"Schedule meetings, record minutes and turn action items into tasks.","steps":["Click Schedule meeting, set objectives and pick attendees (or Everyone).","After the meeting, complete it with minutes and decisions.","Convert action items into tasks so they are tracked."],"tips":["Attendance locks 7 days after a meeting is completed."]},"kpi":{"intro":"Performance scores built from delivery data: points, on-time rate, delays, check-ins, quality, rating and meetings.","steps":["Pick the period, then open a person to see how each part of the score was calculated.","HR can import external task data or export scores to Excel."],"tips":["C-level staff are excluded from KPI.","Only confirmed delays count against someone."]},"vacancies":{"intro":"Open positions, their designation range and hiring manager.","steps":["Create a vacancy and share its public apply link.","Pause or close it when hiring is done."],"tips":["Candidates apply through the public form with PDPA consent."]},"candidates":{"intro":"Everyone who applied or was added to the talent pool, by stage.","steps":["Filter by stage with the tabs.","Open a candidate to schedule interviews or move their stage.","Convert a hired candidate into an employee in one step."],"tips":["Former employees are flagged for HR only."]},"interviews":{"intro":"All interview rounds, scheduled and completed.","steps":["Schedule a round with a panel, date and mode.","Record the result with remarks after the interview."],"tips":["\"Next round\" prompts you to schedule the following round."]},"employees":{"intro":"Employee records you are allowed to see.","steps":["Use the status tabs and search to find someone.","Open a person for details, history and lifecycle actions.","HR can add employees or import a CSV."],"tips":["Salary and full ID numbers are visible only to HR and management."]},"lifecycle":{"intro":"Probation, contract and PIP deadlines in one place.","steps":["Act before the end date: confirm, extend or start a PIP.","Each action is recorded in the employee's history."],"tips":["Probation can be extended up to twice the default length."]},"review":{"intro":"The annual personal-data review: who has confirmed their details and what is waiting for HR.","steps":["HR launches the review in the month set in Global Settings.","Employees confirm or update their details by the due date.","HR approves or returns each submission."],"tips":["Reminders go out 7 days and 1 day before the due date."]},"teams":{"intro":"Groups inside each department, their team leads and members.","steps":["Click Edit on a group to tick members and team leads.","Set \"Reports to\" for each person in the same table.","Use the crown to make or remove a team lead quickly."],"tips":["Team leads are optional: a group can have none, one or several.","Interns and juniors (Junior 1–2) can't be team leads.","Reporting lines are per person and can never loop."]},"orgchart":{"intro":"The organisation: by department (heads, groups, team leads) or as reporting lines.","steps":["Switch between By department and Reporting lines.","In Reporting lines, zoom and export a PNG."],"tips":["Official photos are shown here once HR adds them."]},"departments":{"intro":"Departments, their head (HOD) and their groups.","steps":["Add or rename a department; the change applies everywhere.","Set or clear the head of department."],"tips":["A department has at most one HOD; it can have none."]},"designations":{"intro":"The career ladder, from Intern to C-Level, with salary bands and KPI targets.","steps":["Add, rename or reorder levels to match your organisation.","Set each level's salary band and quarterly KPI target."],"tips":["The head of a department can hold any level."]},"emptypes":{"intro":"Employment types and their probation and duration rules.","steps":["Adjust the default probation and conversion path for each type."],"tips":[]},"tags":{"intro":"Task tags and the points each difficulty level is worth.","steps":["Edit a tag's points for levels 1 to 5."],"tips":["Points feed the delivery part of the KPI."]},"integrations":{"intro":"Connections to tools such as ClickUp, Asana or Google Sheets.","steps":["Map external users to employees by work email.","Import tasks for KPI."],"tips":[]},"access":{"intro":"What each role is allowed to do.","steps":["Switch permissions on or off per role.","The System Admin role always has everything."],"tips":["You can't remove Global Settings access from your own role."]},"config":{"intro":"Company-wide settings: security, work rules, employment defaults, recruitment and KPI.","steps":["Change a value; it applies to everyone.","Turn on two-factor authentication and choose which roles must use it."],"tips":["Session timeout signs people out after inactivity."]},"updates":{"intro":"The installed version and the history of automatic updates.","steps":["Check for updates to compare with the latest release.","Click a row in the log to see each step of that update."],"tips":["A failed health check rolls back to the previous release automatically."]}};
+const GUIDES = {"dashboard":{"intro":"Your day at a glance: tasks, check-ins due, your KPI so far and upcoming meetings. HR and management see company-wide figures instead.","steps":["Start with the greeting band: it tells you what needs attention today.","Click a tile to jump to the full list (e.g. Check-ins due opens My Tasks).","Handle anything in \"Needs your approval\" or \"Due soon\" first."],"tips":["Numbers update as soon as you or your team record work.","If a banner asks you to review your personal data, do it before the due date."]},"profile":{"intro":"Your own account: display name, picture, personal information, password and two-factor authentication.","steps":["Overview: change your display name or upload a picture (only you see it).","Personal information: fill in every required field; changes go to HR for approval.","Security: change your password and add up to two authenticator devices.","Preferences: choose English or 中文."],"tips":["Your official photo is set by HR and used in the org chart and HR records.","Keep at least one 2FA device if your organisation requires it."]},"mytasks":{"intro":"Every task assigned to you, with due dates and check-in status.","steps":["Open a task to see its details and history.","Post a check-in at the required interval: progress %, hours and a short note.","If you are blocked, say who or what is blocking you; this records a delay.","Need more time? Request an extension before the due date."],"tips":["Missed check-ins count against your KPI.","Tasks waiting on another task can't start until it's done."]},"projects":{"intro":"All projects you can see, their phase, progress and delivery health.","steps":["Open a project to see its timeline, tasks, prerequisites and delays.","Project managers move the phase forward one step at a time.","Use Standalone task for work that isn't part of a project."],"tips":["\"At risk\" means overdue tasks or open delays: check the delay log first."]},"meetings":{"intro":"Schedule meetings, record minutes and turn action items into tasks.","steps":["Click Schedule meeting, set objectives and pick attendees (or Everyone).","After the meeting, complete it with minutes and decisions.","Convert action items into tasks so they are tracked."],"tips":["Attendance locks 7 days after a meeting is completed."]},"kpi":{"intro":"Performance scores built from delivery data: points, on-time rate, delays, check-ins, quality, rating and meetings.","steps":["Pick the period, then open a person to see how each part of the score was calculated.","HR can import external task data or export scores to Excel."],"tips":["C-level staff are excluded from KPI.","Only confirmed delays count against someone."]},"vacancies":{"intro":"Open positions, their designation range and hiring manager.","steps":["Create a vacancy and share its public apply link.","Pause or close it when hiring is done."],"tips":["Candidates apply through the public form with PDPA consent."]},"candidates":{"intro":"Everyone who applied or was added to the talent pool, by stage.","steps":["Filter by stage with the tabs.","Open a candidate to schedule interviews or move their stage.","Convert a hired candidate into an employee in one step."],"tips":["Former employees are flagged for HR only."]},"interviews":{"intro":"All interview rounds, scheduled and completed.","steps":["Schedule a round with a panel, date and mode.","Record the result with remarks after the interview."],"tips":["\"Next round\" prompts you to schedule the following round."]},"employees":{"intro":"Employee records you are allowed to see.","steps":["Use the status tabs and search to find someone.","Open a person for details, history and lifecycle actions.","HR can add employees or import a CSV."],"tips":["Salary and full ID numbers are visible only to HR and management."]},"lifecycle":{"intro":"Probation, contract and PIP deadlines in one place.","steps":["Act before the end date: confirm, extend or start a PIP.","Each action is recorded in the employee's history."],"tips":["Probation can be extended up to twice the default length."]},"review":{"intro":"The annual personal-data review: who has confirmed their details and what is waiting for HR.","steps":["HR launches the review in the month set in Global Settings.","Employees confirm or update their details by the due date.","HR approves or returns each submission."],"tips":["Reminders go out 7 days and 1 day before the due date."]},"teams":{"intro":"Groups inside each department, their team leads and members.","steps":["Click Edit on a group to tick members and team leads.","Set \"Reports to\" for each person in the same table.","Use the crown to make or remove a team lead quickly."],"tips":["Team leads are optional: a group can have none, one or several.","Interns and juniors (Junior 1–2) can't be team leads by default; each designation's Can lead a group setting decides.","Reporting lines are per person and can never loop."]},"orgchart":{"intro":"The organisation: by department (heads, groups, team leads) or as reporting lines.","steps":["Switch between By department and Reporting lines.","In Reporting lines, zoom and export a PNG."],"tips":["Official photos are shown here once HR adds them."]},"departments":{"intro":"Departments, their head (HOD) and their groups.","steps":["Add or rename a department; the change applies everywhere.","Set or clear the head of department."],"tips":["A department has at most one HOD; it can have none."]},"designations":{"intro":"The career ladder, from Intern to C-Level, with salary bands and KPI targets.","steps":["Add, rename or reorder levels to match your organisation.","Set each level's salary band and quarterly KPI target."],"tips":["The head of a department can hold any level."]},"emptypes":{"intro":"Employment types and their probation and duration rules.","steps":["Adjust the default probation and conversion path for each type."],"tips":[]},"tags":{"intro":"Task tags and the points each difficulty level is worth.","steps":["Edit a tag's points for levels 1 to 5."],"tips":["Points feed the delivery part of the KPI."]},"integrations":{"intro":"Connections to tools such as ClickUp, Asana or Google Sheets.","steps":["Map external users to employees by work email.","Import tasks for KPI."],"tips":[]},"access":{"intro":"What each role is allowed to do.","steps":["Switch permissions on or off per role.","The System Admin role always has everything."],"tips":["You can't remove Global Settings access from your own role."]},"config":{"intro":"Company-wide settings: security, work rules, employment defaults, recruitment and KPI.","steps":["Change a value; it applies to everyone.","Turn on two-factor authentication and choose which roles must use it."],"tips":["Session timeout signs people out after inactivity."]},"updates":{"intro":"The installed version and the history of automatic updates.","steps":["Check for updates to compare with the latest release.","Click a row in the log to see each step of that update."],"tips":["A failed health check rolls back to the previous release automatically."]}};
 function openGuide(){
   const key=S.page||'dashboard',g=GUIDES[key]||{intro:'Help for this page is coming soon.',steps:[],tips:[]},title=t(PAGES[key]?.t||'');
   closeGuide();
@@ -1312,37 +1353,90 @@ function delDept(id){const d=DB.departments.find(x=>x.id===id),n=DB.employees.fi
 
 /* =================== DESIGNATIONS =================== */
 function pgDesignations(){
-  const list=[...DB.designations].sort((a,b)=>a.level-b.level);
+  const saved=[...DB.designations].sort((a,b)=>a.level-b.level);
+  // Reordering works on a draft; nothing changes until the new order is confirmed.
+  const ids=S.desDraft||saved.map(d=>d.id),list=ids.map(des),dirty=!!S.desDraft&&ids.some((id,i)=>id!==saved[i].id);
+  const lvl=i=>i+saved[0].level;
   const tc={Entry:'#9aa3b5','Individual Contributor':'var(--accent)',Management:'var(--hi)',Executive:'#7c5cff'};
-  return `<div class="grid gap-4 xl:grid-cols-[320px_1fr]">
+  return `${dirty?`<div class="mw-alert mw-alert--info mw-unsaved">${ic('arrow-up-down')}<div class="flex-1"><b>The ladder order has changed.</b> Save to apply the new levels.</div><button class="btn btn-ghost" onclick="S.desDraft=null;rerender()">Discard</button><button class="btn btn-primary" onclick="confirmDesOrder()">${ic('check')}Save order</button></div>`:''}
+  <div class="grid gap-4 xl:grid-cols-[320px_1fr]">
     <section class="card p-5"><h3 class="card-title mb-1">${ic('trending-up','w-4 h-4')}Career ladder</h3><p class="text-xs muted mb-4">Each designation is one rung. Seniors can supervise lower rungs without being a team lead.</p>
-      <div class="ladder">${list.map((d,i)=>`<div class="rung"><span class="lv mono">L${d.level}</span><span class="blk" style="background:${tc[d.track]};width:${46+i*5.5}%">${d.name}</span></div>`).join('')}</div>
+      <div class="ladder">${list.map((d,i)=>`<div class="rung"><span class="lv mono">L${lvl(i)}</span><span class="blk" style="background:${tc[d.track]};width:${46+i*5.5}%">${d.name}</span></div>`).join('')}</div>
       <div class="flex flex-wrap gap-3 mt-5 text-xs">${Object.entries(tc).map(([k,c])=>`<span class="flex items-center gap-1.5"><i class="inline-block w-3 h-3 rounded-sm" style="background:${c}"></i>${k}</span>`).join('')}</div></section>
-    <section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Level</th><th>Designation</th><th>Track</th><th>Salary band (monthly)</th><th>Employees</th><th>KPI target / qtr</th><th class="text-right">Actions</th></tr></thead><tbody>
-      ${list.map((d,i)=>`<tr><td class="mono">L${d.level}</td><td class="font-semibold">${d.name}</td><td>${chip(d.track,d.track==='Management'?'hi':d.track==='Executive'?'info':d.track==='Entry'?'':'acc')}</td><td class="tnum">${RM(d.min)} – ${RM(d.max)}</td><td class="tnum">${DB.employees.filter(e=>e.desig===d.id).length}</td><td class="tnum">${TARGET[d.level]} pts</td>
-      <td><div class="actions">${ib('arrow-up','Move up',`moveDes('${d.id}',1)`,'',i===list.length-1)}${ib('arrow-down','Move down',`moveDes('${d.id}',-1)`,'',i===0)}${ib('pencil','Edit designation',`editDesignation('${d.id}')`)}${ib('trash-2','Delete designation',`delDesignation('${d.id}')`,'bad')}</div></td></tr>`).join('')}
+    <section class="card overflow-hidden"><div class="px-5 pt-4 text-xs muted flex items-center gap-1.5">${ic('grip-vertical','w-3.5 h-3.5')}Drag a row (or use the arrows) to change the order. Lowest level at the top.</div><div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:28px"></th><th>Level</th><th>Designation</th><th>Track</th><th>Can lead a group</th><th>Salary band (monthly)</th><th>Employees</th><th>KPI target / qtr</th><th class="text-right">Actions</th></tr></thead><tbody id="des-body">
+      ${list.map((d,i)=>{const moved=d.level!==lvl(i);return `<tr draggable="true" data-id="${d.id}" class="mw-drag-row${moved?' is-moved':''}" ondragstart="desDragStart(event)" ondragover="desDragOver(event)" ondrop="desDrop(event)" ondragend="desDragEnd(event)"><td class="mw-grip" aria-hidden="true">${ic('grip-vertical','w-4 h-4')}</td><td class="mono">L${lvl(i)}${moved?`<div class="text-[10px] muted">was L${d.level}</div>`:''}</td><td class="font-semibold">${d.name}</td><td>${chip(d.track,d.track==='Management'?'hi':d.track==='Executive'?'info':d.track==='Entry'?'':'acc')}</td><td>${d.canLead!==false?chip('Yes','ok','crown'):'<span class="text-xs muted">No</span>'}</td><td class="tnum">${RM(d.min)} – ${RM(d.max)}</td><td class="tnum">${DB.employees.filter(e=>e.desig===d.id).length}</td><td class="tnum">${TARGET[lvl(i)]??'—'} pts</td>
+      <td><div class="actions">${ib('arrow-up','Move up',`moveDes('${d.id}',-1)`,'',i===0)}${ib('arrow-down','Move down',`moveDes('${d.id}',1)`,'',i===list.length-1)}${ib('pencil','Edit designation',`editDesignation('${d.id}')`)}${ib('trash-2','Delete designation',`delDesignation('${d.id}')`,'bad')}</div></td></tr>`}).join('')}
     </tbody></table></div></section></div>`;
 }
-function moveDes(id,dir){const l=[...DB.designations].sort((a,b)=>a.level-b.level),i=l.findIndex(d=>d.id===id),j=i+dir;if(j<0||j>=l.length)return;[l[i].level,l[j].level]=[l[j].level,l[i].level];rerender();toast('Ladder order updated','arrow-up-down')}
+function desIds(){return S.desDraft||[...DB.designations].sort((a,b)=>a.level-b.level).map(d=>d.id)}
+function moveDes(id,dir){const l=[...desIds()],i=l.indexOf(id),j=i+dir;if(j<0||j>=l.length)return;[l[i],l[j]]=[l[j],l[i]];S.desDraft=l;rerender()}
+function desDragStart(ev){S.desDrag=ev.currentTarget.dataset.id;ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',S.desDrag);ev.currentTarget.classList.add('is-dragging')}
+function desDragOver(ev){ev.preventDefault();const tr=ev.currentTarget,r=tr.getBoundingClientRect(),after=ev.clientY>r.top+r.height/2;$$('#des-body tr').forEach(x=>x.classList.remove('drop-before','drop-after'));tr.classList.add(after?'drop-after':'drop-before')}
+function desDrop(ev){ev.preventDefault();const tr=ev.currentTarget,to=tr.dataset.id,from=S.desDrag;if(!from||from===to)return desDragEnd();const after=tr.classList.contains('drop-after');const l=desIds().filter(x=>x!==from);l.splice(l.indexOf(to)+(after?1:0),0,from);S.desDraft=l;S.desDrag=null;rerender()}
+function desDragEnd(){S.desDrag=null;$$('#des-body tr').forEach(x=>x.classList.remove('is-dragging','drop-before','drop-after'))}
+function confirmDesOrder(){
+  const saved=[...DB.designations].sort((a,b)=>a.level-b.level),base=saved[0].level;
+  const ch=S.desDraft.map((id,i)=>({d:des(id),to:base+i})).filter(x=>x.d.level!==x.to);
+  const affected=ch.reduce((n,x)=>n+DB.employees.filter(e=>e.desig===x.d.id).length,0);
+  openModal({title:'Save the new ladder order?',icon:'arrow-up-down',body:`<p class="text-sm">${ch.length} designation${ch.length===1?'':'s'} change level:</p><div class="tbl-wrap mt-2"><table class="mini-tbl"><thead><tr><th>Designation</th><th>From</th><th>To</th><th>Employees</th></tr></thead><tbody>${ch.map(x=>`<tr><td>${esc(x.d.name)}</td><td class="mono">L${x.d.level}</td><td class="mono"><b>L${x.to}</b></td><td class="tnum">${DB.employees.filter(e=>e.desig===x.d.id).length}</td></tr>`).join('')}</tbody></table></div>
+    <div class="mw-alert mw-alert--warning mt-3" style="margin-bottom:0">${ic('triangle-alert')}<div class="text-sm">Affects ${affected} employee${affected===1?'':'s'}: KPI targets follow the new levels from the current period, and team-lead eligibility still follows each designation's "Can lead a group" setting. Employees keep their designation.</div></div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Keep editing</button><button class="btn btn-primary" onclick="saveDesOrder()">${ic('check')}Save order</button>`});
+}
+function saveDesOrder(){const base=Math.min(...DB.designations.map(d=>d.level));S.desDraft.forEach((id,i)=>des(id).level=base+i);S.desDraft=null;closeModal();rerender();toast('Ladder order saved','arrow-up-down')}
 function editDesignation(id){
-  const d=id?des(id):{name:'',track:'Individual Contributor',min:'',max:''};
-  openModal({title:id?'Edit designation':'Add designation',icon:'layers',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Designation name',inp('d-name',d.name,'text','e.g. Principal Engineer'),'sm:col-span-2',true)}${fld('Track',sel('d-track',['Entry','Individual Contributor','Management','Executive'],d.track))}${fld('Level',inp('d-level',id?d.level:Math.max(...DB.designations.map(x=>x.level))+1,'number'))}${fld('Band min (RM)',inp('d-min',d.min,'number'))}${fld('Band max (RM)',inp('d-max',d.max,'number'))}</div>`,
+  const d=id?des(id):{name:'',track:'Individual Contributor',min:'',max:'',canLead:true};
+  openModal({title:id?'Edit designation':'Add designation',icon:'layers',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Designation name',inp('d-name',d.name,'text','e.g. Principal Engineer'),'sm:col-span-2',true)}${fld('Track',sel('d-track',['Entry','Individual Contributor','Management','Executive'],d.track))}${id?fld('Level',`<div class="mw-field__readonly">L${d.level} · change it by dragging on the ladder</div>`):fld('Position',`<div class="mw-field__readonly">Added at the top (L${Math.max(...DB.designations.map(x=>x.level))+1}); drag to move it</div>`)}${fld('Band min (RM)',inp('d-min',d.min,'number'))}${fld('Band max (RM)',inp('d-max',d.max,'number'))}<label class="check-row sm:col-span-2"><input type="checkbox" id="d-lead" ${d.canLead!==false?'checked':''}><span><b class="text-sm">Can lead a group</b><span class="block text-xs muted">People with this designation can be made team leads. Usually off for interns and juniors.</span></span></label></div>`,
     foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveDesignation('${id||''}')">${ic('check')}Save</button>`});
 }
-function saveDesignation(id){const o={name:val('d-name'),track:val('d-track'),level:+val('d-level'),min:+val('d-min'),max:+val('d-max')};if(!o.name){toast('Name is required','circle-alert');return}if(id)Object.assign(des(id),o);else DB.designations.push({id:'D'+Date.now(),...o});closeModal();rerender();toast('Designation saved')}
+function saveDesignation(id){const o={name:val('d-name'),track:val('d-track'),min:+val('d-min'),max:+val('d-max'),canLead:$('#d-lead').checked};if(!o.name){toast('Name is required','circle-alert');return}if(o.min&&o.max&&o.min>o.max){toast('Band min must not exceed max','circle-alert');return}
+  if(id)Object.assign(des(id),o);else{DB.designations.push({id:'D'+Date.now(),level:Math.max(...DB.designations.map(x=>x.level))+1,...o});if(S.desDraft)S.desDraft.push(DB.designations.at(-1).id)}closeModal();rerender();toast('Designation saved')}
 function delDesignation(id){const n=DB.employees.filter(e=>e.desig===id).length;
-  openModal({title:'Delete designation?',icon:'trash-2',size:'sm',body:n?`<p><b>${des(id).name}</b> is assigned to ${n} employee(s). Reassign them first.</p>`:`<p>Delete <b>${des(id).name}</b> from the ladder?</p>`,foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>${n?'':`<button class="btn btn-danger" onclick="DB.designations=DB.designations.filter(d=>d.id!=='${id}');closeModal();rerender();toast('Deleted','trash-2')">Delete</button>`}`})}
+  openModal({title:'Delete designation?',icon:'trash-2',size:'sm',body:n?`<p><b>${des(id).name}</b> is assigned to ${n} employee(s). Reassign them first.</p>`:`<p>Delete <b>${des(id).name}</b> from the ladder? Levels above it move down by one.</p>`,foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>${n?'':`<button class="btn btn-danger" onclick="doDelDesignation('${id}')">Delete</button>`}`})}
+function doDelDesignation(id){const lv=des(id).level;DB.designations=DB.designations.filter(d=>d.id!==id);DB.designations.forEach(d=>{if(d.level>lv)d.level--});if(S.desDraft)S.desDraft=S.desDraft.filter(x=>x!==id);closeModal();rerender();toast('Deleted','trash-2')}
 
 /* =================== EMPLOYMENT TYPES =================== */
+const EMPTYPE_ICONS=[['briefcase','Briefcase'],['graduation-cap','Graduation cap'],['file-clock','Contract'],['shield-check','Shield'],['clock','Clock'],['users','People'],['handshake','Handshake'],['laptop','Laptop']];
 function pgEmpTypes(){
-  return `<div class="grid gap-4 md:grid-cols-3">${DB.empTypes.map(t=>`<section class="card p-5 flex flex-col gap-4"><div class="flex items-start justify-between"><span class="chip acc" style="padding:8px">${ic(t.icon,'!w-5 !h-5')}</span>${ib('pencil','Edit type',`editEmpType('${t.id}')`)}</div><div><h3 class="text-xl font-extrabold">${t.id}</h3><p class="text-sm muted mt-1">${t.note}</p></div>
-    <dl class="dl"><dt>Default probation</dt><dd class="font-semibold">${t.probation?t.probation+' month'+(t.probation>1?'s':''):'None'}</dd><dt>Typical duration</dt><dd>${t.duration}</dd><dt>Converts to</dt><dd>${t.convert}</dd><dt>Headcount</dt><dd class="font-semibold tnum">${DB.employees.filter(e=>e.type===t.id).length}</dd></dl></section>`).join('')}</div>
+  const conv=t=>(t.convert||[]).length?t.convert.join(', '):'—';
+  return `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${DB.empTypes.map(t=>{const n=DB.employees.filter(e=>e.type===t.id).length;return `<section class="card p-5 flex flex-col gap-4"><div class="flex items-start justify-between"><span class="chip acc" style="padding:8px">${ic(t.icon,'!w-5 !h-5')}</span><div class="actions">${ib('pencil','Edit type',`editEmpType('${esc(t.id)}')`)}${ib('trash-2','Delete type',`delEmpType('${esc(t.id)}')`,'bad')}</div></div><div><h3 class="text-xl font-extrabold">${esc(t.id)}</h3><p class="text-sm muted mt-1">${esc(t.note||'')}</p></div>
+    <dl class="dl"><dt>Default probation</dt><dd class="font-semibold">${t.probation?t.probation+' month'+(t.probation>1?'s':''):'None'}</dd><dt>Typical duration</dt><dd>${esc(t.duration||'—')}</dd><dt>Fixed end date</dt><dd>${t.fixedEnd?'Yes · reminder '+(t.renewDays||30)+' days before':'No'}</dd><dt>Converts to</dt><dd>${esc(conv(t))}</dd><dt>Headcount</dt><dd class="font-semibold tnum">${n}</dd></dl></section>`}).join('')}
+    <button class="card p-5 mw-add-card" onclick="editEmpType()">${ic('plus','w-6 h-6')}<b>Add employment type</b><span class="text-xs muted">e.g. Part-time, Freelance, Secondment</span></button></div>
   <section class="card p-5 mt-4"><h3 class="card-title mb-4">${ic('git-branch','w-4 h-4')}Employment lifecycle</h3><div class="flex flex-wrap items-center gap-2 text-sm">${['Candidate','Hired','Probation','Confirmed (Permanent)','Increment','Promotion','Promotion probation','Confirmed'].map((s,i,a)=>`<span class="chip ${i===0?'':i<3?'warn':i===3||i===7?'ok':'info'}" style="padding:6px 12px;font-size:12.5px">${s}</span>${i<a.length-1?ic('chevron-right','w-4 h-4 muted'):''}`).join('')}</div>
   <p class="text-sm muted mt-3">Side branches: probation extension (max ${DB.settings.probation*2} months total), PIP (${DB.settings.pipDays} days default), contract renewal, intern conversion, offboarding.</p></section>`;
 }
-function editEmpType(id){const t=DB.empTypes.find(x=>x.id===id);
-  openModal({title:`Edit ${id}`,icon:'file-badge',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Default probation (months)',sel('t-prob',[0,1,2,3,4,5,6].map(n=>[n,n?n+' months':'None']),t.probation))}${fld('Typical duration',inp('t-dur',t.duration))}${fld('Notes',txt('t-note',t.note),'sm:col-span-2')}</div>`,
-    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="Object.assign(DB.empTypes.find(x=>x.id==='${id}'),{probation:+val('t-prob'),duration:val('t-dur'),note:val('t-note')});closeModal();rerender();toast('Saved')">${ic('check')}Save</button>`})}
+function editEmpType(id){
+  const t=id?DB.empTypes.find(x=>x.id===id):{id:'',probation:0,duration:'',convert:[],icon:'briefcase',note:'',fixedEnd:false,renewDays:30};
+  const others=DB.empTypes.filter(x=>x.id!==id);
+  openModal({title:id?`Edit ${id}`:'Add employment type',icon:'file-badge',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Name',inp('t-name',t.id,'text','e.g. Part-time'),'',true)}${fld('Icon',sel('t-icon',EMPTYPE_ICONS,t.icon))}
+    ${fld('Default probation',sel('t-prob',[0,1,2,3,4,5,6].map(n=>[n,n?n+' month'+(n>1?'s':''):'None']),t.probation))}${fld('Typical duration',inp('t-dur',t.duration,'text','e.g. 6–24 months or Open-ended'))}
+    <label class="check-row sm:col-span-2"><input type="checkbox" id="t-fixed" ${t.fixedEnd?'checked':''}><span><b class="text-sm">Has a fixed end date</b><span class="block text-xs muted">HR is reminded before it ends to renew, convert or offboard.</span></span></label>
+    ${fld('Reminder before end',sel('t-renew',[[14,'14 days'],[30,'30 days'],[60,'60 days']],t.renewDays||30))}
+    <div class="fld"><span>Can convert to</span><div class="flex flex-wrap gap-1.5">${others.map(o=>`<label class="chip ${(t.convert||[]).includes(o.id)?'acc':''}" style="cursor:pointer"><input type="checkbox" class="sr-only" name="t-conv" value="${esc(o.id)}" ${(t.convert||[]).includes(o.id)?'checked':''} onchange="this.parentElement.classList.toggle('acc',this.checked)">${esc(o.id)}</label>`).join('')||'<span class="text-xs muted">No other types yet</span>'}</div></div>
+    ${fld('Notes',txt('t-note',t.note),'sm:col-span-2')}</div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmpType('${esc(id||'')}')">${ic('check')}Save</button>`});
+}
+function saveEmpType(id){
+  const name=val('t-name').trim();if(!name){toast('Name is required','circle-alert');return}
+  if(DB.empTypes.some(x=>x.id.toLowerCase()===name.toLowerCase()&&x.id!==id)){toast(`${name} already exists`,'circle-alert');return}
+  const o={id:name,icon:val('t-icon'),probation:+val('t-prob'),duration:val('t-dur'),fixedEnd:$('#t-fixed').checked,renewDays:+val('t-renew'),convert:picked('t-conv'),note:val('t-note')};
+  if(id){const t=DB.empTypes.find(x=>x.id===id);
+    // A rename follows through to employees and to other types' conversion lists.
+    if(name!==id){DB.employees.filter(e=>e.type===id).forEach(e=>e.type=name);DB.empTypes.forEach(x=>x.convert=(x.convert||[]).map(c=>c===id?name:c))}
+    Object.assign(t,o)}else DB.empTypes.push(o);
+  closeModal();rerender();toast(id?'Employment type saved':`${name} added`,'file-badge');
+}
+function delEmpType(id){
+  const n=DB.employees.filter(e=>e.type===id).length,others=DB.empTypes.filter(x=>x.id!==id);
+  if(!others.length){toast('Keep at least one employment type','circle-alert');return}
+  openModal({title:`Delete ${id}?`,icon:'trash-2',size:'sm',body:n?`<p class="text-sm"><b>${n} employee${n===1?'':'s'}</b> have this type. Move them to another type, then delete.</p><div class="mt-3">${fld('Move employees to',sel('t-move',others.map(x=>x.id)))}</div><p class="text-xs muted mt-2">Each move is recorded in the employee's history. Probation and end dates are not changed.</p>`:`<p class="text-sm">Delete <b>${esc(id)}</b>? No employees have it.</p>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doDelEmpType('${esc(id)}')">${ic('trash-2')}${n?'Move and delete':'Delete'}</button>`});
+}
+function doDelEmpType(id){
+  const to=$('#t-move')?.value;
+  if(to)DB.employees.filter(e=>e.type===id).forEach(e=>{e.type=to;logEvent(e.id,'Employment type changed',`${id} → ${to} (type deleted)`,'info')});
+  DB.empTypes=DB.empTypes.filter(x=>x.id!==id);DB.empTypes.forEach(x=>x.convert=(x.convert||[]).filter(c=>c!==id));
+  closeModal();rerender();toast(to?`Employees moved to ${to}; ${id} deleted`:`${id} deleted`,'trash-2');
+}
 
 /* =================== VACANCIES =================== */
 function pgVacancies(){
@@ -1557,7 +1651,7 @@ function convertCandidate(id,direct=false){
   openModal({title:direct?'Direct re-hire':'Convert to employee',icon:direct?'zap':'user-plus',size:'lg',body:`
     ${direct?`<div class="banner mb-4"><p class="text-sm">Re-hiring former employee <b>${al?.no||''}</b> without interview. This is logged on the employee record.</p></div>`:''}
     <div class="grid sm:grid-cols-2 gap-4">
-      ${fld('Employee no.',inp('x-no','HJ-'+String(50+DB.employees.length).padStart(4,'0')),'',true)}${fld('Work email',inp('x-mail',c.name.split(' ')[0].toLowerCase()+'@hajimi.my','email'),'',true)}
+      ${fld('Employee no.',inp('x-no',nextEmpNo()),'',true)}${fld('Work email',inp('x-mail',c.name.split(' ')[0].toLowerCase()+'@hajimi.my','email'),'',true)}
       ${fld('Position title',inp('x-pos',v.pool?'':v.title),'',true)}${fld('Designation',sel('x-des',dOpts,c.recDes||v.dFrom))}
       ${fld('Department',sel('x-dept',deptNames(),v.dept||deptNames()[2]))}${fld('Employment type',sel('x-type',DB.empTypes.map(t=>t.id),v.type,`onchange="$('#x-prob').value=DB.empTypes.find(t=>t.id===this.value).probation"`))}
       ${fld('Start date',inp('x-start',addD(TODAY,14),'date'))}${fld('Probation (months)',inp('x-prob',direct?Math.min(1,t.probation):t.probation,'number','','min="0" max="6"'))}
@@ -1573,7 +1667,7 @@ function doConvert(id,direct){
   const e={id:'E'+String(30+DB.employees.length),no:val('x-no'),name:c.name,email:val('x-mail'),pos:val('x-pos'),desig:val('x-des'),dept:val('x-dept'),type,status:type==='Permanent'?(prob?'Probation':'Permanent'):type,joined:start,reports:val('x-rep'),salary:+val('x-sal'),
     gender:c.gender,dob:c.dob,idType:c.idType,idNo:c.idNo,phone:c.phone,address:c.address,ec:{...c.emergency},photo:c.photo||null,infoUpdated:TODAY};
   if(prob)e.probEnd=addM(start,prob);if(type!=='Permanent')e.endDate=addM(start,type==='Internship'?6:12);
-  DB.employees.push(e);const tm=DB.teams.find(t=>t.id===val('x-team'));if(tm)tm.members.push(e.id);
+  DB.employees.push(e);takeEmpNo(e.no);const tm=DB.teams.find(t=>t.id===val('x-team'));if(tm)tm.members.push(e.id);
   c.stage='Hired';c.employee=e.id;
   logEvent(e.id,direct?'Re-hired (direct approval)':'Joined',`${e.pos} · ${des(e.desig).name} · ${type}${prob?` (probation ${prob} months)`:''}`,'acc',start);
   closeModal();closeDrawer();rerender();toast(`${c.name} is now ${e.no}`,'user-check');
@@ -1624,7 +1718,7 @@ function viewEmployee(id){
   <div class="modal-f flex-wrap">${empActions(e).replace(/^.*?<\/button>/,'')}</div>`);
 }
 function editEmployee(id){
-  const e=id?emp(id):{name:'',no:'HJ-'+String(50+DB.employees.length).padStart(4,'0'),email:'',pos:'',desig:'D1',dept:deptNames()[2],type:'Permanent',status:'Probation',joined:TODAY,reports:'',salary:3400,gender:'Male',dob:'',idType:'NRIC',idNo:'',phone:'',address:'',ec:{name:'',rel:'Parent',phone:''},photo:null};
+  const e=id?emp(id):{name:'',no:nextEmpNo(),email:'',pos:'',desig:'D1',dept:deptNames()[2],type:'Permanent',status:'Probation',joined:TODAY,reports:'',salary:3400,gender:'Male',dob:'',idType:'NRIC',idNo:'',phone:'',address:'',ec:{name:'',rel:'Parent',phone:''},photo:null};
   const salOk=['sysadmin','hr','exec'].includes(S.user.roleKey),lead=S.user.roleKey==='lead';
   openModal({title:id?`Edit ${esc(e.name)}`:'Add employee',icon:id?'user-round-pen':'user-plus',size:'lg',body:`${photoField(e.photo,e.name)}
     <div class="sec-h">${ic('briefcase')}Employment</div><div class="grid sm:grid-cols-2 gap-4">
@@ -1647,7 +1741,7 @@ function saveEmployee(id){
   const e=id?emp(id):{id:'E'+String(30+DB.employees.length),events:[],infoUpdated:TODAY};
   const o={no:val('ee-no'),email:val('ee-mail'),pos:val('ee-pos'),desig:val('ee-des'),dept:val('ee-dept'),reports:val('ee-rep')||null,type:val('ee-type'),status:val('ee-st'),joined:val('ee-join'),name:val('ee-name'),idNo:val('ee-id'),gender:val('ee-g'),dob:val('ee-dob'),phone:val('ee-phone'),address:val('ee-addr'),ec:{...(e.ec||{rel:'Parent'}),name:val('ee-ecn'),phone:val('ee-ecp')}};
   if($('#ee-sal'))o.salary=+val('ee-sal');
-  Object.assign(e,o);if(S.tmpPhoto)e.photo=S.tmpPhoto;if(!id){e.idType='NRIC';DB.employees.push(e);logEvent(e.id,'Joined',`${e.pos} · ${des(e.desig).name}`,'acc',e.joined)}
+  Object.assign(e,o);if(S.tmpPhoto)e.photo=S.tmpPhoto;if(!id){e.idType='NRIC';DB.employees.push(e);takeEmpNo(e.no);logEvent(e.id,'Joined',`${e.pos} · ${des(e.desig).name}`,'acc',e.joined)}
   else logEvent(id,'Record edited',`by ${S.user.name}`,'info');
   closeModal();rerender();toast(id?'Employee updated':'Employee added','user-check');
 }
@@ -1784,11 +1878,11 @@ function pgTeams(){
      <ul class="p-3 flex flex-col gap-1">${g.members.length?g.members.map(m=>{const e=emp(m);if(!e)return'';const lead=leads.includes(m);return `<li class="flex items-center gap-3 px-2 py-2 rounded-lg group" style="${lead?'background:color-mix(in srgb,var(--hi) 10%,transparent)':''}">
        ${av(e.display||e.name,32)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate flex items-center gap-1.5">${esc(e.display||e.name)}${lead?`<span style="color:var(--hi)" aria-hidden="true">${ic('crown','w-4 h-4')}</span>`:''}</div><div class="text-xs muted truncate">${esc(des(e.desig).name)} · ${t('Reports to')} ${esc(ename(e.reports))}</div></div>
        ${lead?chip(t('Team lead'),'hi'):''}${hr?`<span class="actions opacity-40 group-hover:opacity-100">${lead||canLead(m)?ib('crown',lead?'Remove as team lead':'Make team lead',`toggleLead('${g.id}','${m}')`):''}${ib('user-minus','Remove from group',`rmMember('${g.id}','${m}')`,'bad')}</span>`:''}</li>`}).join(''):'<li class="text-sm muted px-2 py-3">No members yet.</li>'}</ul>
-   </section>`}).join('')}</div><p class="text-xs muted mt-3">Team leads are optional: a group can have none, one or several. Interns and juniors (Junior 1–2) can't be team leads. Who reports to whom is set per person, so members can sit under any colleague, a team lead, the HOD or the GM.</p>`;
+   </section>`}).join('')}</div><p class="text-xs muted mt-3">Team leads are optional: a group can have none, one or several. Interns and juniors (Junior 1–2) can't be team leads by default; each designation's Can lead a group setting decides. Who reports to whom is set per person, so members can sit under any colleague, a team lead, the HOD or the GM.</p>`;
 }
 // Interns and juniors (Junior 1-2) can't be team leads.
-const MIN_LEAD_LEVEL=3;
-function canLead(id){const e=emp(id);return !!e&&des(e.desig).level>=MIN_LEAD_LEVEL}
+// D17: each designation says whether its holders can lead a group (Intern and Junior 1–2 can't by default).
+function canLead(id){const e=emp(id);return !!e&&des(e.desig).canLead!==false}
 function toggleLead(gid,m){const g=DB.teams.find(x=>x.id===gid);g.leads=g.leads||[];if(!g.leads.includes(m)&&!canLead(m)){toast(`${ename(m)} is ${des(emp(m).desig).name}: interns and juniors can't be team leads`,'circle-alert');return}g.leads=g.leads.includes(m)?g.leads.filter(x=>x!==m):[...g.leads,m];rerender();toast(`${ename(m)}: ${g.leads.includes(m)?'now a team lead':'no longer a team lead'}`,'crown')}
 // True if making "sup" the superior of "id" would put "id" above itself.
 function wouldLoop(id,sup){for(let x=sup,i=0;x&&i<200;x=emp(x)?.reports,i++){if(x===id)return true}return false}
@@ -1852,50 +1946,80 @@ function orgBoard(){
   </section><p class="text-xs muted mt-3">Each department shows its head (HOD), then its groups; a group may have no, one or several team leads. Built from departments and groups; switch to Reporting lines for the superior tree.</p>`;
 }
 function orgTree(){
-  const kids=id=>DB.employees.filter(e=>e.reports===id).sort((a,b)=>des(b.desig).level-des(a.desig).level||a.name.localeCompare(b.name));
+  const kids=id=>DB.employees.filter(e=>e.reports===id);
   const isLead=id=>DB.teams.some(t=>(t.leads||[]).includes(id));
-  const crown=id=>isLead(id)?'<span class="mw-crown" data-tip="Team lead">'+ic('crown')+'</span>':'';
-  const count=id=>kids(id).reduce((n,k)=>n+1+count(k.id),0);
-  // The single chain at the top (CEO -> GM), then the GM's direct reports as branches.
-  const chain=[];let lvl=DB.employees.filter(e=>!e.reports);
-  while(lvl.length===1){chain.push(lvl[0]);lvl=kids(lvl[0].id)}
-  const order=d=>DB.departments.findIndex(x=>x.name===d);
-  const branches=lvl.slice().sort((a,b)=>order(a.dept)-order(b.dept)||des(b.desig).level-des(a.desig).level);
-  const rows=[];for(let i=0,n=3;i<branches.length;n=n===3?4:3){rows.push(branches.slice(i,i+n));i+=n}
-  const pers=e=>'<div class="mw-org-p">'+av(e.display||e.name,16,e.photo||null)+'<b>'+esc(e.display||e.name)+'</b>'+crown(e.id)+'<span class="d">· '+esc(des(e.desig).name)+'</span>'+(e.status!=='Permanent'?'<span class="st">'+esc(e.status)+'</span>':'')+'</div>';
-  const list=id=>{const k=kids(id);return k.length?'<ul>'+k.map(e=>'<li>'+pers(e)+list(e.id)+'</li>').join('')+'</ul>':''};
-  const branch=e=>{const n=count(e.id);return '<section class="mw-branch"><div class="mw-branch-head" style="border-top-color:'+dcol(e.dept)+'">'+av(e.display||e.name,28,e.photo||null)+'<div class="min-w-0"><div class="nm">'+esc(e.display||e.name)+crown(e.id)+'</div><div class="ps">'+esc(e.pos)+' · '+esc(des(e.desig).name)+'</div><div class="ps">'+esc(e.dept)+'</div></div>'+(n?'<span class="ct">'+n+'</span>':'')+'</div>'+(n?'<div class="mw-branch-list'+(n>8?' cols2':'')+'">'+list(e.id)+'</div>':'')+'</section>'};
-  const exec=e=>'<div class="mw-a4-exec">'+av(e.display||e.name,30,e.photo||null)+'<div><div class="nm">'+esc(e.display||e.name)+'</div><div class="ps">'+esc(e.pos)+'</div></div></div>';
+  const crown=id=>isLead(id)?'<span class="crown" data-tip="Team lead">'+ic('crown')+'</span>':'';
+  const dOrder=d=>DB.departments.findIndex(x=>x.name===d);
+  const teamOf=id=>DB.teams.find(t=>t.members.includes(id));
+  // The label is the person's group; a head of department outside any group shows the department.
+  const unitOf=e=>{const t=teamOf(e.id);return t?{name:t.name,dept:t.dept,ix:DB.teams.indexOf(t)}:{name:e.dept,dept:e.dept,ix:-1}};
+  const label=u=>'<div class="org-team" style="--c:'+dcol(u.dept)+'">'+esc(u.name)+'</div>';
+  const card=e=>'<div class="org-node sm"><span class="strip" style="background:'+dcol(e.dept)+'"></span>'+crown(e.id)+av(e.display||e.name,28,e.photo||null)+'<div class="nm">'+esc(e.display||e.name)+'</div><div class="ps">'+esc(e.pos)+'</div><div class="lv">'+esc(des(e.desig).name)+(e.status!=='Permanent'?' · <span class="st">'+esc(e.status)+'</span>':'')+'</div></div>';
+  const leaf=e=>'<div class="org-leaf"><span class="dot" style="background:'+dcol(e.dept)+'"></span>'+av(e.display||e.name,18,e.photo||null)+'<span class="nm">'+esc(e.display||e.name)+'</span>'+crown(e.id)+'<span class="lv">'+esc(des(e.desig).name)+'</span>'+(e.status!=='Permanent'?'<span class="st">'+esc(e.status)+'</span>':'')+'</div>';
+  const byLevel=(a,b)=>des(b.desig).level-des(a.desig).level||a.name.localeCompare(b.name);
+  // Children become units: each superior is its own branch; people with no reports are boxed per group.
+  // Units sort by department, then group, superiors before boxes. Labels show when the group changes
+  // (always under the General Manager, so every branch is named).
+  const node=(e,parent,always)=>{
+    const u=unitOf(e),show=always||!parent||parent.name!==u.name;
+    const units=[];
+    kids(e.id).filter(k=>kids(k.id).length).forEach(k=>units.push({u:unitOf(k),m:1,html:()=>node(k,u,always&&false)}));
+    const boxes={};kids(e.id).filter(k=>!kids(k.id).length).sort(byLevel).forEach(k=>{const ku=unitOf(k);(boxes[ku.name]=boxes[ku.name]||{u:ku,list:[]}).list.push(k)});
+    Object.values(boxes).forEach(b=>units.push({u:b.u,m:0,html:()=>'<li class="leaves">'+((always||b.u.name!==u.name)?label(b.u):'')+'<div class="org-stack">'+b.list.map(leaf).join('')+'</div></li>'}));
+    units.sort((a,b)=>dOrder(a.u.dept)-dOrder(b.u.dept)||a.u.ix-b.u.ix||b.m-a.m);
+    return '<li>'+(show?label(u):'')+card(e)+(units.length?'<ul>'+units.map(x=>x.html()).join('')+'</ul>':'')+'</li>';
+  };
+  // CEO -> GM chain at the top; the GM's branches are all labelled.
+  const roots=DB.employees.filter(e=>!e.reports);
+  const gm=roots.length===1&&kids(roots[0].id).length===1?kids(roots[0].id)[0]:null;
+  const tree=roots.map(r=>gm?'<li>'+label(unitOf(r))+card(r)+'<ul>'+node(gm,unitOf(gm),true).replace(/^<li>(<div class="org-team"[^>]*>[^<]*<\/div>)?/,'<li>')+'</ul></li>':node(r,null,false)).join('');
   setTimeout(fitOrg,0);
   return '<section class="card overflow-hidden">'+
     '<div class="p-4 flex flex-wrap items-center gap-3" style="border-bottom:1px solid var(--line)">'+
-      '<div class="text-xs muted flex-1">A4 landscape · '+DB.employees.length+' people · '+branches.length+' branches under '+esc(chain.at(-1)?.name||'')+'</div>'+
+      '<div class="flex flex-wrap gap-3 flex-1 text-xs">'+DB.departments.map(d=>'<span class="flex items-center gap-1.5"><i class="inline-block w-3 h-3 rounded-sm" style="background:'+d.color+'"></i>'+esc(d.name)+'</span>').join('')+'<span class="flex items-center gap-1.5" style="color:var(--hi)">'+ic('crown','w-3.5 h-3.5')+'<span style="color:var(--ink)">Team lead</span></span></div>'+
       '<div class="flex items-center gap-1">'+ib('zoom-out','Zoom out','zoomOrg(-.1)')+'<span class="text-xs tnum w-12 text-center" id="zl">Fit</span>'+ib('zoom-in','Zoom in','zoomOrg(.1)')+ib('maximize','Fit to width','S.orgZoom=1;fitOrg()')+'</div>'+
-      '<button class="btn btn-primary" onclick="exportOrg()">'+ic('image-down')+'Export PNG</button>'+
+      '<details class="mw-menu"><summary class="btn btn-primary">'+ic('image-down')+'Export'+ic('chevron-down','w-4 h-4')+'</summary><div class="mw-menu__list">'+
+        [['png','PNG image','High resolution, transparent-free'],['jpg','JPG image','Smaller file for chat and email'],['pdf','PDF (A4 landscape)','Ready to print on one page']].map(([k,l,h])=>'<button onclick="this.closest(\'details\').open=false;exportOrg(\''+k+'\')"><b>'+l+'</b><span>'+h+'</span></button>').join('')+
+      '</div></details>'+
     '</div>'+
-    '<div class="org-scroll" id="org-scroll"><div class="mw-a4" id="tree"><div class="mw-a4-body" id="tree-body">'+
-      '<div class="mw-a4-head"><b>'+esc(DB.settings.company)+' · Reporting lines</b><span>As of '+fmt(TODAY)+'</span></div>'+
-      '<div class="mw-a4-top">'+chain.map(exec).join('<span class="stem"></span>')+'<span class="stem"></span></div>'+
-      '<div class="mw-a4-bus"></div>'+
-      rows.map(r=>'<div class="mw-a4-row r'+(r.length>3?4:3)+'">'+r.map(branch).join('')+'</div>').join('')+
-    '</div><div class="mw-a4-legend">'+DB.departments.map(d=>'<span><i style="background:'+d.color+'"></i>'+esc(d.name)+'</span>').join('')+'<span class="mw-crown">'+ic('crown')+'</span><span>Team lead</span></div></div></div>'+
-  '</section><p class="text-xs muted mt-3">One A4 landscape page. Branches under the General Manager run in rows of 3 and 4; each branch lists who reports to whom. Long branches use two columns. Export renders the page at 3× (3369 × 2382 px).</p>';
+    '<div class="org-scroll" id="org-scroll"><div class="tree compact" id="tree"><ul>'+tree+'</ul></div></div>'+
+  '</section><p class="text-xs muted mt-3">Built from each employee\'s superior. Each branch is labelled with its group (or department for a head outside any group). People with no reports are boxed per group under their superior. Export as PNG or JPG at 3× pixel density, or as an A4 landscape PDF.</p>';
 }
-// Shrinks the page content to fit the A4 sheet, then scales the sheet to the screen (times the user's zoom).
+// Scales the tree to fit the screen width (times the user's zoom).
 function fitOrg(){
-  const sheet=$('#tree'),body=$('#tree-body'),box=$('#org-scroll');if(!sheet||!body||!box)return;
-  body.style.zoom=1;const room=794-34;const h=body.scrollHeight;body.style.zoom=h>room?(room/h).toFixed(3):1;
-  const fit=box.clientWidth>200?Math.min(1,(box.clientWidth-40)/1123):1;sheet.style.zoom=(fit*S.orgZoom).toFixed(3);
+  const el=$('#tree'),box=$('#org-scroll');if(!el||!box)return;
+  el.style.zoom=1;const w=el.scrollWidth;
+  const fit=box.clientWidth>200&&w>box.clientWidth-40?(box.clientWidth-40)/w:1;el.style.zoom=(fit*S.orgZoom).toFixed(3);
   const zl=$('#zl');if(zl)zl.textContent=S.orgZoom===1?'Fit':Math.round(S.orgZoom*100)+'%';
 }
 window.addEventListener('resize',()=>{if(S.page==='orgchart'&&S.orgView==='tree')fitOrg()});
 function zoomOrg(d){S.orgZoom=Math.min(2.5,Math.max(.5,+(S.orgZoom+d).toFixed(2)));fitOrg()}
-async function exportOrg(){
-  const el=$('#tree');if(!window.htmlToImage){toast('Export library not loaded','circle-alert');return}
-  toast('Rendering high-resolution image…','loader');const prev=el.style.zoom;el.style.zoom=1;
-  try{const url=await htmlToImage.toPng(el,{pixelRatio:3,backgroundColor:getComputedStyle(el).backgroundColor,skipFonts:true,width:1123,height:794});el.style.zoom=prev;
-    openModal({title:'Org chart exported',icon:'image-down',size:'lg',body:'<img src="'+url+'" alt="Organization chart" class="w-full rounded-lg" style="border:1px solid var(--line)"><p class="text-xs muted mt-2">3369 × 2382px · A4 landscape. If the download is blocked in this preview, right-click the image and save it.</p>',
-      foot:'<button class="btn btn-ghost" onclick="closeModal()">Close</button><a class="btn btn-primary" href="'+url+'" download="org-chart-'+TODAY+'.png">'+ic('download')+'Download PNG</a>'});
+async function exportOrg(kind){
+  kind=kind||'png';const el=$('#tree');if(!window.htmlToImage){toast('Export library not loaded','circle-alert');return}
+  if(kind==='pdf'&&!window.jspdf){toast('PDF library not loaded','circle-alert');return}
+  toast('Rendering '+kind.toUpperCase()+'…','loader');const prev=el.style.zoom;el.style.zoom=1;
+  const w=el.scrollWidth,h=el.scrollHeight,bg=getComputedStyle(document.body).backgroundColor;
+  const name='org-chart-'+TODAY;
+  try{
+    const opt={pixelRatio:3,backgroundColor:bg,skipFonts:true,width:w,height:h};
+    const url=kind==='png'?await htmlToImage.toPng(el,opt):await htmlToImage.toJpeg(el,{...opt,quality:.92,backgroundColor:bg==='rgba(0, 0, 0, 0)'?'#ffffff':bg});
+    el.style.zoom=prev;
+    if(kind==='pdf'){
+      // One A4 landscape page: title line, then the chart scaled to fit inside 10 mm margins.
+      const pdf=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+      const pw=297,ph=210,m=10,top=18;
+      pdf.setFontSize(12);pdf.text(DB.settings.company+' · Reporting lines',m,m+3);
+      pdf.setFontSize(8);pdf.setTextColor(120);pdf.text('As of '+fmt(TODAY),pw-m,m+3,{align:'right'});
+      const sc=Math.min((pw-2*m)/w,(ph-top-m)/h),iw=w*sc,ih=h*sc;
+      pdf.addImage(url,'JPEG',(pw-iw)/2,top,iw,ih);
+      const blob=pdf.output('bloburl');
+      openModal({title:'Org chart exported',icon:'file-text',size:'lg',body:'<iframe src="'+blob+'" title="Organization chart PDF" class="w-full rounded-lg" style="height:60vh;border:1px solid var(--line)"></iframe><p class="text-xs muted mt-2">A4 landscape, one page. If the download is blocked in this preview, use the viewer\'s own download button.</p>',
+        foot:'<button class="btn btn-ghost" onclick="closeModal()">Close</button><a class="btn btn-primary" href="'+blob+'" download="'+name+'.pdf">'+ic('download')+'Download PDF</a>'});
+      return;
+    }
+    const ext=kind==='png'?'png':'jpg';
+    openModal({title:'Org chart exported',icon:'image-down',size:'lg',body:'<img src="'+url+'" alt="Organization chart" class="w-full rounded-lg" style="border:1px solid var(--line)"><p class="text-xs muted mt-2">'+ext.toUpperCase()+' · '+w*3+' × '+h*3+'px. If the download is blocked in this preview, right-click the image and save it.</p>',
+      foot:'<button class="btn btn-ghost" onclick="closeModal()">Close</button><a class="btn btn-primary" href="'+url+'" download="'+name+'.'+ext+'">'+ic('download')+'Download '+ext.toUpperCase()+'</a>'});
   }catch(err){el.style.zoom=prev;toast('Export failed: '+err.message,'circle-alert')}
 }
 
@@ -1910,6 +2034,45 @@ function pgAccess(){
 }
 
 /* =================== SETTINGS =================== */
+/* =================== EMPLOYEE NUMBERS =================== */
+// Format tokens: {seq} running number (zero-padded), {yyyy}/{yy} join year, {dept} department code.
+const EMPNO_TOKENS=[['{seq}','Running number, padded to the digits below'],['{yyyy}','Join year, e.g. 2026'],['{yy}','Join year, 2 digits'],['{dept}','Department code, e.g. BE']];
+const deptCode=d=>(d||'').split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,3)||'XX';
+function fmtEmpNo(cfg,seq,e={}){const y=(e.joined||TODAY).slice(0,4);return cfg.pattern.replace(/\{seq\}/g,String(seq).padStart(cfg.digits,'0')).replace(/\{yyyy\}/g,y).replace(/\{yy\}/g,y.slice(2)).replace(/\{dept\}/g,deptCode(e.dept))}
+function empNoCfg(){
+  const s=DB.settings;if(!s.empNo){const max=Math.max(0,...DB.employees.map(e=>+(/(\d+)$/.exec(e.no)||[0,0])[1]));s.empNo={pattern:'HJ-{seq}',digits:4,next:max+1}}
+  return s.empNo;
+}
+const nextEmpNo=(e={})=>{const c=empNoCfg();return fmtEmpNo(c,c.next,e)};
+function takeEmpNo(no){const c=empNoCfg();if(no===fmtEmpNo(c,c.next,{}))c.next++}
+function empNoSection(){
+  const c=empNoCfg(),ex=DB.employees[DB.employees.length-1];
+  return `<section class="card p-5"><h3 class="card-title mb-1">${ic('hash','w-4 h-4')}Employee numbers</h3><p class="text-xs muted mb-3">How new employee numbers are made. Change the format any time; you choose whether existing numbers change too.</p>
+    <div class="grid sm:grid-cols-3 gap-3">${fld('Format',inp('en-pat',c.pattern,'text','HJ-{seq}','oninput="empNoPreview()"'),'sm:col-span-3')}${fld('Digits',sel('en-dig',[3,4,5,6,7,8].map(n=>[n,n+' digits']),c.digits,'onchange="empNoPreview()"'))}${fld('Next number',inp('en-next',c.next,'number','','min="1" oninput="empNoPreview()"'))}<div class="fld"><span>Preview</span><div class="mw-field__readonly mono" id="en-prev">${esc(fmtEmpNo(c,c.next,ex))}</div></div></div>
+    <div class="flex flex-wrap gap-1.5 mt-3">${EMPNO_TOKENS.map(([k,h])=>`<button type="button" class="chip" data-tip="${esc(h)}" onclick="const i=$('#en-pat');i.value+='${k}';empNoPreview()">${k}</button>`).join('')}</div>
+    <div class="flex justify-end mt-4"><button class="btn btn-primary" onclick="applyEmpNo()">${ic('check')}Apply numbering</button></div></section>`;
+}
+function empNoRead(){return {pattern:val('en-pat').trim(),digits:+val('en-dig'),next:Math.max(1,parseInt(val('en-next'))||1)}}
+function empNoPreview(){const c=empNoRead();$('#en-prev').textContent=c.pattern.includes('{seq}')?fmtEmpNo(c,c.next,DB.employees[DB.employees.length-1]):'Add {seq} to the format'}
+function applyEmpNo(){
+  const c=empNoRead();if(!c.pattern.includes('{seq}')){toast('The format needs {seq} so every number is unique','circle-alert');return}
+  if(c.pattern.length>20){toast('Keep the format under 20 characters','circle-alert');return}
+  const sorted=[...DB.employees].sort((a,b)=>a.joined.localeCompare(b.joined)||a.no.localeCompare(b.no));
+  const sample=sorted.slice(0,3).map((e,i)=>`<tr><td>${esc(e.name)}</td><td class="mono">${esc(e.no)}</td><td class="mono"><b>${esc(fmtEmpNo(c,i+1,e))}</b></td></tr>`).join('');
+  S.empNoNew=c;
+  openModal({title:'Apply employee numbering',icon:'hash',body:`<p class="text-sm">New hires will get <b class="mono">${esc(fmtEmpNo(c,c.next,{}))}</b>, then count up.</p>
+    <div class="grid gap-2 mt-4"><label class="check-row"><input type="radio" name="en-mode" value="new" checked><span><b class="text-sm">New employees only</b><span class="block text-xs muted">Existing ${DB.employees.length} numbers stay as they are.</span></span></label>
+    <label class="check-row"><input type="radio" name="en-mode" value="all"><span><b class="text-sm">Also renumber existing employees</b><span class="block text-xs muted">Everyone gets a new number in join-date order, starting from 1. Old numbers are kept in each person's history and still match on CSV import.</span></span></label></div>
+    <div class="tbl-wrap mt-3"><table class="mini-tbl"><thead><tr><th>Employee</th><th>Now</th><th>If renumbered</th></tr></thead><tbody>${sample}</tbody></table></div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doApplyEmpNo()">${ic('check')}Apply</button>`});
+}
+function doApplyEmpNo(){
+  const c=S.empNoNew,all=$('input[name=en-mode]:checked').value==='all';
+  if(all){const sorted=[...DB.employees].sort((a,b)=>a.joined.localeCompare(b.joined)||a.no.localeCompare(b.no));sorted.forEach((e,i)=>{const nn=fmtEmpNo(c,i+1,e);if(nn!==e.no){logEvent(e.id,'Employee no. changed',`${e.no} → ${nn}`,'info');e.no=nn}});c.next=Math.max(c.next,sorted.length+1)}
+  else{const clash=DB.employees.find(e=>e.no===fmtEmpNo(c,c.next,e));if(clash){toast(`${clash.no} is already used by ${clash.name}; raise the next number`,'circle-alert');return}}
+  DB.settings.empNo=c;S.empNoNew=null;closeModal();rerender();toast(all?'All employees renumbered':'Numbering saved for new employees','hash');
+}
+
 function pgSettings(){
   const s=DB.settings;
   const row=(title,sub,ctrl)=>`<div class="flex items-center gap-4 py-4 border-b last:border-0" style="border-color:var(--line)"><div class="flex-1 min-w-0"><div class="font-semibold">${t(title)}</div><div class="text-sm muted">${t(sub)}</div></div><div class="flex-none">${ctrl}</div></div>`;
@@ -1931,6 +2094,7 @@ function pgSettings(){
      ${row('Default PIP length','Pre-filled when starting a PIP',ss('s-pip',[[30,'30 days'],[60,'60 days'],[90,'90 days']],s.pipDays,'pipDays'))}
      ${row('Annual data review','Month the yearly personal-details check launches',ss('s-rv',['January','April','July','October'],s.reviewMonth,'reviewMonth'))}
    </section>
+   ${empNoSection()}
    <section class="card p-5"><h3 class="card-title mb-1">${ic('file-input','w-4 h-4')}Recruitment</h3>
      ${row('Company name on form','Shown on public and embedded forms',`<input class="input" style="width:220px" value="${esc(s.company)}" onchange="DB.settings.company=this.value">`)}
      ${row('Require resume upload','PDF or DOCX, max 5 MB',`<label class="switch"><input type="checkbox" ${s.requireResume?'checked':''} onchange="DB.settings.requireResume=this.checked"><span></span></label>`)}
@@ -2025,6 +2189,93 @@ function approvalsCard(list){
 const apprChip = (l,s) => s.st==='N/A'?'':chip(`${l}: ${ename(s.who).split(' ')[0]} · ${s.st}`,{Approved:'ok',Rejected:'bad',Pending:'warn'}[s.st]);
 
 /* =================== MY TASKS =================== */
+/* =================== VIEWS: list / grid / cards, search, filter, sort =================== */
+const VIEW_MODES=[['list','List','list'],['grid','Grid','layout-grid'],['cards','Cards','gallery-vertical-end']];
+S.views=S.views||{};
+function vstate(key,def){return S.views[key]=S.views[key]||{mode:def.mode||'list',sort:def.sort,dir:def.dir||'asc',f:{},q:''}}
+function setView(key,prop,v){const o=S.views[key];if(prop.startsWith('f.'))o.f[prop.slice(2)]=v;else o[prop]=v;rerender()}
+function clearView(key){const o=S.views[key];o.f={};o.q='';rerender()}
+// cfg: {sorts:{key:[label,compare]}, filters:[{id,label,opts:[[v,l]],test(item,v)}], text(item)}
+function applyView(key,list,cfg){
+  const o=vstate(key,cfg);const q=(o.q||'').trim().toLowerCase();
+  let out=list.filter(x=>(!q||cfg.text(x).toLowerCase().includes(q))&&cfg.filters.every(f=>!o.f[f.id]||f.test(x,o.f[f.id])));
+  const c=cfg.sorts[o.sort]?.[1];if(c){out=out.slice().sort(c);if(o.dir==='desc')out.reverse()}
+  return out;
+}
+function viewBar(key,cfg,shown,total){
+  const o=vstate(key,cfg),active=o.q||Object.values(o.f).some(Boolean);
+  return '<div class="mw-viewbar">'+
+    '<label class="mw-viewbar__search">'+ic('search','w-4 h-4')+'<input class="input" placeholder="Search…" value="'+esc(o.q||'')+'" onchange="setView(\''+key+'\',\'q\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></label>'+
+    cfg.filters.map(f=>'<select class="input mw-viewbar__sel'+(o.f[f.id]?' is-on':'')+'" aria-label="'+esc(f.label)+'" onchange="setView(\''+key+'\',\'f.'+f.id+'\',this.value)"><option value="">'+esc(f.label)+': All</option>'+f.opts.map(([v,l])=>'<option value="'+esc(v)+'"'+(o.f[f.id]==v?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>').join('')+
+    (active?'<button class="btn btn-ghost" onclick="clearView(\''+key+'\')">'+ic('x')+'Clear</button>':'')+
+    '<span class="mw-viewbar__count">'+shown+(shown!==total?' of '+total:'')+'</span>'+
+    '<span class="mw-viewbar__spacer"></span>'+
+    '<span class="mw-viewbar__sort">'+ic('arrow-down-up','w-4 h-4')+'<select class="input mw-viewbar__sel" aria-label="Sort by" onchange="setView(\''+key+'\',\'sort\',this.value)">'+Object.entries(cfg.sorts).map(([k,[l]])=>'<option value="'+k+'"'+(o.sort===k?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>'+
+      ib(o.dir==='asc'?'arrow-up-narrow-wide':'arrow-down-wide-narrow',o.dir==='asc'?'Ascending':'Descending','setView(\''+key+'\',\'dir\',\''+(o.dir==='asc'?'desc':'asc')+'\')')+'</span>'+
+    '<div class="mw-seg" role="group" aria-label="View">'+VIEW_MODES.map(([k,l,i])=>'<button class="'+(o.mode===k?'is-on':'')+'" data-tip="'+l+'" aria-pressed="'+(o.mode===k)+'" onclick="setView(\''+key+'\',\'mode\',\''+k+'\')">'+ic(i,'w-4 h-4')+'<span>'+l+'</span></button>').join('')+'</div>'+
+  '</div>';
+}
+const cmpStr=f=>(a,b)=>String(f(a)||'').localeCompare(String(f(b)||''));
+const cmpNum=f=>(a,b)=>f(a)-f(b);
+
+/* ---- tasks ---- */
+const TASK_STATUS=['To do','In progress','Review','Blocked','Done'];
+function taskViewCfg(){
+  return {mode:'list',sort:'due',
+    sorts:{due:['Due date',cmpStr(t=>t.due)],title:['Title',cmpStr(t=>t.title)],status:['Status',cmpNum(t=>TASK_STATUS.indexOf(t.status))],pct:['Progress',cmpNum(t=>t.pct)],pts:['Points',cmpNum(t=>tpts(t)||0)],who:['Assignee',cmpStr(t=>ename(t.who))]},
+    filters:[
+      {id:'tag',label:'Tag',opts:DB.tags.map(t=>[t.code,t.code+' · '+t.name]),test:(t,v)=>t.tag===v},
+      {id:'project',label:'Project',opts:[['-','Standalone']].concat(DB.projects.map(p=>[p.id,p.name])),test:(t,v)=>v==='-'?!t.project:t.project===v},
+      {id:'status',label:'Status',opts:TASK_STATUS.map(x=>[x,x]),test:(t,v)=>t.status===v},
+      {id:'due',label:'Due',opts:[['overdue','Overdue'],['week','Next 7 days'],['month','Next 30 days']],test:(t,v)=>v==='overdue'?overdue(t):t.status!=='Done'&&days(t.due)>=0&&days(t.due)<=(v==='week'?7:30)}],
+    text:t=>t.title+' '+ename(t.who)+' '+(proj(t.project)?.name||'')};
+}
+function taskStatusChips(t){const pend=(t.ext||[]).some(x=>x.status==='Pending'),dl=DB.delays.filter(d=>d.task===t.id);return chip(t.status,TASK_TONE[t.status])+(needsCheckin(t)?chip('Check-in due','warn','message-square-warning'):'')+(pend?chip('Ext. pending','hi','clock'):'')+(dl.length?chip(dl.length+' delay','bad','flag'):'')}
+function taskGrid(list){
+  if(!list.length)return '<p class="muted text-sm p-5">No tasks match.</p>';
+  return '<div class="mw-grid">'+list.map(t=>{const p=proj(t.project),od=overdue(t);return '<button class="mw-tile" onclick="viewTask(\''+t.id+'\')"><div class="flex items-center gap-2">'+tagc(t)+'<span class="text-xs muted truncate flex-1">'+(p?esc(p.name):'Standalone')+'</span></div><div class="mw-tile__title">'+esc(t.title)+'</div><div class="pct"><i style="width:'+t.pct+'%"></i></div><div class="flex items-center gap-2 text-xs">'+av(ename(t.who),20)+'<span class="truncate flex-1">'+esc(ename(t.who))+'</span><span class="tnum'+(od?' mw-bad':' muted')+'">'+fmtS(t.due)+'</span></div><div class="flex flex-wrap gap-1">'+chip(t.status,TASK_TONE[t.status])+'</div></button>'}).join('')+'</div>';
+}
+function taskCards(list){
+  if(!list.length)return '<p class="muted text-sm p-5">No tasks match.</p>';
+  return '<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">'+list.map(t=>{const p=proj(t.project),od=overdue(t),hrs=hoursOf(t);return '<section class="card p-5 flex flex-col gap-3"><div class="flex items-start gap-3">'+tagc(t)+'<div class="flex-1 min-w-0"><button class="text-left font-bold leading-tight" onclick="viewTask(\''+t.id+'\')">'+esc(t.title)+'</button><div class="text-xs muted mt-0.5">'+(p?esc(p.name):'Standalone')+(t.deps.length?' · depends on '+t.deps.length:'')+'</div></div></div>'+
+    '<div class="flex flex-wrap gap-1">'+taskStatusChips(t)+'</div>'+
+    '<div class="flex items-center gap-3"><div class="pct flex-1"><i style="width:'+t.pct+'%"></i></div><b class="tnum text-sm">'+t.pct+'%</b></div>'+
+    '<dl class="mw-facts"><div><dt>Assignee</dt><dd class="flex items-center gap-1.5">'+av(ename(t.who),20)+esc(ename(t.who))+'</dd></div><div><dt>Due</dt><dd class="tnum'+(od?' mw-bad':'')+'">'+fmtS(t.due)+(od?' · '+(-days(t.due))+'d late':'')+'</dd></div><div><dt>Points</dt><dd class="tnum">'+(tpts(t)||0)+'</dd></div><div><dt>Check-ins · hours</dt><dd class="tnum">'+t.ci.length+' · '+hrs+'h</dd></div></dl>'+
+    '<div class="actions mt-auto justify-end">'+taskActions(t)+'</div></section>'}).join('')+'</div>';
+}
+function taskView(key,list,opts={}){
+  const cfg=taskViewCfg(),o=vstate(key,cfg),shown=applyView(key,list,cfg);
+  const body=o.mode==='grid'?taskGrid(shown):o.mode==='cards'?taskCards(shown):'<section class="card overflow-hidden">'+taskTable(shown,opts)+'</section>';
+  return viewBar(key,cfg,shown.length,list.length)+body;
+}
+
+/* ---- projects ---- */
+function projViewCfg(){
+  const phases=[...new Set(DB.projects.map(p=>p.phases[p.phase][0]))];
+  return {mode:'cards',sort:'end',
+    sorts:{end:['End date',cmpStr(p=>p.end)],start:['Start date',cmpStr(p=>p.start)],name:['Name',cmpStr(p=>p.name)],client:['Client',cmpStr(p=>p.client)],progress:['Progress',cmpNum(projProgress)],health:['Health',cmpStr(p=>projHealth(p)[0])]},
+    filters:[
+      {id:'health',label:'Health',opts:[...new Set(DB.projects.map(p=>projHealth(p)[0]))].map(h=>[h,h]),test:(p,v)=>projHealth(p)[0]===v},
+      {id:'phase',label:'Phase',opts:phases.map(x=>[x,x]),test:(p,v)=>p.phases[p.phase][0]===v},
+      {id:'pm',label:'Manager',opts:[...new Set(DB.projects.map(p=>p.pm))].map(id=>[id,ename(id)]),test:(p,v)=>p.pm===v}],
+    text:p=>p.id+' '+p.name+' '+p.client+' '+ename(p.pm)};
+}
+function projStats(p){const ts=DB.tasks.filter(t=>t.project===p.id);return {ts,done:ts.filter(t=>t.status==='Done').length,blocked:ts.filter(t=>t.status==='Blocked').length,delays:DB.delays.filter(d=>d.project===p.id).length}}
+function projCard(p){const st=projStats(p),h=projHealth(p),pr=projProgress(p);return '<a href="#project-'+p.id.toLowerCase()+'" class="card p-5 flex flex-col gap-4 hover:-translate-y-0.5 transition-transform">'+'<div class="flex items-start gap-3"><div class="flex-1 min-w-0"><div class="text-xs muted mono">'+p.id+' · '+esc(p.client)+'</div><h3 class="font-bold text-lg leading-tight mt-1">'+esc(p.name)+'</h3></div>'+chip(h[0],h[1])+'</div>'+'<div class="flex gap-1">'+p.phases.map((ph,i)=>'<span class="flex-1 h-1.5 rounded-full" style="background:'+(i<p.phase?'var(--ok)':i===p.phase?'var(--accent)':'var(--surface-2)')+'" data-tip="'+ph[0]+': '+fmtS(ph[1])+' – '+fmtS(ph[2])+'"></span>').join('')+'</div>'+'<div class="flex justify-between text-sm"><span>'+chip(p.phases[p.phase][0],'acc')+'</span><span class="muted tnum">'+fmtS(p.start)+' → '+fmtS(p.end)+'</span></div>'+'<div class="flex items-center gap-3"><div class="pct flex-1"><i style="width:'+pr+'%"></i></div><b class="tnum text-sm">'+pr+'%</b></div>'+'<div class="flex items-center justify-between">'+avs(p.members,28,6)+'<div class="flex gap-3 text-xs muted"><span data-tip="Tasks done">'+ic('circle-check','w-3.5 h-3.5 inline')+' '+st.done+'/'+st.ts.length+'</span><span data-tip="Blocked">'+ic('octagon-alert','w-3.5 h-3.5 inline')+' '+st.blocked+'</span><span data-tip="Delays recorded">'+ic('flag','w-3.5 h-3.5 inline')+' '+st.delays+'</span></div></div></a>'}
+function projGrid(list){return '<div class="mw-grid">'+list.map(p=>{const h=projHealth(p),pr=projProgress(p);return '<a class="mw-tile" href="#project-'+p.id.toLowerCase()+'"><div class="flex items-center gap-2"><span class="text-xs mono muted flex-1">'+p.id+'</span>'+chip(h[0],h[1])+'</div><div class="mw-tile__title">'+esc(p.name)+'</div><div class="text-xs muted truncate">'+esc(p.client)+'</div><div class="pct"><i style="width:'+pr+'%"></i></div><div class="flex items-center justify-between text-xs"><span>'+chip(p.phases[p.phase][0],'acc')+'</span><span class="tnum muted">'+pr+'% · '+fmtS(p.end)+'</span></div></a>'}).join('')+'</div>'}
+function projTable(list){return '<section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Project</th><th>Manager</th><th>Phase</th><th>Health</th><th>Progress</th><th>Tasks</th><th>Dates</th></tr></thead><tbody>'+list.map(p=>{const st=projStats(p),h=projHealth(p),pr=projProgress(p);return '<tr><td><a href="#project-'+p.id.toLowerCase()+'" class="font-semibold">'+esc(p.name)+'</a><div class="text-xs muted">'+p.id+' · '+esc(p.client)+'</div></td><td><span class="flex items-center gap-2">'+av(ename(p.pm),24)+'<span class="text-sm">'+esc(ename(p.pm))+'</span></span></td><td>'+chip(p.phases[p.phase][0],'acc')+'</td><td>'+chip(h[0],h[1])+'</td><td><div class="flex items-center gap-2"><div class="pct" style="width:70px"><i style="width:'+pr+'%"></i></div><span class="text-xs tnum">'+pr+'%</span></div></td><td class="tnum text-sm">'+st.done+'/'+st.ts.length+(st.blocked?' · <span class="mw-bad">'+st.blocked+' blocked</span>':'')+'</td><td class="tnum text-sm">'+fmtS(p.start)+' → '+fmtS(p.end)+'</td></tr>'}).join('')+'</tbody></table></div></section>'}
+
+/* ---- meetings ---- */
+function meetViewCfg(){
+  return {mode:'cards',sort:'date',
+    sorts:{date:['Date',cmpStr(m=>m.date+m.time)],title:['Title',cmpStr(m=>m.title)],dur:['Duration',cmpNum(m=>m.dur)],size:['Attendees',cmpNum(m=>mAtt(m).length)]},
+    filters:[
+      {id:'when',label:'When',opts:[['up','Upcoming'],['past','Past']],test:(m,v)=>v==='up'?m.status==='Scheduled':m.status==='Completed'},
+      {id:'mode',label:'Mode',opts:[...new Set(DB.meetings.map(m=>m.mode))].map(x=>[x,x]),test:(m,v)=>m.mode===v},
+      {id:'project',label:'Project',opts:[['-','No project']].concat(DB.projects.map(p=>[p.id,p.name])),test:(m,v)=>v==='-'?!m.project:m.project===v},
+      {id:'org',label:'Organiser',opts:[...new Set(DB.meetings.map(m=>m.organizer))].map(id=>[id,ename(id)]),test:(m,v)=>m.organizer===v}],
+    text:m=>m.title+' '+m.objectives+' '+ename(m.organizer)};
+}
 function pgMyTasks(){
   const all=myTasks(),tabs={Open:t=>t.status!=='Done','Check-in due':needsCheckin,Overdue:overdue,Blocked:t=>t.status==='Blocked',Done:t=>t.status==='Done'};
   const f=tabs[S.taskTab]||tabs.Open,list=all.filter(f).sort((a,b)=>a.due.localeCompare(b.due));
@@ -2033,7 +2284,7 @@ function pgMyTasks(){
   <div class="grid gap-3 sm:grid-cols-4 mb-4">${[['Open',all.filter(tabs.Open).length,'list-todo','info'],['Check-ins due',all.filter(needsCheckin).length,'message-square-warning','warn'],['Points earned (Q4)',m?kpiOf(m.id).pts:'—','sparkles','acc'],['Hours logged (Q4)',all.reduce((a,t)=>a+hoursOf(t),0),'timer','ok']].map(([l,n,i,t])=>`<div class="card p-4 flex items-center gap-3"><span class="chip ${t}" style="padding:8px">${ic(i,'!w-5 !h-5')}</span><div><div class="text-xs muted">${l}</div><div class="head text-2xl font-extrabold tnum">${n}</div></div></div>`).join('')}</div>
   <div class="flex flex-wrap items-center gap-3 mb-4"><div class="tabs">${Object.keys(tabs).map(k=>`<button class="tab ${S.taskTab===k?'on':''}" onclick="S.taskTab='${k}';rerender()">${k}<span class="n tnum">${all.filter(tabs[k]).length}</span></button>`).join('')}</div>
   <span class="text-xs muted">Check-in is required every ${DB.settings.checkinEvery} working days on in-progress and blocked tasks.</span></div>
-  <section class="card overflow-hidden">${taskTable(list,{compact:!!S.user.eid})}</section>`;
+  ${taskView('mytasks',list,{compact:!!S.user.eid})}`;
 }
 
 /* =================== PROJECTS =================== */
@@ -2041,15 +2292,8 @@ function pgProjects(){
   let list=DB.projects;if(['staff','lead'].includes(S.user.roleKey))list=list.filter(p=>p.members.includes(S.user.eid)||p.pm===S.user.eid);
   const appr=pendingApprovals();
   return `${appr.length?`<section class="card p-5 mb-4">${approvalsCard(appr)}</section>`:''}
-  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${list.map(p=>{const ts=DB.tasks.filter(t=>t.project===p.id),h=projHealth(p),pr=projProgress(p);return `
-    <a href="#project-${p.id.toLowerCase()}" class="card p-5 flex flex-col gap-4 hover:-translate-y-0.5 transition-transform">
-      <div class="flex items-start gap-3"><div class="flex-1 min-w-0"><div class="text-xs muted mono">${p.id} · ${esc(p.client)}</div><h3 class="font-bold text-lg leading-tight mt-1">${esc(p.name)}</h3></div>${chip(h[0],h[1])}</div>
-      <div class="flex gap-1">${p.phases.map((ph,i)=>`<span class="flex-1 h-1.5 rounded-full" style="background:${i<p.phase?'var(--ok)':i===p.phase?'var(--accent)':'var(--surface-2)'}" data-tip="${ph[0]}: ${fmtS(ph[1])} – ${fmtS(ph[2])}"></span>`).join('')}</div>
-      <div class="flex justify-between text-sm"><span>${chip(p.phases[p.phase][0],'acc')}</span><span class="muted tnum">${fmtS(p.start)} → ${fmtS(p.end)}</span></div>
-      <div class="flex items-center gap-3"><div class="pct flex-1"><i style="width:${pr}%"></i></div><b class="tnum text-sm">${pr}%</b></div>
-      <div class="flex items-center justify-between">${avs(p.members,28,6)}<div class="flex gap-3 text-xs muted"><span data-tip="Tasks done">${ic('circle-check','w-3.5 h-3.5 inline')} ${ts.filter(t=>t.status==='Done').length}/${ts.length}</span><span data-tip="Blocked">${ic('octagon-alert','w-3.5 h-3.5 inline')} ${ts.filter(t=>t.status==='Blocked').length}</span><span data-tip="Delays recorded">${ic('flag','w-3.5 h-3.5 inline')} ${DB.delays.filter(d=>d.project===p.id).length}</span></div></div>
-    </a>`}).join('')}</div>
-  <section class="card overflow-hidden mt-4"><div class="p-5 pb-2"><h3 class="card-title">${ic('list','w-4 h-4')}Standalone tasks</h3><p class="text-xs muted mt-1">Quick tasks and support tickets outside a project.</p></div>${taskTable(DB.tasks.filter(t=>!t.project&&(isHR()||S.user.roleKey==='sysadmin'||scope().includes(t.who)||t.who===S.user.eid)))}</section>`;
+  ${(()=>{const cfg=projViewCfg(),o=vstate('projects',cfg),shown=applyView('projects',list,cfg);return viewBar('projects',cfg,shown.length,list.length)+(!shown.length?'<p class="muted text-sm p-5">No projects match.</p>':o.mode==='list'?projTable(shown):o.mode==='grid'?projGrid(shown):'<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">'+shown.map(projCard).join('')+'</div>')})()}
+  <h3 class="sec-h">${ic('list')}Standalone tasks</h3><p class="text-xs muted -mt-2 mb-3">Quick tasks and support tickets outside a project.</p>${taskView('standalone',DB.tasks.filter(t=>!t.project&&(isHR()||S.user.roleKey==='sysadmin'||scope().includes(t.who)||t.who===S.user.eid)))}`;
 }
 function projActions(p){
   if(!canManageProj(p))return `<button class="btn btn-ghost" onclick="recordDelay(null,'${p.id}')">${ic('flag')}<span class="hidden sm:inline">Record delay</span></button>`;
@@ -2136,7 +2380,7 @@ function addTask(pid){
   </div>`,foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTask('${pid||''}')">${ic('check')}Create task</button>`});
   tkLevels();
 }
-function tkLevels(){const t=tag(val('tk-g'));$('#tk-lv').innerHTML=t.pts.map((p,i)=>`<label class="check-row flex-col !items-start" style="padding:8px"><span class="flex items-center gap-2"><input type="radio" name="tk-l" value="${i+1}" ${i===1?'checked':''}><b>L${i+1}</b></span><span class="text-xs muted">${DB.levelNames[i]}</span><span class="text-sm font-bold" style="color:${t.color}">${p} pts</span></label>`).join('')}
+function tkLevels(){const t=tag(val('tk-g'));$('#tk-lv').innerHTML=t.levels.map(({pts:p,name:ln},i)=>`<label class="check-row flex-col !items-start" style="padding:8px"><span class="flex items-center gap-2"><input type="radio" name="tk-l" value="${i+1}" ${i===Math.min(1,t.levels.length-1)?'checked':''}><b>L${i+1}</b></span><span class="text-xs muted">${esc(ln)}</span><span class="text-sm font-bold" style="color:${t.color}">${p} pts</span></label>`).join('')}
 function saveTask(pid){
   if(!val('tk-t')||val('tk-d')<val('tk-s')){toast('Title and a valid date range are required','circle-alert');return}
   const t={id:'K'+(DB.tasks.length+20),project:pid||null,title:val('tk-t'),tag:val('tk-g'),level:+$('input[name=tk-l]:checked').value,who:val('tk-w'),start:val('tk-s'),due:val('tk-d'),status:'To do',pct:0,deps:picked('tk-dep'),ci:[],est:+val('tk-h'),dod:val('tk-dod')};
@@ -2246,8 +2490,13 @@ function pgMeetings(){
     <div class="text-center rounded-xl px-3 py-2 flex-none self-start" style="background:var(--accent-soft)"><div class="text-xs font-bold uppercase" style="color:var(--accent)">${d.toLocaleDateString('en-GB',{month:'short'})}</div><div class="head text-2xl font-extrabold leading-none">${d.getDate()}</div></div>
     <div class="flex-1 min-w-0"><div class="flex items-start gap-2"><span class="tagc" style="background:${tag('M').color}">M</span><b class="flex-1 truncate">${esc(m.title)}</b></div><div class="text-sm muted mt-1">${m.time} · ${m.dur} min · ${m.mode} · organiser ${esc(ename(m.organizer))}</div><p class="text-sm mt-2 line-clamp-2">${esc(m.objectives)}</p>
     <div class="flex items-center justify-between mt-3">${avs(a,24,8)}<span class="text-xs muted">${m.attendees==='ALL'?'All employees':a.length+' invited'}${m.project?' · '+esc(proj(m.project).name):''}</span></div></div></button>`};
-  return `<h3 class="sec-h" style="margin-top:0">${ic('calendar-days')}Upcoming</h3><div class="grid gap-4 lg:grid-cols-2">${up.map(card).join('')||'<p class="muted text-sm">No meetings scheduled.</p>'}</div>
-  <h3 class="sec-h">${ic('history')}Past meetings & minutes</h3><div class="grid gap-4 lg:grid-cols-2">${past.map(card).join('')}</div>`;
+  const cfg=meetViewCfg(),o=vstate('meetings',cfg),shown=applyView('meetings',vis,cfg);
+  const tile=m=>{const d=new Date(m.date+'T00:00:00');return '<button class="mw-tile" onclick="viewMeeting(\''+m.id+'\')"><div class="flex items-center gap-2"><span class="mw-date"><b>'+d.getDate()+'</b>'+d.toLocaleDateString('en-GB',{month:'short'})+'</span><span class="text-xs muted flex-1">'+m.time+' · '+m.dur+' min</span>'+chip(m.status==='Scheduled'?'Upcoming':'Done',m.status==='Scheduled'?'info':'ok')+'</div><div class="mw-tile__title">'+esc(m.title)+'</div><div class="text-xs muted truncate">'+m.mode+' · '+esc(ename(m.organizer))+'</div><div class="flex items-center justify-between">'+avs(mAtt(m),20,6)+'<span class="text-xs muted">'+(m.attendees==='ALL'?'All':mAtt(m).length)+'</span></div></button>'};
+  const table=l=>'<section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Meeting</th><th>Date</th><th>Mode</th><th>Organiser</th><th>Attendees</th><th>Status</th></tr></thead><tbody>'+l.map(m=>'<tr><td><button class="text-left" onclick="viewMeeting(\''+m.id+'\')"><div class="font-semibold">'+esc(m.title)+'</div><div class="text-xs muted">'+(m.project?esc(proj(m.project).name):'No project')+'</div></button></td><td class="tnum text-sm">'+fmtS(m.date)+' · '+m.time+'<div class="text-xs muted">'+m.dur+' min</div></td><td>'+m.mode+'</td><td><span class="flex items-center gap-2">'+av(ename(m.organizer),24)+'<span class="text-sm">'+esc(ename(m.organizer))+'</span></span></td><td>'+avs(mAtt(m),22,5)+'</td><td>'+chip(m.status==='Scheduled'?'Upcoming':'Completed',m.status==='Scheduled'?'info':'ok')+'</td></tr>').join('')+'</tbody></table></div></section>';
+  const upS=shown.filter(m=>m.status==="Scheduled"),pastS=shown.filter(m=>m.status==="Completed");
+  const body=!shown.length?'<p class="muted text-sm p-5">No meetings match.</p>':o.mode==='list'?table(shown):o.mode==='grid'?'<div class="mw-grid">'+shown.map(tile).join('')+'</div>':
+    (upS.length?'<h3 class="sec-h" style="margin-top:0">'+ic('calendar-days')+'Upcoming</h3><div class="grid gap-4 lg:grid-cols-2">'+upS.map(card).join('')+'</div>':'')+(pastS.length?'<h3 class="sec-h">'+ic('history')+'Past meetings & minutes</h3><div class="grid gap-4 lg:grid-cols-2">'+pastS.map(card).join('')+'</div>':'');
+  return viewBar('meetings',cfg,shown.length,vis.length)+body;
 }
 function newMeeting(){
   openModal({title:'Schedule meeting',icon:'presentation',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">
@@ -2287,14 +2536,53 @@ function saveMinutes(id,done){const m=DB.meetings.find(x=>x.id===id);m.minutes=v
 
 /* =================== TASK TAGS =================== */
 function pgTags(){
-  const ed=['sysadmin','exec','lead'].includes(S.user.roleKey);
-  return `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${DB.tags.map(t=>`<section class="card p-5"><div class="flex items-start gap-3"><span class="grid place-items-center w-11 h-11 rounded-xl text-white head text-xl font-extrabold" style="background:${t.color}">${t.code}</span><div class="flex-1 min-w-0"><h3 class="font-bold">${t.name}</h3><div class="text-xs muted">${t.range} · ${DB.tasks.filter(x=>x.tag===t.code).length} tasks</div></div>${ed?ib('pencil','Edit points',`editTag('${t.code}')`):''}</div>
-    <p class="text-sm muted mt-3">${t.desc}</p><div class="grid grid-cols-5 gap-1.5 mt-4">${t.pts.map((p,i)=>`<div class="text-center rounded-lg py-2" style="background:color-mix(in srgb,${t.color} ${10+i*8}%,transparent)"><div class="text-[10px] font-bold muted">L${i+1}</div><div class="font-extrabold tnum">${p}</div></div>`).join('')}</div></section>`).join('')}</div>
-  <section class="card overflow-hidden mt-4"><div class="p-5 pb-2"><h3 class="card-title">${ic('scale','w-4 h-4')}How team leads judge the level</h3></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Level</th><th>Name</th><th>Use when</th><th>Example (F-task)</th></tr></thead><tbody>
+  const ed=['sysadmin','exec','lead'].includes(S.user.roleKey)||isHR();
+  const lvGrid=t=>`<div class="mw-levels" style="--n:${Math.min(t.levels.length,5)}">${t.levels.map((l,i)=>`<div class="mw-levels__cell" style="background:color-mix(in srgb,${t.color} ${10+Math.min(i,6)*8}%,transparent)" data-tip="${esc(l.name)}"><div class="text-[10px] font-bold muted">L${i+1}</div><div class="font-extrabold tnum">${l.pts}</div><div class="mw-levels__name">${esc(l.name)}</div></div>`).join('')}</div>`;
+  return `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${DB.tags.map(t=>{const n=DB.tasks.filter(x=>x.tag===t.code).length;return `<section class="card p-5"><div class="flex items-start gap-3"><span class="grid place-items-center w-11 h-11 rounded-xl text-white head text-xl font-extrabold" style="background:${t.color}">${esc(t.code)}</span><div class="flex-1 min-w-0"><h3 class="font-bold">${esc(t.name)}</h3><div class="text-xs muted">${esc(t.range)} · ${t.levels.length} level${t.levels.length===1?'':'s'} · ${n} task${n===1?'':'s'}</div></div>${ed?`<div class="actions">${ib('pencil','Edit tag',`editTag('${t.code}')`)}${ib('trash-2','Delete tag',`delTag('${t.code}')`,'bad')}</div>`:''}</div>
+    <p class="text-sm muted mt-3">${esc(t.desc||'')}</p>${lvGrid(t)}</section>`}).join('')}
+    ${ed?`<button class="card p-5 mw-add-card" onclick="editTag()">${ic('plus','w-6 h-6')}<b>Add tag</b><span class="text-xs muted">Give it a code, then add one or more levels with points.</span></button>`:''}</div>
+  <section class="card overflow-hidden mt-4"><div class="p-5 pb-2"><h3 class="card-title">${ic('scale','w-4 h-4')}How team leads judge the level</h3><p class="text-xs muted mt-1">A tag can have any number of levels (at least one). This is the default 5-level guide; a tag with fewer levels simply stops earlier.</p></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Level</th><th>Name</th><th>Use when</th><th>Example (F-task)</th></tr></thead><tbody>
   ${[['L1','Routine','Done many times, no unknowns, no review needed','Change footer link'],['L2','Standard','Familiar work, light review','Update plugin settings across 3 sites'],['L3','Involved','Touches 2+ components or needs coordination','Fix checkout bug that spans theme + plugin'],['L4','Complex','Unknowns, new tech or cross-team dependency','Hotfix on legacy server with no staging'],['L5','Critical','Production / client-facing risk, tight deadline','Emergency DNS + SSL recovery during outage']].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="muted">${r[3]}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
-function editTag(c){const t=tag(c);openModal({title:`Edit ${c} · ${t.name}`,icon:'tags',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Name',inp('tg-n',t.name))}${fld('Typical duration',inp('tg-r',t.range))}${fld('Colour',inp('tg-c',t.color,'color','','style="padding:4px"'))}</div><div class="grid grid-cols-5 gap-2 mt-4">${t.pts.map((p,i)=>fld('L'+(i+1),inp('tg-p'+i,p,'number'))).join('')}</div><p class="text-xs muted mt-3">Changing points re-scores KPI for the current period.</p>`,
-  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="Object.assign(tag('${c}'),{name:val('tg-n'),range:val('tg-r'),color:val('tg-c'),pts:[0,1,2,3,4].map(i=>+val('tg-p'+i))});closeModal();rerender();toast('Tag updated','tags')">${ic('check')}Save</button>`})}
+// Add or edit a tag. Levels are a repeater: at least one, add or remove freely.
+function editTag(c){
+  const t=c?tag(c):null;
+  S.tagDraft={orig:c||null,levels:t?t.levels.map(l=>({...l})):[{name:'Standard',pts:1}]};
+  openModal({title:c?`Edit ${c} · ${t.name}`:'Add tag',icon:'tags',size:'lg',body:`<div class="grid sm:grid-cols-4 gap-4">${fld('Code',inp('tg-code',t?t.code:'','text','e.g. Q',`maxlength="3" style="text-transform:uppercase" ${c?'disabled':''}`),'',true)}${fld('Name',inp('tg-n',t?t.name:'','text','e.g. Quick task'),'sm:col-span-2',true)}${fld('Colour',inp('tg-c',t?t.color:'#0e7490','color','','style="padding:4px"'))}${fld('Typical duration',inp('tg-r',t?t.range:'','text','e.g. 1 – 3 days'),'sm:col-span-2')}${fld('Description',inp('tg-d',t?t.desc:'','text','When to use this tag'),'sm:col-span-2')}</div>
+    <div class="flex items-center justify-between mt-5 mb-2"><div><div class="font-semibold text-sm">Levels and points</div><div class="text-xs muted">Level 1 is the easiest. One level is fine for a tag with a fixed value.</div></div><button type="button" class="btn btn-ghost" onclick="tagLevelAdd()">${ic('plus')}Add level</button></div>
+    <div id="tg-levels"></div>${c?'<p class="text-xs muted mt-3">Changing points re-scores KPI for the current period. Tasks on a removed level move to the highest remaining level.</p>':''}`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveTag()">${ic('check')}Save</button>`});
+  tagLevelsRender();
+}
+function tagLevelsRead(){S.tagDraft.levels=S.tagDraft.levels.map((l,i)=>({name:$('#tgl-n'+i)?.value??l.name,pts:+($('#tgl-p'+i)?.value??l.pts)}))}
+function tagLevelsRender(){
+  const L=S.tagDraft.levels;
+  $('#tg-levels').innerHTML=`<div class="mw-repeater">${L.map((l,i)=>`<div class="mw-repeater__row"><span class="mw-repeater__n">L${i+1}</span><input id="tgl-n${i}" class="input" value="${esc(l.name)}" placeholder="Level name" aria-label="Level ${i+1} name"><input id="tgl-p${i}" class="input tnum" type="number" min="0" value="${l.pts}" aria-label="Level ${i+1} points" style="width:96px"><span class="text-xs muted">pts</span>${ib('arrow-up','Move up',`tagLevelMove(${i},-1)`,'',i===0)}${ib('arrow-down','Move down',`tagLevelMove(${i},1)`,'',i===L.length-1)}${ib('trash-2','Remove level',`tagLevelDel(${i})`,'bad',L.length===1)}</div>`).join('')}</div>`;icons();
+}
+function tagLevelAdd(){tagLevelsRead();const L=S.tagDraft.levels,last=L[L.length-1];L.push({name:'',pts:last?last.pts+1:1});tagLevelsRender();$('#tgl-n'+(L.length-1))?.focus()}
+function tagLevelDel(i){tagLevelsRead();if(S.tagDraft.levels.length>1){S.tagDraft.levels.splice(i,1);tagLevelsRender()}}
+function tagLevelMove(i,d){tagLevelsRead();const L=S.tagDraft.levels,j=i+d;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];tagLevelsRender()}
+function saveTag(){
+  tagLevelsRead();const D=S.tagDraft,code=(D.orig||val('tg-code')).trim().toUpperCase();
+  if(!/^[A-Z][A-Z0-9]{0,2}$/.test(code)){toast('Code is 1–3 letters or digits, starting with a letter','circle-alert');return}
+  if(!D.orig&&tag(code)){toast(`Tag ${code} already exists`,'circle-alert');return}
+  if(!val('tg-n')){toast('Name is required','circle-alert');return}
+  if(D.levels.some(l=>!l.name.trim()||!(l.pts>=0))){toast('Every level needs a name and points of 0 or more','circle-alert');return}
+  const o={name:val('tg-n'),range:val('tg-r'),color:val('tg-c'),desc:val('tg-d'),levels:D.levels.map(l=>({name:l.name.trim(),pts:+l.pts}))};
+  if(D.orig){Object.assign(tag(code),o);DB.tasks.filter(x=>x.tag===code&&x.level>o.levels.length).forEach(x=>x.level=o.levels.length)}else DB.tags.push({code,...o});
+  closeModal();rerender();toast(D.orig?'Tag updated':`Tag ${code} added`,'tags');
+}
+// Delete: if tasks use the tag, move them to another tag first (level kept where it exists).
+function delTag(c){
+  const t=tag(c),n=DB.tasks.filter(x=>x.tag===c).length,others=DB.tags.filter(x=>x.code!==c);
+  if(!others.length){toast('Keep at least one tag','circle-alert');return}
+  openModal({title:`Delete ${c} · ${t.name}?`,icon:'trash-2',size:'sm',body:n?`<p class="text-sm"><b>${n} task${n===1?'':'s'}</b> use this tag. Move them to another tag, then delete.</p><div class="mt-3">${fld('Move tasks to',sel('tg-move',others.map(x=>[x.code,x.code+' · '+x.name])))}</div><p class="text-xs muted mt-2">Tasks keep their level where the new tag has it, otherwise they take its highest level. Points already counted in closed KPI periods don't change.</p>`:`<p class="text-sm">Delete tag <b>${esc(c)}</b>? No tasks use it.</p>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="doDelTag('${c}')">${ic('trash-2')}${n?'Move and delete':'Delete'}</button>`});
+}
+function doDelTag(c){
+  const to=$('#tg-move')?.value;if(to){const tt=tag(to);DB.tasks.filter(x=>x.tag===c).forEach(x=>{x.tag=to;x.level=Math.min(x.level,tt.levels.length)})}
+  DB.tags=DB.tags.filter(x=>x.code!==c);closeModal();rerender();toast(to?`Tasks moved to ${to}; tag ${c} deleted`:`Tag ${c} deleted`,'trash-2');
+}
 
 /* =================== KPI ENGINE =================== */
 const TARGET=[40,70,90,110,130,110,90,70,40];          // points per quarter by designation level (L0 Intern … L8 C-Level)
@@ -2390,9 +2678,9 @@ function previewExt(){
   const pm=val('ix-p');
   S.ixRows=rows.slice(1).map(r=>{const email=(r[ci.who]||'').trim().toLowerCase(),e=DB.employees.find(x=>x.email===email);
     let tg='F',lv=2;const m=(r[ci.tag]||'').match(/([A-Z])\s*-?\s*L?(\d)/i);
-    if(pm==='tag'&&m&&tag(m[1].toUpperCase())){tg=m[1].toUpperCase();lv=Math.min(5,+m[2])}
+    if(pm==='tag'&&m&&tag(m[1].toUpperCase())){tg=m[1].toUpperCase();lv=Math.min(tag(m[1].toUpperCase()).levels.length,+m[2])}
     if(pm==='hours'){const hh=parseFloat(r[ci.hrs])||4;tg=hh<=8?'F':hh<=24?'E':hh<=40?'D':hh<=80?'C':'B';lv=3}
-    const pts=pm==='fixed'?5:tag(tg).pts[lv-1];
+    const pts=pm==='fixed'?5:tagLevel({tag:tg,level:lv}).pts;
     return {title:r[ci.title],email,e,tg,lv,pts,due:r[ci.due],done:r[ci.done],ontime:(r[ci.done]||'9')<= (r[ci.due]||'0')}});
   $('#ix-prev').innerHTML=`<div class="text-xs mb-2 muted">Detected columns: ${Object.entries(ci).map(([k,i])=>`${k} → <b>${i>=0?esc(rows[0][i]):'?'}</b>`).join(' · ')}</div><div class="tbl-wrap"><table class="mini-tbl"><thead><tr><th>Task</th><th>Matched to</th><th>Tag</th><th>Pts</th><th>On time</th></tr></thead><tbody>${S.ixRows.map(r=>`<tr class="${r.e?'':'row-err'}"><td>${esc(r.title)}</td><td>${r.e?esc(r.e.name):`<span style="color:var(--bad)">No match: ${esc(r.email)}</span>`}</td><td>${r.tg}-L${r.lv}</td><td class="tnum">${r.pts}</td><td>${r.ontime?chip('Yes','ok'):chip('Late','bad')}</td></tr>`).join('')}</tbody></table></div>`;
   const n=S.ixRows.filter(r=>r.e).length,b=$('#ix-go');b.disabled=!n;b.style.opacity=n?1:.5;b.innerHTML=`${ic('cloud-download')}Import ${n} task${n===1?'':'s'}`;icons();
@@ -2448,8 +2736,8 @@ const PAGES = {
   orgchart:{t:'Organization Chart',c:'People',r:pgOrgChart},
   departments:{t:'Departments',c:'Organization',r:pgDepartments,a:()=>`<button class="btn btn-primary" onclick="editDept()">${ic('plus')}<span class="hidden sm:inline">Add department</span></button>`},
   designations:{t:'Designations',c:'Organization',r:pgDesignations,a:()=>`<button class="btn btn-primary" onclick="editDesignation()">${ic('plus')}<span class="hidden sm:inline">Add level</span></button>`},
-  emptypes:{t:'Employment Types',c:'Organization',r:pgEmpTypes},
-  tags:{t:'Task Tags & Points',c:'Organization',r:pgTags},
+  emptypes:{t:'Employment Types',c:'Organization',r:pgEmpTypes,a:()=>`<button class="btn btn-primary" onclick="editEmpType()">${ic('plus')}<span class="hidden sm:inline">Add type</span></button>`},
+  tags:{t:'Task Tags & Points',c:'Organization',r:pgTags,a:()=>`<button class="btn btn-primary" onclick="editTag()">${ic('plus')}<span class="hidden sm:inline">Add tag</span></button>`},
   integrations:{t:'Integrations',c:'System',r:pgIntegrations},
   access:{t:'Access Roles',c:'System',r:pgAccess},
   config:{t:'Global Settings',c:'System',r:pgSettings},

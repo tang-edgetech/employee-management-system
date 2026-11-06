@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Access\ScopeResolver;
+use App\Domain\Catalogue\Designation;
 use App\Domain\People\Employee;
 use App\Domain\People\EmployeeHierarchy;
 use App\Domain\People\Team;
@@ -58,7 +59,8 @@ it('lets a head of department see newcomers to the department even before their 
 });
 
 it('lets a team lead see their group members and everyone below them, whatever their role', function () {
-    // Sin Yee (staff) becomes a team lead of the Mobile group.
+    // Sin Yee (staff) is promoted to Senior 1 and becomes a team lead of the Mobile group.
+    person('Sin Yee')->forceFill(['designation_id' => Designation::query()->where('name', 'Senior 1')->value('id')])->save();
     $mobile = group('Mobile');
     app(TeamService::class)->addMember($mobile, person('Sin Yee'));
     app(TeamService::class)->addLead($mobile, person('Sin Yee'));

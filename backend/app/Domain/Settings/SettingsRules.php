@@ -23,6 +23,7 @@ final class SettingsRules
         'work' => [null, ['checkin_every_workdays', 'checkin_mandatory', 'extension_approval', 'auto_late_delay']],
         'security' => [['system.settings'], ['two_fa_enabled', 'two_fa_roles', 'session_timeout_minutes']],
         'employment' => [['system.settings', 'people.lifecycle'], ['default_probation_months', 'probation_reminder_days', 'pip_default_days', 'data_review_month', 'data_review_window_days']],
+        'employee_numbers' => [['system.settings', 'people.edit'], ['employee_no_format', 'employee_no_digits', 'employee_no_next']],
         'recruitment' => [['system.settings', 'candidate.create'], ['require_resume', 'candidate_retention_months', 'former_employee_policy']],
         'kpi' => [['kpi.configure', 'kpi.view_all'], ['kpi_mode', 'kpi_weights']],
     ];
@@ -38,6 +39,7 @@ final class SettingsRules
             'checkin_every_workdays', 'checkin_mandatory', 'extension_approval', 'auto_late_delay',
             'data_review_month', 'data_review_window_days',
             'require_resume', 'candidate_retention_months', 'former_employee_policy',
+            'employee_no_format', 'employee_no_digits', 'employee_no_next',
         ],
         'kpi.configure' => ['kpi_mode', 'kpi_weights'],
     ];
@@ -93,6 +95,10 @@ final class SettingsRules
             'require_resume' => ['sometimes', 'boolean'],
             'candidate_retention_months' => ['sometimes', 'integer', Rule::in([6, 12, 24])],
             'former_employee_policy' => ['sometimes', 'string', Rule::in(['interview', 'choose', 'direct'])],
+
+            'employee_no_format' => ['sometimes', 'required', 'string', 'max:20'],
+            'employee_no_digits' => ['sometimes', 'integer', 'between:3,8'],
+            'employee_no_next' => ['sometimes', 'integer', 'between:1,99999999'],
 
             'kpi_mode' => ['sometimes', 'string', Rule::in(['system', 'external'])],
             'kpi_weights' => ['sometimes', 'array:'.implode(',', CompanySettings::KPI_COMPONENTS), self::kpiWeightsSum()],

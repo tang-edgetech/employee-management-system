@@ -31,6 +31,9 @@ use App\Domain\Shared\Model;
  * @property bool $require_resume
  * @property int $candidate_retention_months
  * @property string $former_employee_policy
+ * @property string $employee_no_format
+ * @property int $employee_no_digits
+ * @property int $employee_no_next
  * @property string $kpi_mode
  * @property array<string, int> $kpi_weights
  * @property int $version
@@ -67,6 +70,8 @@ class CompanySettings extends Model
             'data_review_month' => 'integer',
             'data_review_window_days' => 'integer',
             'candidate_retention_months' => 'integer',
+            'employee_no_digits' => 'integer',
+            'employee_no_next' => 'integer',
             'version' => 'integer',
         ];
     }

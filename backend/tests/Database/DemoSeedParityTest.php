@@ -1,5 +1,8 @@
 <?php
 
+use App\Domain\Catalogue\Designation;
+use App\Domain\Catalogue\EmploymentType;
+use App\Domain\Catalogue\TaskTag;
 use App\Domain\People\Department;
 use App\Domain\People\Employee;
 use App\Domain\People\Team;
@@ -95,6 +98,18 @@ it('has per-person reporting lines up to the CEO', function () {
 it('has Jeff Yeoh supervising his five group members', function () {
     expect(emp('Jeff Yeoh')->directReports()->orderBy('full_name')->pluck('full_name')->all())
         ->toBe(['AK', 'Ivan', 'KY', 'Sin Yee', 'Syndy']);
+});
+
+it('has the mockup\'s ladder, employment types and task tags, and every person has both', function () {
+    expect(Designation::query()->orderBy('level')->pluck('name')->all())->toBe([
+        'Intern', 'Junior 1', 'Junior 2', 'Senior 1', 'Senior 2', 'Assistant Manager', 'Manager', 'General Manager', 'C-Level',
+    ])->and(Designation::query()->where('can_lead_team', false)->orderBy('level')->pluck('name')->all())->toBe(['Intern', 'Junior 1', 'Junior 2'])
+        ->and(EmploymentType::query()->orderBy('sort')->pluck('name')->all())->toBe(['Internship', 'Contract', 'Permanent'])
+        ->and(TaskTag::query()->orderBy('sort')->pluck('code')->all())->toBe(['F', 'S', 'E', 'D', 'C', 'B', 'M'])
+        ->and(Employee::query()->whereNull('designation_id')->orWhereNull('employment_type_id')->count())->toBe(0)
+        ->and(emp('Jeff Yeoh')->designation->name)->toBe('Senior 2')
+        ->and(emp('Syndy')->employmentType->name)->toBe('Internship')
+        ->and(CompanySettings::current()->employee_no_format)->toBe('HJ-{seq}');
 });
 
 it('names the company Hajimi Technologies', function () {

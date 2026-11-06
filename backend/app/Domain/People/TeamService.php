@@ -40,6 +40,11 @@ final class TeamService
         if (! $team->members()->whereKey($employee->id)->exists()) {
             throw ApiProblem::unprocessable('TEAM_LEAD_NOT_MEMBER', 'Add this person to the group before making them a team lead.');
         }
+        // D17: interns and juniors can't lead. The designation says who can.
+        $designation = $employee->designation()->first(['name', 'can_lead_team']);
+        if ($designation !== null && ! $designation->can_lead_team) {
+            throw ApiProblem::unprocessable('TEAM_LEAD_LEVEL_TOO_LOW', "{$employee->full_name} is {$designation->name}: this designation can't lead a group.");
+        }
 
         DB::transaction(function () use ($team, $employee) {
             if ($team->leads()->syncWithoutDetaching([$employee->id])['attached'] !== []) {

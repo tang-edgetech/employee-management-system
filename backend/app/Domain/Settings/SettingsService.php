@@ -2,10 +2,12 @@
 
 namespace App\Domain\Settings;
 
+use App\Domain\People\EmployeeNumberFormat;
 use App\Domain\Shared\Concurrency\ETag;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 final class SettingsService
 {
@@ -44,6 +46,18 @@ final class SettingsService
             $settings = CompanySettings::query()->lockForUpdate()->findOrFail(1);
 
             ETag::assertMatches($expectedVersion, $settings->version);
+
+            // The format and digit count are checked together, against the saved value
+            // of whichever one this update doesn't change. Only new employees are affected.
+            if (isset($data['employee_no_format']) || isset($data['employee_no_digits'])) {
+                $problem = EmployeeNumberFormat::problem(
+                    $data['employee_no_format'] ?? $settings->employee_no_format,
+                    (int) ($data['employee_no_digits'] ?? $settings->employee_no_digits),
+                );
+                if ($problem !== null) {
+                    throw ValidationException::withMessages([isset($data['employee_no_format']) ? 'employee_no_format' : 'employee_no_digits' => $problem]);
+                }
+            }
 
             $settings->fill($data);
             if ($settings->isDirty()) {

@@ -39,6 +39,9 @@ return [
             'file' => 'file',
             'department' => 'dept',
             'device' => 'dev',
+            'designation' => 'desig',
+            'employment_type' => 'etype',
+            'task_tag' => 'tag',
         ],
     ],
 

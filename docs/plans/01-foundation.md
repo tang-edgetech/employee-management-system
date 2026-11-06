@@ -307,8 +307,13 @@ The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/merid
 | D14 | Demo data follows the mockup: the owner's organisation (CEO, GM, 9 departments, 51 people, groups, team leads, per-person reporting lines) and its six demo logins. **Real names: replace with fictional ones before any client or prospect sees the demo.** |
 | D15 | Design option 6 (Atlas layout, Straits colours, Plus Jakarta Sans); one look, no theme switcher. Supersedes the "5 themes" of F7 and `ui_layout`. |
 | D16 | Component classes use the `mw-` naming in `docs/design/components.md`. |
-| D17 | (2026-11-06) Interns and juniors (Junior 1–2, level ≤ 2) can't be team leads. Enforced in the mockup now; the server rule (`TeamService::addLead` → 422 `TEAM_LEAD_LEVEL_TOO_LOW`) lands with designations in the People module. |
-| D18 | (2026-11-06) Reporting lines view is one A4 landscape page: CEO → GM at the top, the GM's direct reports as branches in rows of 3 and 4, each branch a compact list; PNG export at A4 × 3. |
+| D17 | (2026-11-06, revised 2026-11-08) Interns and juniors can't be team leads. Each designation has a **Can lead a group** flag (`designations.can_lead_team`, off for Intern, Junior 1 and Junior 2 in the demo); `TeamService::addLead` refuses others with 422 `TEAM_LEAD_LEVEL_TOO_LOW`. A flag rather than a level threshold, so reordering the ladder never changes who may lead. |
+| D18 | (2026-11-06, revised 2026-11-08) Reporting lines view is a compact card tree: anyone with reports gets a card and branches out; people with no reports are boxed per group under their superior. Each branch is labelled with its group (or department, for a head outside any group). Branches follow department, then group order. Export as PNG or JPG (3×) or a one-page A4 landscape PDF. (The A4 rows-of-3-and-4 layout was tried and dropped.) |
+| D19 | (2026-11-08) Designations are a ladder ordered by `level` (0 = lowest, no gaps). The order changes only as a whole: the screen lets HR drag rows, shows the unsaved order, and asks for confirmation before saving (`PUT /designations/order` with every id and If-Match = ladder version). Only unused designations can be deleted; rungs above move down. |
+| D20 | (2026-11-08) Employment types are fully managed: add, edit (including rename), delete, with the types each may convert to and an optional fixed end date with a renewal reminder. Deleting a type still in use asks which type to move those employees to, then moves and deletes in one step. At least one type remains. |
+| D21 | (2026-11-08) Task tags are fully managed: add (code 1–3 characters, fixed once created), edit, delete. Each tag has its own list of levels (one or more, each with a name and points) instead of a fixed five. At least one tag remains. When the Tasks module exists: deleting a tag in use asks which tag to move tasks to, and tasks on a removed level move to the highest remaining one. |
+| D22 | (2026-11-08) Employee numbers follow a company format: `{seq}` (required) plus optional `{yyyy}`, `{yy}`, `{dept}`, letters, digits and `- _ / .`; padding 3–8 digits; next number. Changing the format affects new employees only; a System Admin can instead renumber everyone (join-date order, old numbers kept in the audit log). Issued numbers skip any already taken. |
+| D23 | (2026-11-08) Tasks, projects and meetings each offer List, Grid and Cards views with search, filters and sorting. Mockup now; the list APIs take matching filter and sort parameters when those modules are built. |
 
 ### 9.2 M6a: backend changes
 
@@ -325,6 +330,17 @@ The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/merid
 | Forced 2FA setup | Unchanged rule: when 2FA is required for the role and the user has no device, only 2FA setup, `/me` and logout are allowed. |
 | Version | `GET /api/v1/version` (signed in): semantic version, build date and commit, from `config/meridian.php` (set by the deploy). The update log table and the cron deploy script come with M8. |
 | Demo seed (D14) | Seeder, parity tests and demo logins switched to the mockup's organisation. |
+
+### 9.4 Job catalogues and employee numbers (2026-11-08, owner: "Prefix + 3 setup modules")
+
+| Area | Backend |
+|---|---|
+| Tables | `designations` (name, track, level unique, can_lead_team, salary band, KPI target), `employment_types` + `employment_type_conversions`, `task_tags` + `task_tag_levels`; `employees.designation_id`, `employees.employment_type_id`; `company_settings.employee_no_format / _digits / _next` (migration `2026_11_08_100000_create_job_catalogues`). |
+| API | `GET /designations` (ETag = ladder version; salary bands only with people.salary.view), `POST`, `PATCH /{id}`, `DELETE /{id}`, `PUT /designations/order`; `GET/POST/PATCH/DELETE /employment-types` (DELETE takes `move_to`); `GET/POST/PATCH/DELETE /task-tags` (levels sent as a whole list); `GET /employee-numbers` (people.edit), `POST /employee-numbers/renumber` (system.settings, If-Match = settings version). Format changes for new hires go through `PATCH /settings` (new `employee_numbers` section). |
+| Permissions | Reads: any signed-in app user. Designations and employment types: org.structure.manage. Task tags: org.task_tags.manage. |
+| Errors | `DESIGNATION_IN_USE`, `LADDER_INCOMPLETE` (422), stale ladder 412, `EMPLOYMENT_TYPE_IN_USE`, `LAST_EMPLOYMENT_TYPE`, `MOVE_TO_SAME_TYPE`, `LAST_TASK_TAG`, `TAG_NEEDS_A_LEVEL`, `EMPLOYEE_NO_FORMAT_INVALID`, `EMPLOYEE_NO_NOT_UNIQUE`, `TEAM_LEAD_LEVEL_TOO_LOW`. |
+| Tests | `tests/Feature/Catalogue/*`, `tests/Feature/People/EmployeeNumbersTest.php`, seed parity for the demo catalogues. |
+| Not yet | Task/project/meeting list APIs (D23) and tag-move-on-delete (D21) come with the Tasks and Projects modules. A fresh install starts with empty catalogues until the installer (M8) seeds defaults. |
 
 ### 9.3 M6b: screens (Next.js static export)
 

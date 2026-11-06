@@ -4,9 +4,13 @@ use App\Http\Controllers\Api\V1\AccessRoleController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\V1\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Api\V1\Auth\TwoFactorController;
+use App\Http\Controllers\Api\V1\DesignationController;
+use App\Http\Controllers\Api\V1\EmployeeNumberController;
+use App\Http\Controllers\Api\V1\EmploymentTypeController;
 use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\TaskTagController;
 use App\Http\Controllers\Api\V1\VersionController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -64,7 +68,32 @@ Route::middleware($app)->group(function () {
     Route::get('files/{file}', [FileController::class, 'show']);
     Route::get('files/{file}/url', [FileController::class, 'url']);
 
+    // Catalogues (plan 01 §9.4). Everyone in the app reads them; editing needs the permission.
+    Route::get('designations', [DesignationController::class, 'index']);
+    Route::get('employment-types', [EmploymentTypeController::class, 'index']);
+    Route::get('task-tags', [TaskTagController::class, 'index']);
+
+    Route::middleware('can:org.structure.manage')->group(function () {
+        Route::post('designations', [DesignationController::class, 'store']);
+        Route::put('designations/order', [DesignationController::class, 'reorder'])->middleware('if-match');
+        Route::patch('designations/{designation}', [DesignationController::class, 'update'])->middleware('if-match');
+        Route::delete('designations/{designation}', [DesignationController::class, 'destroy'])->middleware('if-match');
+
+        Route::post('employment-types', [EmploymentTypeController::class, 'store']);
+        Route::patch('employment-types/{employmentType}', [EmploymentTypeController::class, 'update'])->middleware('if-match');
+        Route::delete('employment-types/{employmentType}', [EmploymentTypeController::class, 'destroy'])->middleware('if-match');
+    });
+
+    Route::middleware('can:org.task_tags.manage')->group(function () {
+        Route::post('task-tags', [TaskTagController::class, 'store']);
+        Route::patch('task-tags/{taskTag}', [TaskTagController::class, 'update'])->middleware('if-match');
+        Route::delete('task-tags/{taskTag}', [TaskTagController::class, 'destroy'])->middleware('if-match');
+    });
+
+    Route::get('employee-numbers', [EmployeeNumberController::class, 'preview'])->middleware('can:people.edit');
+
     Route::middleware('can:system.settings')->group(function () {
+        Route::post('employee-numbers/renumber', [EmployeeNumberController::class, 'renumber'])->middleware('if-match');
         Route::get('access-roles', [AccessRoleController::class, 'index']);
         Route::put('access-roles/{role:key}/permissions', [AccessRoleController::class, 'updatePermissions'])->middleware('if-match');
     });

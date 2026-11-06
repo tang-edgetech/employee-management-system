@@ -22,10 +22,10 @@ it('shows each reader only the sections they may see, with an ETag', function (s
     $response->assertHeader('ETag', '"'.$this->version.'"')->assertJsonPath('meta.version', $this->version);
 })->with([
     'staff' => ['sinyee', ['company', 'work']],
-    'lead' => ['teechienyap', ['company', 'work']],
-    'hr' => ['ellie', ['company', 'work', 'employment', 'recruitment', 'kpi']],
-    'exec (no candidate.create by default)' => ['ahfa', ['company', 'work', 'employment', 'kpi']],
-    'sysadmin' => ['tang', ['company', 'work', 'security', 'employment', 'recruitment', 'kpi']],
+    'lead (people.edit sees employee numbers)' => ['teechienyap', ['company', 'work', 'employee_numbers']],
+    'hr' => ['ellie', ['company', 'work', 'employment', 'employee_numbers', 'recruitment', 'kpi']],
+    'exec (no candidate.create by default)' => ['ahfa', ['company', 'work', 'employment', 'employee_numbers', 'kpi']],
+    'sysadmin' => ['tang', ['company', 'work', 'security', 'employment', 'employee_numbers', 'recruitment', 'kpi']],
 ]);
 
 it('lets the System Admin change settings with the current version', function () {
