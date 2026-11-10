@@ -354,6 +354,8 @@ The owner reviewed the HTML mockup three times on 2026-11-05 (`docs/design/merid
 | Other menu items | "Coming in <module>" page (D3). |
 | Tests | Vitest for the dictionary, menu filtering and Problem Details mapping; Playwright: each demo account signs in, sees exactly its menu, opens each allowed page with no console errors; screenshots of login, a failed attempt and the dashboard. |
 
+**M6b status (2026-11-10):** built. Notes: the sign-in page shows the frontend build version (the API version endpoint needs sign-in); the menu is decided from permissions, including the "My People" label; External Partners appears as a placeholder for exec and HR (D25); My Profile has no Personal information tab until the People module. Dev needs a queue worker (`php artisan queue:work`) running as the same Windows account as Apache, or picture scans can't finish.
+
 The milestones after M6 are unchanged: M7 (OpenAPI, CI; ask before the first push), M8 (installer, deploy, update log).
 
 ### 9.5 External partners (2026-11-06, owner approved the mockup 2026-11-06)

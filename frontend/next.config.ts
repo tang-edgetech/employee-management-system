@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import pkg from "./package.json";
 
 // Static export (ADR 0001): `next build` writes plain files to out/, which Apache serves
 // next to the Laravel API. There is no Node process in production, so server-only
@@ -6,6 +7,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
+  // Shown on the sign-in page; the deploy script (M8) keeps it in step with the API version.
+  env: {
+    NEXT_PUBLIC_APP_VERSION: process.env.MERIDIAN_VERSION ?? pkg.version,
+  },
   images: {
     unoptimized: true,
   },
