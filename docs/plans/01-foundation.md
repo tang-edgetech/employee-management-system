@@ -369,3 +369,19 @@ Third-party Marketing and Design people take part in tasks and projects without 
 | D26 | Guests are added to individual projects and see only those projects, their own tasks, and meetings they're invited to. Their tasks carry an **EXT** tag and score **0 points**; difficulty levels are hidden when a guest is the assignee. |
 | D27 | Partners ask for client data (statistics, briefs) by raising a **request task** (type, details, requester) on a project; staff answer by **sharing files** on the task. |
 | D28 | Partners deliver work by **Submit for review** with files; the project manager **approves the deliverable**. A **Request changes** step is not in the mockup yet and is still to be designed. |
+
+### 9.6 Campaigns, clients, notifications and Telegram (2026-11-10, owner approved the mockup 2026-11-10)
+
+Mockup only; built with the Tasks and Projects modules. Walk-through: `docs/design/campaign-guide.pdf`.
+
+| # | Decision |
+|---|---|
+| D29 | KPI is its own **Performance** area, apart from projects and campaigns. It scores internal staff only; partner and client activity never counts. |
+| D30 | **Campaign → Feature → Brand task.** A brand is one brand in one region and belongs to one client; brands of the same name can belong to different clients per region. One campaign can mix clients. |
+| D31 | Six statuses, no red: To do · In progress · Client testing · Scheduled · Live · On hold. Each task shows one next-step button. Scheduled tasks go live by themselves at their go-live time. A feature is done when all its brand tasks are live, the campaign when all features are; On hold doesn't block completion. |
+| D32 | The campaign page is one grid (features × brands, coloured by status). A feature is copied to another brand from the grid (`+`), keeping a link to the original. New campaigns use a 5-step wizard; a dashboard checklist guides first use. |
+| D33 | **Clients** (company) have one or more **PICs**. Each PIC signs in with a fixed username and a 4-digit PIN: default **0000**, changed at first sign-in (no 0000, repeated digits or simple runs), locked after 5 wrong tries until staff unlock it. Clients see only their own brands. Managed by Executive and Team Lead. |
+| D34 | Requirements are a form per brand task, shared by link. Every save is a new, read-only version with who and when; the history shows what changed. Clients can approve a task in Client testing; the approval is recorded. |
+| D35 | Partner designers can create campaigns, only for clients their vendor is linked to. |
+| D36 | Every user has a notification box with plain-language messages when they are added to something or something of theirs changes. |
+| D37 | Telegram: "Copy for Telegram" on any task, feature or campaign (formal text with links); a bot sends fixed-template summaries on schedules (weekly days or chosen dates, one or more times), per group, optionally limited to one client. Managed from Integrations by Executive and HR. |

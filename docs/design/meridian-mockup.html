@@ -438,6 +438,81 @@ img.av{display:inline-block}
 .mini-tbl th,.mini-tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 .mini-tbl th{font-size:10.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
 .row-err td{background:color-mix(in srgb,var(--bad) 8%,transparent)}
+/* round 5: campaigns, clients, notifications, Telegram */
+.mw-stage{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.mw-stage svg{width:12px;height:12px}
+.mw-segbar{display:flex;gap:2px;height:10px;border-radius:99px;overflow:hidden;background:var(--surface-2)}
+.mw-segbar--sm{height:6px}
+.mw-segbar i{display:block;height:100%;background:var(--c);min-width:4px}
+.mw-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--muted)}
+.mw-legend span{display:inline-flex;align-items:center;gap:6px}
+.mw-legend i{width:10px;height:10px;border-radius:3px;background:var(--c);display:inline-block}
+.mw-market{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.mw-region{font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.mw-camp-card{display:block;transition:transform .12s,border-color .12s}
+.mw-camp-card:hover{transform:translateY(-1px);border-color:var(--accent)}
+.mw-badge{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:var(--hi);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;pointer-events:none}
+.mw-badge:empty{display:none}
+.mw-notif{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:10px;text-align:left}
+.mw-notif:hover{background:var(--surface-2)}
+.mw-notif.is-unread{background:var(--accent-soft)}
+.mw-notif__dot{width:8px;height:8px;border-radius:50%;background:transparent;flex:none}
+.mw-notif.is-unread .mw-notif__dot{background:var(--accent)}
+.mw-notif__h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:14px 0 6px}
+.mw-notif__h:first-child{margin-top:0}
+.mw-ver{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.mw-ver__h{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+/* simplified: grid, steps, checklist */
+.mw-howto{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:12px;background:var(--accent-soft);color:var(--deep);font-size:13px;line-height:1.5;margin-bottom:14px;border:1px solid #C3DDD8}
+.mw-howto svg{margin-top:2px}
+.mw-howto-steps{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px;padding:0;list-style:none;counter-reset:h}
+.mw-howto-steps li{counter-increment:h;flex:1 1 200px;font-size:12.5px;padding:8px 10px 8px 34px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative}
+.mw-howto-steps li::before{content:counter(h);position:absolute;left:9px;top:8px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.mw-grid-wrap{overflow-x:auto}
+.mw-cgrid{border-collapse:separate;border-spacing:0;min-width:100%}
+.mw-cgrid th,.mw-cgrid td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.mw-cgrid thead th{font-size:12.5px;background:var(--surface-2);white-space:nowrap;min-width:118px}
+.mw-cgrid__client{font-size:10.5px;font-weight:500;color:var(--muted);max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mw-cgrid__corner,.mw-cgrid__feat{position:sticky;left:0;z-index:1;background:var(--surface);min-width:190px;max-width:230px;border-right:1px solid var(--line)}
+.mw-cgrid__corner{background:var(--surface-2)!important;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.mw-cgrid__feat{font-weight:500;font-size:13.5px}
+.mw-cgrid__feat .icon-btn{width:26px;height:26px;margin-top:2px}
+.mw-cgrid tbody tr:last-child>*{border-bottom:0}
+.mw-cell{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-width:118px;padding:8px 24px 8px 10px;border-radius:10px;text-align:left;background:color-mix(in srgb,var(--c) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 35%,transparent);transition:transform .1s,box-shadow .1s}
+.mw-cell:hover{transform:translateY(-1px);box-shadow:0 4px 12px -6px color-mix(in srgb,var(--c) 70%,transparent)}
+.mw-cell__s{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--c);white-space:nowrap}
+.mw-cell__d{font-size:11.5px;color:var(--ink)}
+.mw-cell__flag{position:absolute;top:6px;right:6px;color:var(--hi)}
+.mw-cell--add{align-items:center;justify-content:center;min-height:50px;background:transparent;border:1.5px dashed var(--line);color:var(--muted)}
+.mw-cell--add:hover{border-color:var(--accent);color:var(--accent);box-shadow:none}
+.mw-cell--none{display:block;min-height:50px}
+.mw-track{display:flex;gap:4px;margin:0 0 4px;padding:0;list-style:none}
+.mw-track li{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);text-align:center;position:relative}
+.mw-track li span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;border:2px solid var(--line);background:var(--surface);z-index:1}
+.mw-track li::before{content:"";position:absolute;top:11px;left:-50%;width:100%;height:2px;background:var(--line)}
+.mw-track li:first-child::before{display:none}
+.mw-track li.is-done span{background:var(--c);border-color:var(--c);color:#fff}
+.mw-track li.is-done::before,.mw-track li.is-now::before{background:var(--accent)}
+.mw-track li.is-now{color:var(--ink);font-weight:700}
+.mw-track li.is-now span{border-color:var(--c);color:var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent)}
+.mw-next{height:42px;padding:0 18px;font-size:14px}
+.mw-steps{display:flex;gap:6px;margin:0 0 18px;padding:0;list-style:none;flex-wrap:wrap}
+.mw-steps li{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--muted);padding:5px 10px 5px 5px;border-radius:999px;background:var(--surface-2)}
+.mw-steps li span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--line);color:var(--ink)}
+.mw-steps li.is-now{background:var(--accent);color:#fff}
+.mw-steps li.is-now span{background:#fff;color:var(--accent)}
+.mw-steps li.is-done span{background:var(--ok);color:#fff}
+.mw-wiz-grid td,.mw-wiz-grid th{vertical-align:middle}
+.mw-wiz-grid input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.mw-review{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.mw-review>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:var(--surface-2)}
+.mw-sched{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.mw-gs__list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.mw-gs__list li{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.mw-gs__list li.is-done{background:var(--surface-2)}
+.mw-gs__list li.is-done .font-semibold{text-decoration:line-through;color:var(--muted)}
+.mw-gs__n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--accent-soft);color:var(--accent);flex:none}
+.mw-gs__list li.is-done .mw-gs__n{background:var(--ok);color:#fff}
 </style>
 
 </head>
@@ -771,7 +846,7 @@ const STAGES = ['Applied','Screening','Interview','On hold','Qualified','Hired',
 const STAGE_TONE = {Applied:'',Screening:'info',Interview:'warn','On hold':'hi',Qualified:'ok',Hired:'acc',Disqualified:'bad'};
 const STATUS_TONE = {Permanent:'ok',Probation:'warn','Promotion Probation':'info',PIP:'bad',Contract:'',Internship:'acc'};
 const RESULT_TONE = {Scheduled:'warn','Next round':'info',Qualified:'ok','On hold':'hi',Disqualified:'bad','No show':'bad'};
-const TASK_TONE = {'To do':'','In progress':'info',Blocked:'bad',Review:'warn',Done:'ok'};
+const TASK_TONE = {'To do':'','In progress':'info',Blocked:'hi',Review:'warn',Done:'ok'};
 const S = {user:null,candTab:'All',empTab:'All',orgZoom:1,pending2FA:null,taskTab:'Open',projTab:'Active',tmpPhoto:null};
 
 /* =================== I18N =================== */
@@ -1152,7 +1227,7 @@ function renderLogin(){
      </div>
      <div class="text-xs opacity-60">${t('Version')} ${APP.version} · build ${APP.build}</div>
    </section>
-   <section class="flex p-6 sm:p-10 overflow-y-auto min-h-0 relative mw-login__panel" id="login-side">${langSwitch('mw-lang-switch--floating')}${S.pending2FA?otpForm():loginForm()}</section>
+   <section class="flex p-6 sm:p-10 overflow-y-auto min-h-0 relative mw-login__panel" id="login-side">${langSwitch('mw-lang-switch--floating')}${S.pinChange?pinChangeForm():S.pending2FA?otpForm():S.loginMode==='client'?clientLoginForm():loginForm()}</section>
   </div>`;
   icons();
 }
@@ -1166,6 +1241,7 @@ function loginForm(){
       ${fld(t('Password'),`<div class="relative">${inp('l-pw','password123','password','••••••••','autocomplete="current-password"')}<button type="button" class="icon-btn absolute right-1 top-1" data-tip="Show / hide password" onclick="const p=$('#l-pw');p.type=p.type==='password'?'text':'password'">${ic('eye')}</button></div>`)}
       <div class="flex items-center justify-between text-sm"><label class="flex items-center gap-2"><input type="checkbox" id="l-rem" checked style="accent-color:var(--accent)"> ${t('Remember me')}</label><a class="font-semibold" style="color:var(--accent)" href="javascript:toast('Reset link sent (mock)','mail')">${t('Forgot password?')}</a></div>
       <button class="btn btn-primary w-full h-11 mt-1" type="submit">${ic('log-in')}${t('Sign in')}</button>
+      <button type="button" class="btn btn-ghost w-full" onclick="S.loginMode='client';renderLogin()">${ic('building')}Client? Sign in with username and PIN</button>
     </div>
     <div class="mt-8">
       <div class="text-xs font-bold uppercase tracking-wider muted mb-2">${t('Demo accounts')}</div>
@@ -1195,9 +1271,9 @@ function verifyOtp(){
   if([0,1,2,3,4,5].map(i=>$('#otp'+i).value).join('').length<6){toast('Enter all 6 digits','circle-alert');return}
   S.user=S.pending2FA;S.pending2FA=null;enterApp();
 }
-function enterApp(){toast(`Welcome back, ${S.user.name.split(' ')[0]}`,'hand');S.empTab='All';S.candTab='All';if(location.hash==='#dashboard')route();else location.hash='dashboard'}
+function enterApp(){toast(`Welcome back, ${S.user.name.split(' ')[0]}`,'hand');S.empTab='All';S.candTab='All';const to=S.after||'dashboard';S.after=null;if(location.hash==='#'+to)route();else location.hash=to}
 function askLogout(){confirmBox('Sign out?','You will be returned to the sign-in page. Unsaved form changes will be lost.',`${ic('log-out')}Sign out`,'doLogout()')}
-function doLogout(){closeModal();closeDrawer();S.user=null;history.replaceState(null,'',location.pathname+location.search);renderLogin();icons();toast('Signed out','log-out')}
+function doLogout(){closeModal();closeDrawer();S.user=null;S.bellToasted=false;S.campF={};S.loginMode=null;history.replaceState(null,'',location.pathname+location.search);renderLogin();icons();toast('Signed out','log-out')}
 
 /* =================== SHELL =================== */
 function renderShell(){
@@ -1219,15 +1295,15 @@ function renderShell(){
       <header class="topbar mw-topbar">
         <button class="icon-btn menu-btn" data-tip="Menu" onclick="toggleSb(true)">${ic('menu')}</button>
         <div class="flex-1 min-w-0"><div class="crumb" id="crumb"></div><div class="mw-page-heading"><h1 class="page-title truncate" id="ptitle"></h1><button type="button" class="icon-btn mw-help-btn" id="help-btn" onclick="openGuide()" aria-label="${t('User guide')}" aria-haspopup="dialog" data-tip="${t('User guide')}">${ic('info')}</button></div></div>
-        <div class="hidden md:flex items-center gap-2 input" style="width:240px;height:38px"><span class="muted">${ic('search','w-4 h-4')}</span><input class="bg-transparent outline-none flex-1 min-w-0 text-sm" placeholder="${t(u.roleKey==='guest'?'Search your tasks…':'Search people, NRIC, tasks…')}" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
-        <span class="hidden sm:inline-flex">${langSwitch()}</span><span class="hidden sm:inline-flex">${ib('bell',t('Notifications'),'showNotifs()')}</span>
+        <div class="hidden md:flex items-center gap-2 input" style="width:240px;height:38px"><span class="muted">${ic('search','w-4 h-4')}</span><input class="bg-transparent outline-none flex-1 min-w-0 text-sm" placeholder="${t(['guest','client'].includes(u.roleKey)?'Search your tasks…':'Search people, NRIC, tasks…')}" onkeydown="if(event.key==='Enter')globalSearch(this.value)"></div>
+        <span class="hidden sm:inline-flex">${langSwitch()}</span><span class="hidden sm:inline-flex"><span class="relative inline-flex">${ib('bell',t('Notifications'),'showNotifs()')}<span class="mw-badge" id="notif-n" aria-live="polite"></span></span></span>
         <span id="top-action" class="flex gap-2"></span>
       </header>
       <div class="view mw-page" id="view"></div>
     </main>
   </div>`;
 }
-function renderNav(r){
+function renderNav(r){setTimeout(updateBell);
   $('#nav').innerHTML=NAV.map(([g,items])=>{
     const vis=items.filter(i=>can(i[0]));if(!vis.length)return '';
     return `<div class="sb-group mw-sidebar__group"><span>${t(g)}</span></div>`+vis.map(([id,icon,label])=>{
@@ -1245,6 +1321,7 @@ function navBadge(id){
 function toggleSb(o){$('#sidebar')?.classList.toggle('open',o);$('#sbb')?.classList.toggle('open',o)}
 function globalSearch(q){
   q=q.toLowerCase().trim();if(!q)return;
+  if(isClientUser()){const r=DB.rollouts.find(x=>myMarkets().includes(x.market)&&x.title.toLowerCase().includes(q));if(r)viewRoll(r.id);else toast('Nothing matched "'+q+'"','search-x');return}
   const e=DB.employees.find(x=>(x.name+x.no).toLowerCase().includes(q));
   if(e&&(isHR()||scope().includes(e.id))){viewEmployee(e.id);return}
   const c=DB.candidates.find(x=>(x.name+x.idNo).toLowerCase().includes(q));
@@ -1253,7 +1330,7 @@ function globalSearch(q){
   if(t){viewTask(t.id);return}
   toast('Nothing matched "'+q+'"','search-x');
 }
-function showNotifs(){
+function showNotifsLegacy(){
   const items=[];
   pendingApprovals().forEach(({t,x})=>items.push(['clock-alert','bad',`${ename(x.by)} requests +${x.days} days on “${t.title}”`,`viewTask('${t.id}')`]));
   if(S.user.eid)DB.tasks.filter(t=>t.status==='Review'&&isGuest(t.who)&&pmOf(t)===S.user.eid).forEach(t=>items.push(['eye','warn',`${ename(t.who)} submitted “${t.title}” for review`,`viewTask('${t.id}')`]));
@@ -1268,14 +1345,15 @@ function showNotifs(){
 function route(){
   const h=location.hash.slice(1);
   if(h.startsWith('apply-')){renderApply(h.slice(6).toUpperCase());return}
-  if(!S.user){renderLogin();return}
+  if(!S.user){if(h&&h!=='dashboard')S.after=h;if(h.startsWith('req-'))S.loginMode='client';renderLogin();return}
   let r=h, pid=null;
   if(h.startsWith('project-')){pid=h.slice(8).toUpperCase();r='projects'}
+  if(h.startsWith('req-')){S.reqId=h.slice(4).toUpperCase();r='reqform'}
   if(!PAGES[r]||!can(r))r='dashboard';
   if(mustSetup2FA()){r='profile';S.profTab='security'}
   renderShell();renderNav(r);S.page=r;
   const p=PAGES[r];
-  if(pid&&proj(pid)){const P=proj(pid);$('#crumb').innerHTML=`<a href="#projects">Work / Projects</a> / ${P.id}`;$('#ptitle').textContent=P.name;$('#top-action').innerHTML=projActions(P);$('#view').innerHTML=pgProject(P)}
+  if(pid&&anyProj(pid)){const P=anyProj(pid);$('#crumb').innerHTML=`<a href="#projects">Work / Projects</a> / ${P.id}`;$('#ptitle').textContent=P.name;$('#top-action').innerHTML=projActions(P);$('#view').innerHTML=pgProject(P)}
   else{$('#crumb').textContent=`${t(p.c)} / ${t(p.t)}`;$('#ptitle').textContent=t(p.t);$('.mw-profile-card')?.classList.toggle('is-active',r==='profile');$('#top-action').innerHTML=p.a?p.a():'';$('#view').innerHTML=p.r()}
   icons();
 }
@@ -1295,6 +1373,7 @@ const pget = (o,k) => k.split('.').reduce((a,p)=>a?.[p],o);
 const mustSetup2FA = () => !!S.user && DB.settings.twoFA && DB.settings.twoFARoles.includes(S.user.roleKey) && !(S.user.devices||[]).length;
 function profileProgress(m){const all=PROFILE_FIELDS.flatMap(([,f])=>f.map(x=>x[0]));const done=all.filter(k=>{const v=pget(m,k);return v!==null&&v!==undefined&&String(v).trim()!==''}).length;return [done,all.length]}
 function pgProfile(){
+  if(isClientUser())return pgClientAccount();
   const m=me(),u=S.user,tab=S.profTab||'overview';
   const [done,total]=m?profileProgress(m):[0,0];
   const tabs=[['overview','Overview','user-round'],...(m?[['info','Personal information','id-card']]:[]),['security','Security','shield-check'],['prefs','Preferences','languages']];
@@ -1467,7 +1546,7 @@ function reviewBanner(){
   const m=me();if(!m)return '';const it=DB.review.items[m.id];if(it&&['Approved','Submitted'].includes(it.st))return '';
   return `<div class="banner mb-4"><span class="chip hi" style="padding:8px">${ic('clipboard-pen','!w-5 !h-5')}</span><div class="flex-1 min-w-0"><b>Annual personal data review ${DB.review.year}</b><div class="text-sm muted">Please confirm your address, mobile and emergency contact by ${fmt(DB.review.due)}. Last updated ${fmt(m.infoUpdated)}.</div></div><a href="#profile" class="btn btn-primary">${ic('arrow-right')}Review now</a></div>`;
 }
-function pgDashboard(){ if(isGuestUser())return dashGuest(); return S.user.roleKey==='staff'||S.user.roleKey==='lead' ? dashWork() : dashHR(); }
+function pgDashboard(){ if(isClientUser())return dashClient(); if(isGuestUser())return gettingStarted()+dashGuest(); return gettingStarted()+(S.user.roleKey==='staff'||S.user.roleKey==='lead' ? dashWork() : dashHR()); }
 function dashWork(){
   const m=me(),mine=myTasks().filter(t=>t.status!=='Done'),due=mine.filter(needsCheckin),k=kpiOf(m.id),reps=scope();
   const meets=DB.meetings.filter(x=>x.status==='Scheduled'&&mAtt(x).includes(m.id)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
@@ -2490,19 +2569,22 @@ function pgMyTasks(){
 
 /* =================== PROJECTS =================== */
 function pgProjects(){
-  if(isGuestUser())return pgProjectsGuest();
+  if(isClientUser())return campaignSection()||'<p class="muted">No campaigns are shared with you yet.</p>';
+  if(isGuestUser())return campaignSection()+pgProjectsGuest();
   let list=DB.projects;if(['staff','lead'].includes(S.user.roleKey))list=list.filter(p=>p.members.includes(S.user.eid)||p.pm===S.user.eid);
   const appr=pendingApprovals();
-  return `${appr.length?`<section class="card p-5 mb-4">${approvalsCard(appr)}</section>`:''}
+  return campaignSection()+`${appr.length?`<section class="card p-5 mb-4">${approvalsCard(appr)}</section>`:''}
   ${(()=>{const cfg=projViewCfg(),o=vstate('projects',cfg),shown=applyView('projects',list,cfg);return viewBar('projects',cfg,shown.length,list.length)+(!shown.length?'<p class="muted text-sm p-5">No projects match.</p>':o.mode==='list'?projTable(shown):o.mode==='grid'?projGrid(shown):'<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">'+shown.map(projCard).join('')+'</div>')})()}
   <h3 class="sec-h">${ic('list')}Standalone tasks</h3><p class="text-xs muted -mt-2 mb-3">Quick tasks and support tickets outside a project.</p>${taskView('standalone',DB.tasks.filter(t=>!t.project&&(isHR()||S.user.roleKey==='sysadmin'||scope().includes(t.who)||t.who===S.user.eid)))}`;
 }
 function projActions(p){
+  if(p.kind==='campaign')return campActions(p);
   if(isGuestUser())return (p.guests||[]).includes(uid())?`<button class="btn btn-primary" onclick="newRequest('${p.id}')">${ic('message-square-share')}<span class="hidden sm:inline">Request info</span></button>`:'';
   if(!canManageProj(p))return `<button class="btn btn-ghost" onclick="recordDelay(null,'${p.id}')">${ic('flag')}<span class="hidden sm:inline">Record delay</span></button>`;
   return `<button class="btn btn-ghost" onclick="recordDelay(null,'${p.id}')">${ic('flag')}<span class="hidden sm:inline">Record delay</span></button><button class="btn btn-primary" onclick="addTask('${p.id}')">${ic('plus')}<span class="hidden sm:inline">Add task</span></button>`;
 }
 function pgProject(p){
+  if(p.kind==='campaign')return pgCampaign(p);
   if(isGuestUser())return pgProjectGuest(p);
   const ts=DB.tasks.filter(t=>t.project===p.id),h=projHealth(p),pr=projProgress(p),dl=DB.delays.filter(d=>d.project===p.id),mg=canManageProj(p);
   return `<section class="card p-5 mb-4"><div class="flex flex-wrap gap-4 items-start">
@@ -2917,7 +2999,7 @@ function importScores(){openModal({title:'Import final scores',icon:'upload',bod
 
 /* =================== INTEGRATIONS =================== */
 function pgIntegrations(){
-  return `<section class="card p-5 mb-4"><h3 class="card-title mb-2">${ic('route','w-4 h-4')}Migration path off third-party tools</h3>
+  return telegramSection()+`<section class="card p-5 mb-4"><h3 class="card-title mb-2">${ic('route','w-4 h-4')}Migration path off third-party tools</h3>
     <div class="phases" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[['1 · Import only','Weekly CSV from ClickUp / monday into KPI. Teams keep working there.'],['2 · Dual run','New projects start in Hajimi; old ones stay external until done.'],['3 · Cut-over','All new work in Hajimi; external set to read-only.'],['4 · Retire','Final export archived; connector switched off.']].map(([t,d],i)=>`<div class="ph ${i===0?'now':''}"><div class="font-bold text-sm">${t}</div><div class="n mt-1" style="line-height:1.4">${d}</div></div>`).join('')}</div></section>
   <div class="grid gap-4 md:grid-cols-2">${DB.integrations.map(it=>`<section class="card p-5 flex flex-col gap-4"><div class="flex items-center gap-3"><span class="chip acc" style="padding:8px">${ic(it.icon,'!w-5 !h-5')}</span><div class="flex-1"><h3 class="font-bold">${it.name}</h3><div class="text-xs muted">Last ${it.id==='gsheet'?'export':'import'}: ${it.last==='—'?'never':fmt(it.last)} · ${it.rows} rows</div></div>${chip(it.mode,it.mode==='Off'?'':'ok')}</div>
     <div class="grid sm:grid-cols-2 gap-3">${fld('Mode',sel('ig-m-'+it.id,['Off','Import (CSV)','Scheduled sync (API)','Export only'],it.mode,`onchange="DB.integrations.find(x=>x.id==='${it.id}').mode=this.value;rerender()"`))}${fld('Use for KPI until',inp('ig-u-'+it.id,it.until,'date','',`onchange="DB.integrations.find(x=>x.id==='${it.id}').until=this.value"`))}${fld('Teams using it',inp('ig-s-'+it.id,it.scope))}${it.mode.includes('API')?fld('API token',inp('ig-t-'+it.id,'','password','pk_••••••••')):'<div></div>'}</div>
@@ -2952,6 +3034,582 @@ const PAGES = {
   config:{t:'Global Settings',c:'System',r:pgSettings},
   updates:{t:'System Updates',c:'System',r:pgUpdates,a:()=>`<button class="btn btn-ghost" onclick="checkUpdates()">${ic('refresh-cw')}<span class="hidden sm:inline">${t('Check for updates')}</span></button>`},
 };
+/* =================== CAMPAIGNS · CLIENTS · NOTIFICATIONS · TELEGRAM (round 5, simplified) =================== */
+// Campaign → Feature → Brand task. A brand task is one feature for one brand in one region.
+// Brands belong to clients; one campaign can mix clients, and each client's people (PICs) see only
+// their own brands. The campaign page is one grid: features down the side, brands across the top.
+// Six statuses, no red. Each task has one "next step" button. Scheduled tasks go live by themselves
+// at their publish time; a feature is done when all its brand tasks are live, the campaign when all
+// features are. On-hold tasks don't hold anything up.
+// Clients sign in with a fixed username and a 4-digit PIN (default 0000, changed at first sign-in,
+// locked after 5 wrong tries). Every change a client makes to requirements is kept as a dated version.
+const NOW_T='10:30';
+const ROLL_STAGES=['To do','In progress','Client testing','Scheduled','Live','On hold'];
+const STAGE_C={'To do':'#8A9BA8','In progress':'#1F6FB2','Client testing':'#C98A0B','Scheduled':'#0E8F8C','Live':'#0F7A5C','On hold':'#5B6B7A'};
+const STAGE_IC={'To do':'circle-dashed','In progress':'code-xml','Client testing':'flask-conical','Scheduled':'calendar-clock','Live':'rocket','On hold':'pause'};
+// The one button each task shows: [next status, button label, icon].
+const NEXT_STEP={'To do':['In progress','Start work','play'],'In progress':['Client testing','Send to client for testing','flask-conical'],'Client testing':['Scheduled','Schedule go-live','calendar-clock'],'Scheduled':['Live','Mark live now','rocket'],'On hold':['To do','Resume','play']};
+const REQ_FIELDS=[['objective','Objective'],['mechanics','Mechanics & rules'],['period','Event period'],['rewards','Rewards & budget'],['audience','Target players'],['languages','Languages & copy'],['assets','Assets from client'],['notes','Other notes']];
+const FEATURE_LIBRARY=['Attendance Map','Lucky Spin','Christmas Gift Box','Turnover Leaderboard','Countdown & Lucky Hour','Secret Vault (28-day login)','Chest Open (CS:GO style)','Deposit Bonus','Mission Board'];
+const WEEKDAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+Object.assign(ZH,{'Performance':'绩效','Clients':'客户','Requirements':'需求','To do':'待办','In progress':'进行中','Client testing':'客户测试','Scheduled':'已排期','Live':'已上线','On hold':'暂停'});
+
+DB.clients=[
+  {id:'C1',name:'Orchid Lane Holdings',owner:'E003',note:'Vietnam merchant group. Weekly call on Tuesdays.',status:'Active',
+    pics:[{id:'CP1',username:'orchid.minhanh',display:'Minh Anh',title:'Marketing Lead',pin:'2468',mustChange:false,tries:0,locked:false,last:'2026-11-02'},
+          {id:'CP2',username:'orchid.quocbao',display:'Quoc Bao',title:'Operations Executive',pin:'0000',mustChange:true,tries:0,locked:false,last:null}]},
+  {id:'C2',name:'Silver Junk Entertainment',owner:'E003',note:'Two brands in Vietnam.',status:'Active',
+    pics:[{id:'CP3',username:'sje.linh',display:'Linh',title:'Brand Manager',pin:'0000',mustChange:true,tries:3,locked:false,last:null}]},
+  {id:'C3',name:'Merlion Reach Pte Ltd',owner:'E044',note:'Singapore. Approvals need their compliance team; allow 2 working days.',status:'Active',
+    pics:[{id:'CP4',username:'merlion.jasmine',display:'Jasmine Koh',title:'Product Owner',pin:'1357',mustChange:false,tries:0,locked:false,last:'2026-10-30'},
+          {id:'CP5',username:'merlion.darren',display:'Darren Teo',title:'Compliance',pin:'0000',mustChange:false,tries:5,locked:true,last:'2026-10-21'}]},
+  {id:'C4',name:'Straits Play Sdn Bhd',owner:'E044',note:'Malaysia. Single PIC.',status:'Active',
+    pics:[{id:'CP6',username:'straits.hafiz',display:'Hafiz',title:'Campaign Manager',pin:'0000',mustChange:true,tries:0,locked:false,last:null}]},
+];
+// One brand in one region. Brands and regions can belong to different clients.
+DB.markets=[
+  {id:'M1',brand:'Neko89',region:'VN',client:'C1',site:'neko89.example'},
+  {id:'M2',brand:'B789',region:'VN',client:'C1',site:'b789.example'},
+  {id:'M3',brand:'H5',region:'VN',client:'C1',site:'h5.example'},
+  {id:'M4',brand:'EU9',region:'VN',client:'C2',site:'eu9vn.example'},
+  {id:'M5',brand:'E9',region:'VN',client:'C2',site:'e9.example'},
+  {id:'M6',brand:'EU9',region:'SG',client:'C3',site:'eu9sg.example'},
+  {id:'M7',brand:'77W',region:'SG',client:'C3',site:'77w.example'},
+  {id:'M8',brand:'EU9',region:'MY',client:'C4',site:'eu9my.example'},
+  {id:'M9',brand:'DJ8',region:'MY',client:'C4',site:'dj8.example'},
+];
+DB.campaigns=[
+  {id:'CMP1',kind:'campaign',name:'Christmas Event',desc:'Christmas and New Year events across Vietnam, Singapore and Malaysia brands. Each brand goes live on the date agreed with its client.',
+    start:'2026-10-20',end:'2027-01-02',pm:'E007',createdBy:'G03',members:['E007','E019','E010','E040','E005','E008','E003','E044'],guests:['G03','G01'],markets:['M1','M2','M3','M4','M5','M6','M7','M8','M9']},
+];
+DB.features=[
+  {id:'F1',campaign:'CMP1',name:'Attendance Map',desc:'Daily check-in map; the "Old" design is reused per brand with new masking.'},
+  {id:'F2',campaign:'CMP1',name:'Lucky Spin',desc:'Wheel with daily free spins and turnover-based extra spins.'},
+  {id:'F3',campaign:'CMP1',name:'Christmas Gift Box',desc:'Open a gift (mystery gift, stocking, giveaway) for a random reward.'},
+  {id:'F4',campaign:'CMP1',name:'Turnover Leaderboard',desc:'Ranking by turnover over the event period, with prizes for the top places.'},
+  {id:'F5',campaign:'CMP1',name:'Countdown & Lucky Hour',desc:'Countdown page that unlocks a reward window.'},
+  {id:'F6',campaign:'CMP1',name:'Secret Vault (28-day login)',desc:'28-day login calendar that replaces the current Login & Huat.'},
+  {id:'F7',campaign:'CMP1',name:'Chest Open (CS:GO style)',desc:'Case-opening game. Build it once, then copy it to other brands with frontend masking only.'},
+];
+const rq=(by,at,f)=>({by,at,fields:f});
+DB.rollouts=[
+  {id:'R01',feature:'F1',market:'M1',title:'Attendance Map (Old)',stage:'Live',publishAt:'2026-11-01 10:00',livedAt:'2026-11-01 10:00',who:['E010','G03'],staging:'https://staging.neko89.example/attendance',prod:'https://neko89.example/events/attendance',note:'',reqs:[],log:[['2026-11-01 10:00','Went live']]},
+  {id:'R02',feature:'F1',market:'M4',title:'Attendance Map (Old)',stage:'Live',publishAt:'2026-11-01 10:00',livedAt:'2026-11-01 10:00',who:['E010'],copiedFrom:'R01',staging:'https://staging.eu9vn.example/attendance',prod:'https://eu9vn.example/events/attendance',note:'',reqs:[],log:[['2026-11-01 10:00','Went live']]},
+  {id:'R03',feature:'F1',market:'M2',title:'Attendance Map (Old)',stage:'Scheduled',publishAt:'2026-12-01 10:00',who:['E010'],copiedFrom:'R01',staging:'https://staging.b789.example/attendance',prod:'',note:'Client asked to go live with their December promotion.',reqs:[],clientOk:{by:'CP1',at:'2026-10-30 15:40'},log:[['2026-10-30 16:20','Go-live scheduled for 1 Dec, 10:00']]},
+  {id:'R04',feature:'F1',market:'M3',title:'Attendance Map Island',stage:'In progress',publishAt:'2026-12-01 10:00',who:['E040','G03'],copiedFrom:'R01',staging:'',prod:'',note:'Island theme: new background and path art.',reqs:[],log:[]},
+  {id:'R05',feature:'F2',market:'M1',title:'Lucky Spin',stage:'Client testing',publishAt:'2026-12-10 12:00',who:['E019','E008','G03'],staging:'https://staging.neko89.example/lucky-spin',prod:'',note:'Waiting for the client to test and approve.',
+    reqs:[rq('CP1','2026-10-28 15:10',{objective:'Raise daily logins over the Christmas period.',mechanics:'1 free spin per day. +1 spin for every 500k VND turnover, max 5 a day.',period:'10 Dec – 31 Dec 2026',rewards:'Free spins and bonus credit; total budget 120m VND.',audience:'All active players in Vietnam',languages:'Vietnamese and English',assets:'Logo pack sent by email on 27 Oct',notes:''}),
+          rq('CP1','2026-11-02 14:20',{objective:'Raise daily logins over the Christmas period.',mechanics:'1 free spin per day. +1 spin for every 300k VND turnover, max 8 a day.',period:'10 Dec 2026 – 3 Jan 2027',rewards:'Free spins and bonus credit; total budget 150m VND.',audience:'All active players in Vietnam',languages:'Vietnamese and English',assets:'Logo pack sent by email on 27 Oct',notes:'Top prize must show on the wheel.'})],
+    log:[['2026-11-02 14:20','Minh Anh updated the requirements (version 2)'],['2026-11-03 09:15','Sent to client for testing']]},
+  {id:'R06',feature:'F2',market:'M2',title:'Lucky Spin',stage:'In progress',publishAt:'2026-12-12 12:00',who:['E019'],copiedFrom:'R05',staging:'',prod:'',note:'Same build as Neko89; B789 masking only.',reqs:[],log:[]},
+  {id:'R07',feature:'F2',market:'M8',title:"Santa's Lucky Wheel",stage:'In progress',publishAt:'2026-12-15 12:00',who:['G03','E019'],copiedFrom:'R05',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R08',feature:'F3',market:'M1',title:'Unbox Christmas Mystery Gift',stage:'In progress',publishAt:'2026-12-18 10:00',who:['E040','E008'],staging:'',prod:'',note:'',
+    reqs:[rq('CP1','2026-10-29 11:00',{objective:'Reward depositors during Christmas week.',mechanics:'Deposit 1m VND to open one gift.',period:'18 Dec – 25 Dec 2026',rewards:'Random bonus 20k–2m VND',audience:'Depositors',languages:'Vietnamese',assets:'',notes:''})],log:[]},
+  {id:'R09',feature:'F3',market:'M2',title:'Lucky Christmas Stocking',stage:'In progress',publishAt:'2026-12-18 10:00',who:['G03'],copiedFrom:'R08',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R10',feature:'F3',market:'M8',title:"SANTA'S GIFT GIVEAWAY",stage:'To do',publishAt:'2026-12-20 10:00',who:[],copiedFrom:'R08',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R11',feature:'F4',market:'M4',title:'Christmas Tournament (Turnover leaderboard)',stage:'Client testing',publishAt:'2026-12-08 12:00',who:['E005','E019'],staging:'https://staging.eu9vn.example/tournament',prod:'',note:'',reqs:[],log:[]},
+  {id:'R12',feature:'F4',market:'M5',title:"Leaderboard Challenge (Santa's Last Drop)",stage:'In progress',publishAt:'2026-12-10 12:00',who:['E005'],copiedFrom:'R11',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R13',feature:'F4',market:'M9',title:'Christmas Champions (turnover leaderboard)',stage:'In progress',publishAt:'2026-12-12 12:00',who:['G03'],copiedFrom:'R11',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R14',feature:'F4',market:'M7',title:'Festive Fortune Race',stage:'To do',publishAt:'2026-12-14 12:00',who:[],copiedFrom:'R11',staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R15',feature:'F5',market:'M1',title:'Open your Fortune (Countdown to Lucky Open your Fortune)',stage:'In progress',publishAt:'2026-12-24 20:00',who:['G03'],staging:'',prod:'',note:'Name to double-confirm with Marketing; other parts can go ahead.',reqs:[],log:[]},
+  {id:'R16',feature:'F5',market:'M4',title:'New Year to Lucky Hour',stage:'To do',publishAt:'2026-12-31 20:00',who:[],staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R17',feature:'F6',market:'M6',title:'Secret Vault – 28-day design replaces Login & Huat',stage:'In progress',publishAt:'2026-12-05 09:00',who:['E019','E005'],staging:'',prod:'',note:'',reqs:[],log:[]},
+  {id:'R18',feature:'F7',market:'M3',title:'H5 Chest Open (CS:GO)',stage:'On hold',holdSince:'2026-10-23',publishAt:'',who:[],staging:'',prod:'',note:'Kept in view since 23 Oct.',reqs:[],log:[]},
+  {id:'R19',feature:'F7',market:'M7',title:'77W Chest Open (CS:GO)',stage:'On hold',holdSince:'2026-10-23',publishAt:'',who:[],staging:'',prod:'',note:'Kept in view since 23 Oct.',reqs:[],log:[]},
+  {id:'R20',feature:'F7',market:'M9',title:'DJ8 Chest Open (CS:GO)',stage:'On hold',holdSince:'2026-10-23',publishAt:'',who:[],staging:'',prod:'',note:'Kept in view since 23 Oct.',reqs:[],log:[]},
+];
+vendor('V1').clients=['C1'];vendor('V2').clients=['C1','C3','C4'];
+DB.notifs=[
+  {to:'E007',at:'2026-11-03 09:15',text:'Lucky Spin for Neko89 (VN) was sent to the client for testing.',link:'roll:R05',read:false},
+  {to:'E007',at:'2026-11-02 14:20',text:'Minh Anh from Orchid Lane Holdings changed the requirements for Lucky Spin · Neko89 (VN). 4 things changed.',link:'roll:R05',read:false},
+  {to:'E019',at:'2026-11-02 14:20',text:'Minh Anh from Orchid Lane Holdings changed the requirements for Lucky Spin · Neko89 (VN). 4 things changed.',link:'roll:R05',read:false},
+  {to:'E019',at:'2026-11-01 11:00',text:'Tee Chien Yap added you to Secret Vault for EU9 (SG) in Christmas Event.',link:'roll:R17',read:true},
+  {to:'E010',at:'2026-10-30 16:20',text:'Attendance Map for B789 (VN) is scheduled to go live on Tue, 1 Dec at 10:00.',link:'roll:R03',read:false},
+  {to:'G03',at:'2026-11-03 09:40',text:"You were added to Santa's Lucky Wheel for EU9 (MY). It goes live on 15 Dec.",link:'roll:R07',read:false},
+  {to:'E001',at:'2026-11-02 09:00',text:'Weekly summary sent to the Management Telegram group.',link:'#integrations',read:true},
+  {to:'CP1',at:'2026-11-03 09:15',text:'Lucky Spin for Neko89 (VN) is ready for you to test.',link:'roll:R05',read:false},
+  {to:'tang@hajimi.dev',at:'2026-11-03 08:00',text:'Darren Teo (Merlion Reach) is locked out after 5 wrong PINs.',link:'#clients',read:false},
+];
+DB.telegram={bot:'@MeridianWorkBot',connected:true,tz:'GMT+8',
+  chats:[{id:'TC1',name:'Management',chatId:'-1001847220193',scope:'all'},
+         {id:'TC2',name:'Orchid Lane · Christmas',chatId:'-1002991300457',scope:'C1'},
+         {id:'TC3',name:'Delivery team',chatId:'-1001556002811',scope:'all'}],
+  schedules:[{id:'TS1',name:'Weekly management summary',repeat:'weekly',days:['Mon'],dates:[],times:['09:00'],chat:'TC1',scope:'all',on:true,last:'2026-11-02 09:00'},
+             {id:'TS2',name:'Orchid Lane go-live days',repeat:'dates',days:[],dates:['2026-12-01','2026-12-10','2026-12-18'],times:['10:30','18:00'],chat:'TC2',scope:'C1',on:true,last:null},
+             {id:'TS3',name:'Delivery stand-up digest',repeat:'weekly',days:['Mon','Wed','Fri'],dates:[],times:['09:30'],chat:'TC3',scope:'all',on:false,last:'2026-10-31 09:30'}]};
+
+/* ---------- helpers ---------- */
+const client=id=>DB.clients.find(c=>c.id===id);
+const market=id=>DB.markets.find(m=>m.id===id);
+const mLabel=id=>{const m=market(id);return m?`${m.brand} (${m.region})`:'—'};
+const camp=id=>DB.campaigns.find(c=>c.id===id);
+const anyProj=id=>proj(id)||camp(id);
+const roll=id=>DB.rollouts.find(r=>r.id===id);
+const feat=id=>DB.features.find(f=>f.id===id);
+const featuresOf=cid=>DB.features.filter(f=>f.campaign===cid);
+const rollsOf=fid=>DB.rollouts.filter(r=>r.feature===fid);
+const rollsOfCamp=cid=>DB.rollouts.filter(r=>feat(r.feature).campaign===cid);
+const campOf=r=>camp(feat(r.feature).campaign);
+const allPics=()=>DB.clients.flatMap(c=>c.pics);
+const pic=id=>allPics().find(p=>p.id===id);
+const picClient=id=>DB.clients.find(c=>c.pics.some(p=>p.id===id));
+const isClientUser=()=>S.user?.roleKey==='client';
+const myMarkets=()=>isClientUser()?DB.markets.filter(m=>m.client===S.user.cid).map(m=>m.id):null;
+const whoName=id=>/^CP/.test(id)?`${pic(id)?.display} (${picClient(id)?.name})`:ename(id);
+const notifKey=()=>S.user?(S.user.eid||S.user.gid||S.user.pic||S.user.email):null;
+const latestReq=r=>r.reqs[r.reqs.length-1]?.fields||null;
+const isLive=r=>r.stage==='Live';
+const needsReq=r=>!r.reqs.length&&!['Live','On hold'].includes(r.stage);
+const nowStamp=()=>TODAY+' '+NOW_T;
+const pinInp=(id,ac='current-password')=>`<input id="${id}" class="input mw-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="${ac}">`;
+function fmtDT(s,short=false){if(!s)return '—';const [d,tm]=s.split(' ');const x=new Date(d+'T00:00');
+  return x.toLocaleDateString('en-GB',short?{day:'numeric',month:'short'}:{weekday:'short',day:'numeric',month:'short',year:'numeric'})+(tm?`, ${tm}`:'')}
+const stageChip=s=>`<span class="mw-stage" style="--c:${STAGE_C[s]}">${ic(STAGE_IC[s])}${t(s)}</span>`;
+const marketTag=id=>{const m=market(id);return m?`<span class="mw-market">${esc(m.brand)}<span class="mw-region">${m.region}</span></span>`:'—'};
+function autoPublish(){DB.rollouts.forEach(r=>{if(r.stage==='Scheduled'&&r.publishAt&&r.publishAt<=nowStamp()){r.stage='Live';r.livedAt=r.publishAt;r.log.push([r.publishAt,'Went live automatically at its go-live time'])}})}
+function featDone(f){const rs=rollsOf(f.id).filter(r=>r.stage!=='On hold');return rs.length>0&&rs.every(isLive)}
+function campDone(c){const fs=featuresOf(c.id).filter(f=>rollsOf(f.id).some(r=>r.stage!=='On hold'));return fs.length>0&&fs.every(featDone)}
+function visRolls(c){let rs=rollsOfCamp(c.id);const mm=myMarkets();if(mm)rs=rs.filter(r=>mm.includes(r.market));return rs}
+function canSeeCamp(c){
+  if(!S.user)return false;
+  const rs=rollsOfCamp(c.id);
+  if(isClientUser())return rs.some(r=>myMarkets().includes(r.market));
+  if(isGuestUser())return (c.guests||[]).includes(uid())||c.createdBy===uid()||rs.some(r=>r.who.includes(uid()));
+  if(['sysadmin','exec','hr'].includes(S.user.roleKey))return true;
+  return c.pm===uid()||c.members.includes(uid())||rs.some(r=>r.who.includes(uid()));
+}
+const canManageCamp=c=>!!S.user&&!isClientUser()&&(['sysadmin','exec'].includes(S.user.roleKey)||c.pm===uid()||c.createdBy===uid()||(S.user.roleKey==='lead'&&c.members.includes(uid())));
+const canMoveRoll=r=>canManageCamp(campOf(r))||r.who.includes(uid());
+const canEditReq=r=>!!S.user&&(isClientUser()?myMarkets().includes(r.market):canMoveRoll(r));
+const isDesignGuest=()=>isGuestUser()&&vendorOf(uid())?.type==='Design';
+const canCreateCamp=()=>!!S.user&&(['sysadmin','exec','lead'].includes(S.user.roleKey)||isDesignGuest());
+const campTeam=c=>[c.pm,...c.members.filter(x=>x!==c.pm),...(c.guests||[])];
+const campMarkets=c=>{const ids=new Set([...(c.markets||[]),...rollsOfCamp(c.id).map(r=>r.market)]);const mm=myMarkets();
+  return [...ids].filter(id=>!mm||mm.includes(id)).sort((a,b)=>{const A=market(a),B=market(b),o=['VN','SG','MY','TH','ID','PH'];return o.indexOf(A.region)-o.indexOf(B.region)||A.brand.localeCompare(B.brand)})};
+const marketsFor=()=>isGuestUser()?DB.markets.filter(m=>(vendorOf(uid())?.clients||[]).includes(m.client)):DB.markets;
+function segBar(rs,sm=false){
+  if(!rs.length)return `<div class="mw-segbar${sm?' mw-segbar--sm':''}"></div>`;
+  return `<div class="mw-segbar${sm?' mw-segbar--sm':''}" role="img" aria-label="${ROLL_STAGES.map(s=>[s,rs.filter(r=>r.stage===s).length]).filter(x=>x[1]).map(([s,n])=>`${n} ${s}`).join(', ')}">${ROLL_STAGES.map(s=>{const n=rs.filter(r=>r.stage===s).length;return n?`<i style="--c:${STAGE_C[s]};flex:${n}" data-tip="${n} · ${t(s)}"></i>`:''}).join('')}</div>`;
+}
+const stageLegend=rs=>`<div class="mw-legend">${ROLL_STAGES.map(s=>{const n=rs.filter(r=>r.stage===s).length;return `<span><i style="--c:${STAGE_C[s]}"></i>${t(s)} <b class="tnum">${n}</b></span>`}).join('')}</div>`;
+function liveCount(rs){const act=rs.filter(r=>r.stage!=='On hold');return `${act.filter(isLive).length}/${act.length}`}
+
+/* ---------- notifications ---------- */
+function notify(keys,text,link){
+  const me=notifKey(),to=[...new Set(keys.filter(Boolean))].filter(k=>k!==me);
+  to.forEach(k=>DB.notifs.unshift({to:k,at:nowStamp(),text,link,read:false}));
+  updateBell();return to.length;
+}
+const rollPeople=r=>{const c=campOf(r);return [c.pm,...r.who]};
+const clientPics=r=>client(market(r.market).client).pics.map(p=>p.id);
+const myNotifs=()=>DB.notifs.filter(n=>n.to===notifKey());
+function updateBell(){const el=$('#notif-n');if(!el)return;const n=myNotifs().filter(x=>!x.read).length;el.textContent=n?(n>9?'9+':n):'';
+  if(n&&!S.bellToasted){S.bellToasted=true;setTimeout(()=>toast(`You have ${n} new notification${n>1?'s':''}`,'bell'),900)}}
+function openNotif(i){const n=myNotifs()[i];n.read=true;closeModal();
+  if(n.link.startsWith('roll:'))viewRoll(n.link.slice(5));else location.hash=n.link.slice(1);updateBell()}
+function readAllNotifs(){myNotifs().forEach(n=>n.read=true);updateBell();showNotifs()}
+function reminderItems(){
+  const items=[];if(!S.user||isClientUser())return items;
+  pendingApprovals().forEach(({t,x})=>items.push(['clock-alert','warn',`${ename(x.by)} asks for ${x.days} more days on “${t.title}”`,`viewTask('${t.id}')`]));
+  myTasks().filter(t=>t.status!=='Done'&&needsCheckin(t)).forEach(t=>items.push(['message-square-warning','warn',`Check-in due: ${t.title}`,`checkin('${t.id}')`]));
+  if(isHR())DB.employees.filter(e=>e.probEnd&&days(e.probEnd)<=14).forEach(e=>items.push(['hourglass','warn',`${e.name}: probation ends ${fmtS(e.probEnd)}`,`viewEmployee('${e.id}')`]));
+  return items;
+}
+function showNotifs(){
+  const list=myNotifs(),un=list.filter(n=>!n.read),rd=list.filter(n=>n.read).slice(0,10),rem=reminderItems();
+  const row=n=>`<button class="mw-notif ${n.read?'':'is-unread'}" onclick="openNotif(${list.indexOf(n)})"><span class="mw-notif__dot"></span><span class="flex-1 min-w-0"><span class="block text-sm">${esc(n.text)}</span><span class="block text-xs muted mt-0.5">${fmtDT(n.at)}</span></span>${ic('chevron-right','w-4 h-4 muted')}</button>`;
+  openModal({title:'Notifications',icon:'bell',body:`${un.length?`<div class="mw-notif__h">New · ${un.length}</div>${un.map(row).join('')}`:'<p class="muted text-sm">No new notifications. You are all caught up.</p>'}
+    ${rd.length?`<div class="mw-notif__h">Earlier</div>${rd.map(row).join('')}`:''}
+    ${rem.length?`<div class="mw-notif__h">Reminders</div>${rem.map(([i,tn,x,fn])=>`<button class="mw-notif" onclick="closeModal();${fn}"><span class="chip ${tn}" style="padding:6px">${ic(i)}</span><span class="text-sm flex-1">${esc(x)}</span>${ic('chevron-right','w-4 h-4 muted')}</button>`).join('')}`:''}`,
+    foot:un.length?`<button class="btn btn-ghost" onclick="readAllNotifs()">${ic('check-check')}Mark all as read</button>`:''});
+}
+
+/* ---------- getting started checklist (dashboard) ---------- */
+function gettingStarted(){
+  if(!canCreateCamp()||S.gsHidden)return '';
+  const g=S.gs||(S.gs={}),guest=isGuestUser(),c1=DB.campaigns.find(canSeeCamp);
+  const go=c1?`location.hash='project-${c1.id.toLowerCase()}'`:'newCampaign()';
+  const steps=[
+    !guest&&[DB.clients.some(c=>c.pics.length),'Add your client and the people who sign in for them','Clients → Add client, then Add PIC. Each PIC gets a username and PIN 0000.',`location.hash='clients'`,'Open Clients'],
+    !guest&&[DB.markets.length>0,"Add the client's brands",'On the client, click + next to Brands. One brand per region.',`location.hash='clients'`,'Open Clients'],
+    [DB.campaigns.length>0,'Create a campaign with the wizard','Five short steps: details, brands, features, who gets what, review.','newCampaign()','New campaign'],
+    [!!g.form||DB.rollouts.some(r=>r.reqs.length),'Ask the client for requirements','Open a box on the campaign grid, then Share form link. Every change they make is kept.',go,'Open campaign'],
+    [DB.rollouts.some(isLive),'Move each brand task to its next step','Each task has one button: Start work → Send to client for testing → Schedule go-live → Live.',go,'Open campaign'],
+    [!!g.tg,'Post an update to Telegram','Use Copy for Telegram on a task or the whole campaign, then paste it into your group.',go,'Open campaign'],
+  ].filter(Boolean);
+  const done=steps.filter(s=>s[0]).length;
+  return `<section class="card p-5 mb-4 mw-gs"><div class="flex items-center gap-3 mb-3"><span class="chip acc" style="padding:8px">${ic('map','!w-5 !h-5')}</span><div class="flex-1"><h3 class="font-bold">Getting started with campaigns</h3><div class="text-xs muted">${done} of ${steps.length} done</div></div><button class="btn btn-ghost h-8" onclick="S.gsHidden=true;rerender()">Hide</button></div>
+    <div class="mw-progress mb-3"><div class="mw-progress__bar" style="width:${Math.round(done/steps.length*100)}%"></div></div>
+    <ol class="mw-gs__list">${steps.map(([ok,l,h,fn,b],i)=>`<li class="${ok?'is-done':''}"><span class="mw-gs__n">${ok?ic('check','w-3.5 h-3.5'):i+1}</span><div class="flex-1 min-w-0"><div class="font-semibold text-sm">${l}</div><div class="text-xs muted">${h}</div></div><button class="btn btn-ghost h-8" onclick="${fn}">${b}</button></li>`).join('')}</ol></section>`;
+}
+
+/* ---------- campaign list ---------- */
+function campCard(c){const rs=visRolls(c),done=campDone(c);
+  return `<a href="#project-${c.id.toLowerCase()}" class="card p-5 mw-camp-card" style="text-decoration:none;color:inherit">
+    <div class="flex items-center gap-2 mb-2">${chip('Campaign','acc','sparkles')}${done?stageChip('Live'):chip('In progress','info')}<span class="text-xs muted ml-auto">${c.id}</span></div>
+    <div class="font-bold text-lg leading-tight">${esc(c.name)}</div>
+    <div class="text-xs muted mt-1">${fmt(c.start)} → ${fmt(c.end)} · ${campMarkets(c).length} brands</div>
+    <div class="mt-4">${segBar(rs)}</div>
+    <div class="flex justify-between text-xs muted mt-2"><span>${featuresOf(c.id).filter(f=>rs.some(r=>r.feature===f.id)).length} features · ${rs.length} brand tasks</span><span><b class="tnum" style="color:var(--ok)">${liveCount(rs)}</b> live</span></div></a>`}
+function campaignSection(){
+  const list=DB.campaigns.filter(canSeeCamp);if(!list.length)return '';
+  return `<h3 class="sec-h" style="margin-top:0">${ic('sparkles')}Campaigns</h3>
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 mb-6">${list.map(campCard).join('')}</div>${isClientUser()?'':`<h3 class="sec-h">${ic('folder-kanban')}Projects</h3>`}`;
+}
+function newCampaignBtn(){return canCreateCamp()?`<button class="btn ${isGuestUser()?'btn-primary':'btn-ghost'}" data-tip="New campaign" aria-label="New campaign" onclick="newCampaign()">${ic('sparkles')}<span class="hidden xl:inline">New campaign</span></button>`:''}
+
+/* ---------- campaign page: one grid ---------- */
+function cell(r){
+  const date=r.stage==='On hold'?'':isLive(r)?fmtDT(r.livedAt,true):r.publishAt?fmtDT(r.publishAt,true):'';
+  return `<button class="mw-cell" style="--c:${STAGE_C[r.stage]}" onclick="viewRoll('${r.id}')" aria-label="${esc(r.title)} · ${esc(mLabel(r.market))} · ${r.stage}">
+    <span class="mw-cell__s">${ic(STAGE_IC[r.stage],'w-3.5 h-3.5')}${t(r.stage)}</span><span class="mw-cell__d">${date||'&nbsp;'}</span>${needsReq(r)?`<span class="mw-cell__flag" data-tip="Requirements still needed">${ic('file-question','w-3.5 h-3.5')}</span>`:''}</button>`}
+function pgCampaign(c){
+  autoPublish();
+  if(!canSeeCamp(c))return `<p class="muted">This campaign isn't shared with you.</p>`;
+  const all=visRolls(c),mg=canManageCamp(c),mm=myMarkets(),cols=campMarkets(c),done=campDone(c);
+  const next=all.filter(r=>!isLive(r)&&r.publishAt&&r.stage!=='On hold').sort((a,b)=>a.publishAt.localeCompare(b.publishAt))[0];
+  const cls=[...new Set(cols.map(id=>market(id).client))];
+  const feats=featuresOf(c.id).filter(f=>!mm||all.some(r=>r.feature===f.id));
+  return `${isClientUser()?clientBanner():''}
+  <section class="card p-5 mb-4"><div class="flex flex-wrap gap-x-6 gap-y-3 items-start">
+    <div class="flex-1 min-w-[260px]"><p class="text-sm muted max-w-2xl">${esc(c.desc)}</p>
+      <div class="flex flex-wrap items-center gap-2 mt-3 text-sm">${chip(`${fmt(c.start)} → ${fmt(c.end)}`,'','calendar')}<span class="muted ml-1">PM</span><b>${esc(ename(c.pm))}</b>${mm?'':cls.map(id=>chip(esc(client(id).name),'','building')).join('')}</div></div>
+    <div class="flex gap-6"><div><div class="text-xs muted">Live</div><div class="head text-2xl font-extrabold tnum" style="color:var(--ok)">${liveCount(all)}</div></div>
+      <div><div class="text-xs muted">Next go-live</div><div class="font-bold text-sm">${next?`${esc(mLabel(next.market))} · ${esc(feat(next.feature).name)}`:'—'}</div><div class="text-xs muted">${next?fmtDT(next.publishAt):''}</div></div></div></div>
+    <div class="mt-4">${segBar(all)}</div><div class="mt-2">${stageLegend(all)}</div>
+    ${done?`<div class="mw-alert mw-alert--info mt-3 mb-0">${ic('party-popper','w-5 h-5 flex-none')}<div><b>Campaign complete.</b> Every brand task is live.</div></div>`:''}</section>
+  <div class="mw-howto">${ic('mouse-pointer-click','w-4 h-4 flex-none')}<span>Each box is one feature for one brand. <b>Click a box</b> to see details and its next step.${mg?' Click <b>+</b> to add that feature for another brand.':''} ${ic('file-question','w-3.5 h-3.5 inline -mt-0.5')} means requirements are still needed.</span></div>
+  <section class="card overflow-hidden"><div class="mw-grid-wrap"><table class="mw-cgrid"><thead><tr><th class="mw-cgrid__corner">Feature</th>${cols.map(id=>`<th>${marketTag(id)}${mm?'':`<div class="mw-cgrid__client">${esc(client(market(id).client).name)}</div>`}</th>`).join('')}</tr></thead>
+    <tbody>${feats.map(f=>{const rs=rollsOf(f.id);return `<tr><th class="mw-cgrid__feat"><div class="flex items-center gap-1.5"><span class="font-bold">${esc(f.name)}</span>${featDone(f)?`<span data-tip="Feature complete" style="color:var(--ok)">${ic('circle-check','w-4 h-4')}</span>`:''}</div><div class="text-xs muted">${liveCount(rs.filter(r=>!mm||mm.includes(r.market)))} live</div>${ib('send','Copy feature update for Telegram',`tgCopy('feat','${f.id}')`)}</th>
+      ${cols.map(mid=>{const r=rs.find(x=>x.market===mid);return `<td>${r?cell(r):mg?`<button class="mw-cell mw-cell--add" onclick="quickAdd('${f.id}','${mid}')" aria-label="Add ${esc(f.name)} for ${esc(mLabel(mid))}" data-tip="Add for ${esc(mLabel(mid))}">${ic('plus','w-4 h-4')}</button>`:'<span class="mw-cell mw-cell--none"></span>'}</td>`}).join('')}</tr>`}).join('')}</tbody></table></div></section>
+  ${mg?`<div class="flex flex-wrap gap-2 mt-4"><button class="btn btn-ghost" onclick="addFeature('${c.id}')">${ic('plus')}Add feature</button><button class="btn btn-ghost" onclick="addBrands('${c.id}')">${ic('store')}Add brand</button></div>`:''}`;
+}
+function campActions(c){
+  const tg=`<button class="btn ${canManageCamp(c)?'btn-ghost':'btn-primary'}" data-tip="Copy update for Telegram" aria-label="Copy update for Telegram" onclick="tgCopy('camp','${c.id}')">${ic('send')}<span class="hidden xl:inline">Copy for Telegram</span></button>`;
+  return canManageCamp(c)?tg+`<button class="btn btn-primary" data-tip="Add feature" aria-label="Add feature" onclick="addFeature('${c.id}')">${ic('plus')}<span class="hidden xl:inline">Add feature</span></button>`:tg}
+
+/* ---------- brand task drawer: one next-step button ---------- */
+function nextStepBtn(r){
+  if(!canMoveRoll(r)||isLive(r))return '';
+  const [to,label,icn]=NEXT_STEP[r.stage];
+  return `<button class="btn btn-primary mw-next" style="--c:${STAGE_C[to]}" onclick="goNext('${r.id}')">${ic(icn)}${label}</button>`}
+function viewRoll(id){
+  const r=roll(id);if(!r)return;const c=campOf(r);
+  if(!canSeeCamp(c)||(isClientUser()&&!myMarkets().includes(r.market))){toast('This task is not shared with you','lock');return}
+  S.drawerFn=()=>viewRoll(id);
+  const m=market(r.market),fe=feat(r.feature),mv=canMoveRoll(r),mg=canManageCamp(c),req=latestReq(r),cl=isClientUser();
+  const stepIx=ROLL_STAGES.indexOf(r.stage);
+  openDrawer(`<div class="modal-h">${stageChip(r.stage)}<div class="flex-1 min-w-0"><div class="font-bold text-lg leading-tight">${esc(r.title)}</div><div class="text-xs muted">${esc(mLabel(r.market))} · ${esc(fe.name)} · <a href="#project-${c.id.toLowerCase()}" style="color:var(--accent)">${esc(c.name)}</a></div></div>${ib('x','Close','closeDrawer()')}</div>
+  <div class="modal-b">
+    ${r.stage!=='On hold'?`<ol class="mw-track">${ROLL_STAGES.slice(0,5).map((s,i)=>`<li class="${i<stepIx?'is-done':i===stepIx?'is-now':''}" style="--c:${STAGE_C[s]}"><span>${i<stepIx?ic('check','w-3 h-3'):i+1}</span>${t(s)}</li>`).join('')}</ol>`:`<div class="mw-alert mw-alert--info">${ic('pause','w-5 h-5 flex-none')}<div><b>On hold since ${fmt(r.holdSince)}.</b> ${esc(r.note)}</div></div>`}
+    ${mv&&!isLive(r)?`<div class="flex flex-wrap items-center gap-2 mt-3">${nextStepBtn(r)}${r.stage!=='On hold'?`<button class="btn btn-ghost" onclick="putOnHold('${r.id}')">${ic('pause')}Put on hold</button>`:''}${stepIx>0&&r.stage!=='On hold'?`<button class="btn btn-ghost" onclick="stepBack('${r.id}')">${ic('undo-2')}Move back</button>`:''}</div>`:''}
+    ${cl&&r.stage==='Client testing'?clientTestBox(r):''}
+    ${r.clientOk&&!cl?`<div class="text-sm mt-3" style="color:var(--ok)">${ic('badge-check','w-4 h-4 inline -mt-0.5')} Approved by ${esc(whoName(r.clientOk.by))} on ${fmtDT(r.clientOk.at)}</div>`:''}
+    <div class="sec-h">${ic('info')}Details</div>
+    <dl class="dl">${cl?'':`<dt>Client</dt><dd>${esc(client(m.client).name)}</dd>`}
+      <dt>Go-live</dt><dd>${isLive(r)?`<span style="color:var(--ok)">Went live ${fmtDT(r.livedAt)}</span>`:r.publishAt?fmtDT(r.publishAt):'<span class="muted">Not set</span>'} <span class="muted text-xs">${DB.telegram.tz}</span></dd>
+      ${cl?'':`<dt>Team</dt><dd>${r.who.length?r.who.map(whoLabel).join(', '):'<span class="muted">Not assigned yet</span>'}</dd>`}
+      <dt>Test site</dt><dd>${r.staging?`<a href="${esc(r.staging)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(r.staging)}</a>`:'—'}</dd><dt>Live site</dt><dd>${r.prod?`<a href="${esc(r.prod)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(r.prod)}</a>`:'—'}</dd>
+      ${r.copiedFrom&&!cl?`<dt>Copied from</dt><dd>${esc(mLabel(roll(r.copiedFrom).market))}</dd>`:''}${r.note&&r.stage!=='On hold'?`<dt>Note</dt><dd>${esc(r.note)}</dd>`:''}</dl>
+    ${mg?`<button class="btn btn-ghost h-9 mt-3" onclick="editRoll('${r.id}')">${ic('square-pen')}Edit details</button>`:''}
+    <div class="sec-h">${ic('file-pen-line')}Requirements</div>
+    ${req?`<dl class="dl">${REQ_FIELDS.filter(([k])=>req[k]).map(([k,l])=>`<dt>${l}</dt><dd>${esc(req[k])}</dd>`).join('')}</dl><p class="text-xs muted mt-2">Version ${r.reqs.length} · ${esc(whoName(r.reqs.at(-1).by))} · ${fmtDT(r.reqs.at(-1).at)}</p>`:`<p class="text-sm muted">No requirements yet.${cl?'':' Share the form link with the client.'}</p>`}
+    <div class="flex flex-wrap gap-2 mt-3">${canEditReq(r)?`<button class="btn btn-ghost h-9" onclick="closeDrawer();location.hash='req-${r.id.toLowerCase()}'">${ic('file-pen-line')}${req?'Update requirements':'Fill in requirements'}</button>`:''}${r.reqs.length?`<button class="btn btn-ghost h-9" onclick="reqHistory('${r.id}')">${ic('history')}Change history (${r.reqs.length})</button>`:''}${mg?`<button class="btn btn-ghost h-9" onclick="shareReqLink('${r.id}')">${ic('link')}Share form link</button>`:''}</div>
+    ${r.log.length&&!cl?`<details class="mt-4"><summary class="text-sm font-semibold" style="cursor:pointer">${ic('activity','w-4 h-4 inline -mt-0.5')} Activity (${r.log.length})</summary><div class="flex flex-col gap-1.5 mt-2">${[...r.log].reverse().map(([at,x])=>`<div class="text-sm"><span class="muted text-xs tnum">${fmtDT(at,true)}</span> · ${esc(x)}</div>`).join('')}</div></details>`:''}
+  </div>
+  <div class="modal-f"><button class="btn btn-primary" onclick="tgCopy('roll','${r.id}')">${ic('send')}Copy for Telegram</button></div>`);
+}
+function clientTestBox(r){return `<div class="mw-alert mw-alert--info mt-3">${ic('flask-conical','w-5 h-5 flex-none')}<div class="flex-1"><b>Ready for you to test.</b> ${r.staging?`Open the <a href="${esc(r.staging)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">test site</a>, then tell us if it's good to go.`:''}
+  ${r.clientOk?`<div class="mt-2" style="color:var(--ok)">${ic('badge-check','w-4 h-4 inline -mt-0.5')} You approved this on ${fmtDT(r.clientOk.at)}.</div>`:`<div class="flex flex-wrap gap-2 mt-3"><button class="btn btn-primary h-9" onclick="clientApprove('${r.id}')">${ic('badge-check')}Looks good, approve</button><button class="btn btn-ghost h-9" onclick="closeDrawer();location.hash='req-${r.id.toLowerCase()}'">${ic('file-pen-line')}Ask for changes</button></div>`}</div></div>`}
+function clientApprove(id){const r=roll(id);r.clientOk={by:S.user.pic,at:nowStamp()};r.log.push([nowStamp(),`${S.user.name} approved it for go-live`]);
+  notify(rollPeople(r),`${S.user.name} from ${client(S.user.cid).name} approved ${r.title} · ${mLabel(r.market)}. You can schedule the go-live.`,'roll:'+id);
+  viewRoll(id);toast('Thank you. The team has been told it is approved.','badge-check')}
+function goNext(id){const r=roll(id),[to]=NEXT_STEP[r.stage];
+  if(to==='Scheduled')return scheduleGoLive(id);
+  if(to==='Client testing'&&!r.staging){openModal({title:'Send to client for testing',icon:'flask-conical',size:'sm',body:`<p class="text-sm mb-3">Add the test site link so the client can try it.</p>${fld('Test site link',inp('st-u','','url','https://staging…'),'',true)}`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="if(!/^https?:\\/\\/.+/.test(val('st-u')))return toast('Enter a full link starting with https://','circle-alert');roll('${id}').staging=val('st-u');closeModal();moveRoll('${id}','Client testing')">${ic('flask-conical')}Send</button>`});return}
+  if(to==='Live')r.livedAt=nowStamp();
+  moveRoll(id,to);}
+function scheduleGoLive(id){const r=roll(id),[d,tm]=(r.publishAt||'').split(' ');
+  openModal({title:'Schedule go-live',icon:'calendar-clock',size:'sm',body:`<p class="text-sm mb-3">It will go live by itself at this time (${DB.telegram.tz}). Everyone on the task and the client are told.</p>${r.clientOk?'':`<div class="mw-alert mw-alert--warning">${ic('triangle-alert','w-5 h-5 flex-none')}<div>The client hasn't approved it in the app yet. Go ahead only if they agreed another way.</div></div>`}
+    <div class="grid grid-cols-2 gap-3">${fld('Date',inp('sg-d',d||'','date'),'',true)}${fld('Time',inp('sg-h',tm||'10:00','time'),'',true)}</div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="if(!val('sg-d'))return toast('Pick a date','circle-alert');roll('${id}').publishAt=val('sg-d')+' '+(val('sg-h')||'10:00');closeModal();moveRoll('${id}','Scheduled')">${ic('calendar-clock')}Schedule</button>`});}
+function putOnHold(id){openModal({title:'Put on hold',icon:'pause',size:'sm',body:fld('Why is it on hold?',txt('oh-n','','e.g. Waiting for the client to confirm the game provider'),'',true),
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="if(!val('oh-n'))return toast('Add a short reason','circle-alert');const r=roll('${id}');r.note=val('oh-n');r.holdSince=TODAY;closeModal();moveRoll('${id}','On hold')">${ic('pause')}Put on hold</button>`})}
+function stepBack(id){const r=roll(id),i=ROLL_STAGES.indexOf(r.stage);if(i>0)moveRoll(id,ROLL_STAGES[i-1])}
+const stageNews=(r,s)=>({'In progress':`Work started on ${r.title} for ${mLabel(r.market)}.`,'Client testing':`${r.title} for ${mLabel(r.market)} is ready for the client to test.`,'Scheduled':`${r.title} for ${mLabel(r.market)} will go live on ${fmtDT(r.publishAt)}.`,'Live':`${r.title} for ${mLabel(r.market)} is now live.`,'On hold':`${r.title} for ${mLabel(r.market)} is on hold: ${r.note}`,'To do':`${r.title} for ${mLabel(r.market)} moved back to To do.`}[s]);
+function moveRoll(id,s){const r=roll(id),from=r.stage;r.stage=s;r.log.push([nowStamp(),`${from} → ${s}`]);
+  let n=notify(rollPeople(r),stageNews(r,s),'roll:'+id);
+  if(['Client testing','Scheduled','Live'].includes(s))n+=notify(clientPics(r),s==='Client testing'?`${r.title} for ${mLabel(r.market)} is ready for you to test.`:stageNews(r,s),'roll:'+id);
+  const f=feat(r.feature),fd=featDone(f),cd=campDone(campOf(r));
+  rerender();viewRoll(id);toast(`${t(s)}${fd?` · ${f.name} is complete`:''}${cd?' · campaign complete':''}${n?` · ${n} people told`:''}`,STAGE_IC[s]);}
+function teamChecks(c,sel){return `<div class="picker" style="max-height:200px;overflow:auto">${campTeam(c).map(id=>`<label class="check-row"><input type="checkbox" name="rt-who" value="${id}" ${sel.includes(id)?'checked':''}>${av(ename(id),24)}<span class="text-sm flex-1">${whoLabel(id)}</span></label>`).join('')}</div>`}
+function editRoll(id){const r=roll(id),c=campOf(r),[d,tm]=(r.publishAt||'').split(' ');
+  openModal({title:`Edit · ${esc(r.title)} · ${esc(mLabel(r.market))}`,icon:'square-pen',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-3">${fld('Name the brand uses',inp('rt-t',r.title),'sm:col-span-2',true)}
+    ${fld('Go-live date',inp('rt-d',d||'','date'))}${fld('Go-live time',inp('rt-h',tm||'10:00','time'))}${fld('Test site link',inp('rt-s',r.staging,'url','https://staging…'))}${fld('Live site link',inp('rt-p',r.prod,'url','https://…'))}
+    ${fld('Note',txt('rt-n',r.note,'',2),'sm:col-span-2')}<div class="fld sm:col-span-2"><span>Who works on it</span>${teamChecks(c,r.who)}</div></div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveRoll('${id}')">${ic('check')}Save</button>`});}
+function saveRoll(id){const r=roll(id),title=val('rt-t');if(!title){toast('Name is required','circle-alert');return}
+  const pub=val('rt-d')?`${val('rt-d')} ${val('rt-h')||'10:00'}`:'',who=picked('rt-who'),before={publishAt:r.publishAt,who:[...r.who]};
+  Object.assign(r,{title,publishAt:pub,staging:val('rt-s'),prod:val('rt-p'),note:val('rt-n'),who});
+  let n=0;const added=who.filter(x=>!before.who.includes(x));
+  if(added.length)n+=notify(added,`${S.user.name} added you to ${title} for ${mLabel(r.market)} in ${campOf(r).name}.`,'roll:'+id);
+  if(before.publishAt!==pub){r.log.push([nowStamp(),`Go-live moved from ${fmtDT(before.publishAt)} to ${fmtDT(pub)}`]);n+=notify([...rollPeople(r).filter(x=>!added.includes(x)),...clientPics(r)],`The go-live for ${title} · ${mLabel(r.market)} moved from ${fmtDT(before.publishAt)} to ${fmtDT(pub)}.`,'roll:'+id)}
+  closeModal();rerender();viewRoll(id);toast(`Saved${n?` · ${n} people told`:''}`,'check');}
+function quickAdd(fid,mid){const f=feat(fid),src=rollsOf(fid)[0],[d,tm]=(src?.publishAt||'').split(' ');
+  openModal({title:`Add ${esc(f.name)} for ${esc(mLabel(mid))}`,icon:'copy-plus',size:'sm',body:`<p class="text-sm muted mb-3">${src?`Copied from <b>${esc(mLabel(src.market))}</b>. Usually only the frontend masking changes.`:'A new brand task.'}</p>
+    <div class="grid gap-3">${fld('Name the brand uses',inp('qa-t',src?.title||f.name),'',true)}<div class="grid grid-cols-2 gap-3">${fld('Go-live date',inp('qa-d',d||'','date'))}${fld('Time',inp('qa-h',tm||'10:00','time'))}</div>
+    ${src?.reqs.length?`<label class="check-row"><input type="checkbox" id="qa-r" checked><span class="text-sm">Start from the same requirements</span></label>`:''}</div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveQuickAdd('${fid}','${mid}')">${ic('plus')}Add</button>`});}
+function saveQuickAdd(fid,mid){const src=rollsOf(fid)[0],title=val('qa-t');if(!title){toast('Name is required','circle-alert');return}
+  const copyR=$('#qa-r')?.checked&&src?.reqs.length;
+  DB.rollouts.push({id:nextId(DB.rollouts,'R'),feature:fid,market:mid,title,stage:'To do',publishAt:val('qa-d')?`${val('qa-d')} ${val('qa-h')||'10:00'}`:'',who:src?[...src.who]:[],copiedFrom:src?.id,staging:'',prod:'',note:'',
+    reqs:copyR?[{by:uid()||S.user.email,at:nowStamp(),fields:{...latestReq(src)},copied:src.id}]:[],log:[[nowStamp(),src?`Copied from ${mLabel(src.market)}`:'Created']]});
+  closeModal();rerender();toast(`Added for ${mLabel(mid)}`,'copy-plus');}
+function addFeature(cid){const c=camp(cid),cols=campMarkets(c);
+  openModal({title:'Add feature',icon:'layers',body:`<div class="grid gap-3">${fld('Feature',inp('af-n','','text','e.g. Chest Open','list="af-lib"')+`<datalist id="af-lib">${FEATURE_LIBRARY.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`,'',true)}
+    <div class="fld"><span>Which brands get it?</span><div class="flex flex-wrap gap-1.5">${cols.map(id=>`<label class="check-row"><input type="checkbox" name="af-m" value="${id}">${esc(mLabel(id))}</label>`).join('')}</div></div>
+    <div class="grid grid-cols-2 gap-3">${fld('Go-live date',inp('af-dd','','date'))}${fld('Time',inp('af-h','10:00','time'))}</div></div>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveFeature('${cid}')">${ic('check')}Add feature</button>`});}
+function saveFeature(cid){const n=val('af-n'),ms=picked('af-m');if(!n||!ms.length){toast('Name the feature and tick at least one brand','circle-alert');return}
+  const f={id:nextId(DB.features,'F'),campaign:cid,name:n,desc:''};DB.features.push(f);const pub=val('af-dd')?`${val('af-dd')} ${val('af-h')||'10:00'}`:'';
+  ms.forEach(mid=>DB.rollouts.push({id:nextId(DB.rollouts,'R'),feature:f.id,market:mid,title:n,stage:'To do',publishAt:pub,who:[],staging:'',prod:'',note:'',reqs:[],log:[[nowStamp(),'Created']]}));
+  closeModal();rerender();toast(`${n} added for ${ms.length} brand${ms.length>1?'s':''}`,'layers');}
+function addBrands(cid){const c=camp(cid),have=campMarkets(c),free=marketsFor().filter(m=>!have.includes(m.id));
+  openModal({title:'Add brand to campaign',icon:'store',body:free.length?`<div class="flex flex-wrap gap-1.5">${free.map(m=>`<label class="check-row"><input type="checkbox" name="ab-m" value="${m.id}">${esc(mLabel(m.id))} <span class="text-xs muted">${esc(client(m.client).name)}</span></label>`).join('')}</div><p class="text-xs muted mt-3">A new column appears on the grid. Click + in it to add features for that brand.</p>`:'<p class="text-sm">Every brand is already in this campaign. Add new brands on the Clients page.</p>',
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>${free.length?`<button class="btn btn-primary" onclick="const ms=picked('ab-m');if(!ms.length)return toast('Tick at least one brand','circle-alert');const c=camp('${cid}');c.markets=[...new Set([...(c.markets||[]),...ms])];closeModal();rerender();toast('Brand added','store')">${ic('check')}Add</button>`:''}`});}
+
+/* ---------- new campaign wizard (5 steps) ---------- */
+const WIZ_STEPS=['Details','Brands','Features','Who gets what','Review'];
+function newCampaign(){S.wiz={step:0,name:'',desc:'',start:TODAY,end:'',pm:'E007',markets:[],feats:[],pick:{},dates:{}};renderWiz()}
+function wizSave(){const w=S.wiz;
+  if(w.step===0){w.name=val('wz-n');w.desc=val('wz-d');w.start=val('wz-s');w.end=val('wz-e');w.pm=val('wz-pm')}
+  if(w.step===1)w.markets=picked('wz-m');
+  if(w.step===2)w.feats=picked('wz-f');
+  if(w.step===3){w.feats.forEach((f,i)=>{w.dates[f]=[val('wz-d'+i),val('wz-h'+i)];w.markets.forEach(m=>w.pick[f+'|'+m]=!!$(`#wz-c${i}-${m}`)?.checked)})}}
+function wizCheck(){const w=S.wiz;
+  if(w.step===0&&!w.name)return 'Give the campaign a name';
+  if(w.step===1&&!w.markets.length)return 'Tick at least one brand';
+  if(w.step===2&&!w.feats.length)return 'Pick at least one feature';
+  if(w.step===3&&!w.feats.some(f=>w.markets.some(m=>w.pick[f+'|'+m])))return 'Tick at least one box';
+  return null}
+function wizGo(d){wizSave();if(d>0){const e=wizCheck();if(e){toast(e,'circle-alert');return}}S.wiz.step+=d;renderWiz()}
+function wizAddFeat(){const n=val('wz-new');if(!n)return;wizSave();if(!S.wiz.feats.includes(n))S.wiz.feats.push(n);S.wiz.extra=[...new Set([...(S.wiz.extra||[]),n])];renderWiz()}
+function renderWiz(){const w=S.wiz,st=w.step;let body='';
+  const lib=[...new Set([...FEATURE_LIBRARY,...DB.features.map(f=>f.name),...(w.extra||[])])];
+  if(st===0)body=`${isGuestUser()?`<div class="banner mb-3">${ic('handshake')}<span class="text-sm">As a partner designer you can open campaigns for the clients ${esc(vendorOf(uid()).name)} works with.</span></div>`:''}
+    <div class="grid sm:grid-cols-2 gap-3">${fld('Campaign name',inp('wz-n',w.name,'text','e.g. Lunar New Year 2027'),'sm:col-span-2',true)}${fld('Short description',txt('wz-d',w.desc,'What is it for?',2),'sm:col-span-2')}
+    ${fld('Starts',inp('wz-s',w.start,'date'))}${fld('Ends',inp('wz-e',w.end,'date'))}${fld('Project manager',sel('wz-pm',DB.employees.filter(e=>['D4','D5','D7','D9'].includes(e.desig)).map(e=>[e.id,e.name]),w.pm),'sm:col-span-2',true)}</div>`;
+  if(st===1){const by=[...new Set(marketsFor().map(m=>m.client))];body=`<p class="text-sm muted mb-3">Tick every brand taking part. Brands can belong to different clients; each client only ever sees their own.</p>
+    ${by.map(cid=>`<div class="mb-3"><div class="text-xs font-bold uppercase tracking-wider muted mb-1.5">${esc(client(cid).name)}</div><div class="flex flex-wrap gap-1.5">${marketsFor().filter(m=>m.client===cid).map(m=>`<label class="check-row"><input type="checkbox" name="wz-m" value="${m.id}" ${w.markets.includes(m.id)?'checked':''}>${esc(mLabel(m.id))}</label>`).join('')}</div></div>`).join('')}`}
+  if(st===2)body=`<p class="text-sm muted mb-3">Pick the features. You'll choose which brand gets which in the next step.</p>
+    <div class="flex flex-wrap gap-1.5">${lib.map(n=>`<label class="check-row"><input type="checkbox" name="wz-f" value="${esc(n)}" ${w.feats.includes(n)?'checked':''}>${esc(n)}</label>`).join('')}</div>
+    <div class="flex gap-2 mt-4"><input id="wz-new" class="input" placeholder="Something new? Type its name" onkeydown="if(event.key==='Enter'){event.preventDefault();wizAddFeat()}"><button type="button" class="btn btn-ghost" onclick="wizAddFeat()">${ic('plus')}Add</button></div>`;
+  if(st===3)body=`<p class="text-sm muted mb-3">Tick the brands that get each feature, and when it should go live. You can change any of it later.</p>
+    <div class="tbl-wrap"><table class="mini-tbl mw-wiz-grid"><thead><tr><th>Feature</th>${w.markets.map(m=>`<th>${esc(mLabel(m))}</th>`).join('')}<th>Go-live</th></tr></thead><tbody>
+    ${w.feats.map((f,i)=>`<tr><td><b>${esc(f)}</b><div><button type="button" class="text-xs" style="color:var(--accent)" onclick="$$('.wz-row${i}').forEach(x=>x.checked=!$$('.wz-row${i}').every(y=>y.checked))">Tick all / none</button></div></td>${w.markets.map(m=>`<td class="text-center"><input type="checkbox" class="wz-row${i}" id="wz-c${i}-${m}" aria-label="${esc(f)} for ${esc(mLabel(m))}" ${w.pick[f+'|'+m]===false?'':'checked'}></td>`).join('')}
+      <td><div class="flex gap-1"><input id="wz-d${i}" class="input" type="date" style="height:32px;width:140px" value="${(w.dates[f]||[])[0]||''}"><input id="wz-h${i}" class="input" type="time" style="height:32px;width:96px" value="${(w.dates[f]||[])[1]||'10:00'}"></div></td></tr>`).join('')}</tbody></table></div>`;
+  if(st===4){const n=w.feats.reduce((a,f)=>a+w.markets.filter(m=>w.pick[f+'|'+m]).length,0),cls=[...new Set(w.markets.map(m=>client(market(m).client).name))];
+    body=`<div class="mw-review"><div><span class="muted text-xs">Campaign</span><b>${esc(w.name)}</b></div><div><span class="muted text-xs">Dates</span><b>${fmt(w.start)} → ${w.end?fmt(w.end):'—'}</b></div><div><span class="muted text-xs">Project manager</span><b>${esc(ename(w.pm))}</b></div><div><span class="muted text-xs">Clients</span><b>${cls.map(esc).join(', ')}</b></div></div>
+    <p class="text-sm mt-4 mb-2"><b>${w.feats.length}</b> features and <b>${n}</b> brand tasks will be created:</p>
+    <ul class="text-sm flex flex-col gap-1.5">${w.feats.map(f=>{const ms=w.markets.filter(m=>w.pick[f+'|'+m]);return ms.length?`<li><b>${esc(f)}</b> · ${ms.map(m=>esc(mLabel(m))).join(', ')}${w.dates[f]?.[0]?` · go-live ${fmtDT(w.dates[f][0]+' '+(w.dates[f][1]||'10:00'),true)}`:''}</li>`:''}).join('')}</ul>
+    <div class="mw-alert mw-alert--info mt-4">${ic('lightbulb','w-5 h-5 flex-none')}<div><b>What happens next:</b> the project manager is told. Open each box on the campaign grid to assign people and share the requirements form with the client.</div></div>`}
+  openModal({title:`New campaign · step ${st+1} of 5`,icon:'sparkles',size:'lg',body:`<ol class="mw-steps">${WIZ_STEPS.map((s,i)=>`<li class="${i<st?'is-done':i===st?'is-now':''}"><span>${i<st?ic('check','w-3 h-3'):i+1}</span>${s}</li>`).join('')}</ol>${body}`,
+    foot:`${st?`<button class="btn btn-ghost" onclick="wizGo(-1)">${ic('arrow-left')}Back</button>`:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>`}${st<4?`<button class="btn btn-primary" onclick="wizGo(1)">Next${ic('arrow-right')}</button>`:`<button class="btn btn-primary" onclick="wizCreate()">${ic('check')}Create campaign</button>`}`});}
+function wizCreate(){const w=S.wiz,id=nextId(DB.campaigns,'CMP');
+  DB.campaigns.push({id,kind:'campaign',name:w.name,desc:w.desc,start:w.start||TODAY,end:w.end||w.start||TODAY,pm:w.pm,createdBy:uid()||S.user.email,members:[w.pm],guests:isGuestUser()?[uid()]:[],markets:[...w.markets]});
+  w.feats.forEach(n=>{const ms=w.markets.filter(m=>w.pick[n+'|'+m]);if(!ms.length)return;const f={id:nextId(DB.features,'F'),campaign:id,name:n,desc:''};DB.features.push(f);
+    const [d,h]=w.dates[n]||[];ms.forEach(mid=>DB.rollouts.push({id:nextId(DB.rollouts,'R'),feature:f.id,market:mid,title:n,stage:'To do',publishAt:d?`${d} ${h||'10:00'}`:'',who:[],staging:'',prod:'',note:'',reqs:[],log:[[nowStamp(),'Created with the campaign wizard']]}))});
+  const k=notify([w.pm],`${S.user.name} created the campaign ${w.name} and made you the project manager.`,'#project-'+id.toLowerCase());
+  closeModal();S.wiz=null;location.hash='project-'+id.toLowerCase();toast(`Campaign created${k?' · project manager told':''}`,'sparkles');}
+
+/* ---------- requirements (versioned) ---------- */
+function pgReqForm(){
+  const r=roll(S.reqId||'');if(!r)return `<p class="muted">That requirements form doesn't exist.</p>`;
+  if(!canSeeCamp(campOf(r))||(isClientUser()&&!myMarkets().includes(r.market)))return `<div class="card p-8 text-center"><h2 class="text-xl font-bold">This form isn't shared with you</h2><p class="muted mt-2">Ask your Hajimi contact to check which brands your account covers.</p></div>`;
+  const cur=latestReq(r)||{},edit=canEditReq(r),c=campOf(r);
+  return `${isClientUser()?clientBanner():''}<section class="card p-5 mb-4"><div class="flex flex-wrap items-center gap-3"><div class="flex-1 min-w-[240px]"><div class="text-xs muted">${esc(c.name)} · ${esc(feat(r.feature).name)}</div><div class="font-bold text-lg">${esc(r.title)}</div><div class="mt-1">${marketTag(r.market)} ${stageChip(r.stage)} <span class="text-xs muted ml-2">Go-live ${fmtDT(r.publishAt)}</span></div></div>
+    ${r.reqs.length?`<button class="btn btn-ghost" onclick="reqHistory('${r.id}')">${ic('history')}Change history (${r.reqs.length})</button>`:''}</div></section>
+  <form class="card p-5" onsubmit="event.preventDefault();saveReq('${r.id}')"><h3 class="card-title mb-1">${ic('file-pen-line','w-4 h-4')}Requirements</h3><p class="text-xs muted mb-4">${edit?'Change anything that is different and save. Each save is kept as a new version with your name and the time, and the team is told what changed. Old versions can\'t be edited or deleted.':'Read only. Only the client and the people working on this task can change it.'}</p>
+    <div class="grid sm:grid-cols-2 gap-3">${REQ_FIELDS.map(([k,l])=>fld(l,txt('rq-'+k,cur[k]||'','',k==='mechanics'||k==='notes'?3:2).replace('<textarea',`<textarea ${edit?'':'readonly'}`),['mechanics','notes','objective'].includes(k)?'sm:col-span-2':'')).join('')}</div>
+    ${edit?`<div class="flex justify-end mt-4"><button class="btn btn-primary" type="submit">${ic('save')}Save${r.reqs.length?` as version ${r.reqs.length+1}`:''}</button></div>`:''}</form>`;
+}
+const reqDiff=(a,b)=>REQ_FIELDS.filter(([k])=>(a[k]||'')!==(b[k]||'')).map(([k,l])=>[l,a[k]||'',b[k]||'']);
+function saveReq(id){const r=roll(id),cur=latestReq(r)||{},next={};REQ_FIELDS.forEach(([k])=>next[k]=val('rq-'+k));
+  const ch=reqDiff(cur,next);if(!ch.length){toast('Nothing changed','circle-alert');return}
+  r.reqs.push({by:S.user.pic||uid()||S.user.email,at:nowStamp(),fields:next});r.log.push([nowStamp(),`${S.user.name} updated the requirements (version ${r.reqs.length})`]);
+  if(r.stage==='Client testing'&&isClientUser())r.clientOk=null;
+  const who=isClientUser()?`${S.user.name} from ${client(S.user.cid).name}`:S.user.name;
+  const k=notify(rollPeople(r),`${who} changed the requirements for ${r.title} · ${mLabel(r.market)}. ${ch.length} thing${ch.length>1?'s':''} changed.`,'roll:'+id);
+  rerender();toast(`Saved${r.reqs.length>1?` as version ${r.reqs.length}`:''}${k?` · ${k} people told`:''}`,'save');}
+function reqHistory(id){const r=roll(id);
+  const blocks=r.reqs.map((v,i)=>({v,i})).reverse().map(({v,i})=>{const ch=i?reqDiff(r.reqs[i-1].fields,v.fields):REQ_FIELDS.filter(([k])=>v.fields[k]).map(([k,l])=>[l,'',v.fields[k]]);
+    return `<div class="mw-ver"><div class="mw-ver__h"><span class="chip acc">v${i+1}</span><b class="text-sm">${esc(whoName(v.by))}</b><span class="text-xs muted">${fmtDT(v.at)}</span>${i?'':`<span class="text-xs muted">· ${v.copied?`copied from ${mLabel(roll(v.copied).market)}`:'first version'}</span>`}</div>
+      ${ch.length?ch.map(([l,a,b])=>`<div class="mw-diff"><div class="mw-diff__f">${l}</div>${a?`<del>${esc(a)}</del>`:''}<ins>${esc(b)||'<i>(cleared)</i>'}</ins></div>`).join(''):'<p class="text-xs muted">No changes.</p>'}</div>`}).join('');
+  openModal({title:`Change history · ${esc(r.title)} · ${esc(mLabel(r.market))}`,icon:'history',size:'lg',body:`<p class="text-sm muted mb-3">Every saved version, newest first, with who changed it and when. Old text is struck through; new text is highlighted. Versions can't be edited or deleted.</p>${blocks}`});}
+function shareReqLink(id){const r=roll(id),m=market(r.market),url=`${location.origin}${location.pathname}#req-${id.toLowerCase()}`;(S.gs||(S.gs={})).form=true;
+  openModal({title:'Share the requirements form',icon:'link',body:`<p class="text-sm mb-3">Send this link to <b>${esc(client(m.client).name)}</b>. Their people sign in with their username and PIN, then see the form for <b>${esc(r.title)} · ${esc(mLabel(r.market))}</b> only.</p>
+    <div class="flex gap-2"><input id="rl-url" class="input mono" readonly value="${esc(url)}"><button class="btn btn-primary" onclick="copyText('rl-url')">${ic('copy')}Copy</button></div>
+    <div class="text-xs muted mt-3">Who can open it: ${client(m.client).pics.map(p=>esc(p.display)).join(', ')}.</div>`});}
+
+/* ---------- Telegram ---------- */
+const stageLine=rs=>ROLL_STAGES.map(s=>[s,rs.filter(r=>r.stage===s).length]).filter(x=>x[1]).map(([s,n])=>`${s} ${n}`).join(' · ');
+function tgRollText(r){const c=campOf(r),m=market(r.market),fe=feat(r.feature);
+  const st={'To do':'Not started yet','In progress':'In progress','Client testing':'On the test site, waiting for client testing','Scheduled':'Approved and scheduled to go live','Live':'Live','On hold':'On hold'}[r.stage];
+  return [`${isLive(r)?'✅ ':''}${c.name} · ${r.title}`,'',`Brand: ${m.brand} (${m.region})`,`Client: ${client(m.client).name}`,`Feature: ${fe.name}`,`Status: ${st}`,
+    isLive(r)?`Went live: ${fmtDT(r.livedAt)} (${DB.telegram.tz})`:r.stage==='On hold'?`On hold since: ${fmt(r.holdSince)}`:r.publishAt?`Go-live: ${fmtDT(r.publishAt)} (${DB.telegram.tz})`:null,
+    r.staging?`Test site: ${r.staging}`:null,r.prod?`Live site: ${r.prod}`:null,r.who.length?`Team: ${r.who.map(ename).join(', ')}`:null,r.note?`Note: ${r.note}`:null,'',`Ref: ${r.id} · Meridian Workforce`].filter(x=>x!==null).join('\n')}
+function tgFeatText(f){const c=camp(f.campaign),mm=myMarkets(),rs=rollsOf(f.id).filter(r=>!mm||mm.includes(r.market));
+  return [`${c.name} · ${f.name}`,'',`${liveCount(rs)} brands live${featDone(f)?' · feature complete ✅':''}`,'',...rs.map(r=>`• ${mLabel(r.market)} · ${r.title}: ${isLive(r)?`live since ${fmtDT(r.livedAt,true)}`:r.stage==='On hold'?'on hold':`${r.stage}${r.publishAt?`, go-live ${fmtDT(r.publishAt,true)}`:''}`}`),'',`Ref: ${f.id} · Meridian Workforce`].join('\n')}
+function summaryText(scope,title,campId){
+  const cs=DB.campaigns.filter(c=>!campId||c.id===campId);let rs=cs.flatMap(c=>rollsOfCamp(c.id));if(scope&&scope!=='all')rs=rs.filter(r=>market(r.market).client===scope);
+  const wk=addD(TODAY,7),soon=rs.filter(r=>!isLive(r)&&r.publishAt&&r.publishAt.slice(0,10)<=wk&&r.stage!=='On hold'),test=rs.filter(r=>r.stage==='Client testing'),live=rs.filter(r=>isLive(r)&&r.livedAt>=addD(TODAY,-7)),hold=rs.filter(r=>r.stage==='On hold'),noReq=rs.filter(needsReq);
+  const L=(a,f)=>a.length?a.map(f):['• None'];
+  return [`${title} · ${fmt(TODAY)}`,scope&&scope!=='all'?`Client: ${client(scope).name}`:null,'',...cs.map(c=>{const x=rs.filter(r=>campOf(r).id===c.id);return x.length?`${c.name}: ${liveCount(x)} live · ${stageLine(x)}`:null}).filter(Boolean),'',
+    'Went live in the last 7 days:',...L(live,r=>`• ${mLabel(r.market)} · ${r.title} (${fmtDT(r.livedAt,true)})`),'',
+    'Going live in the next 7 days:',...L(soon,r=>`• ${mLabel(r.market)} · ${r.title} · ${fmtDT(r.publishAt,true)}`),'',
+    'Waiting for client testing:',...L(test,r=>`• ${mLabel(r.market)} · ${r.title}`),'',
+    'Requirements still needed:',...L(noReq,r=>`• ${mLabel(r.market)} · ${r.title}`),'',
+    'On hold:',...L(hold,r=>`• ${mLabel(r.market)} · ${r.title} (since ${fmtS(r.holdSince)})`),'','Sent by Meridian Workforce'].filter(x=>x!==null).join('\n')}
+function tgCopy(kind,id){(S.gs||(S.gs={})).tg=true;
+  const text=kind==='roll'?tgRollText(roll(id)):kind==='feat'?tgFeatText(feat(id)):summaryText(isClientUser()?S.user.cid:'all',`${camp(id).name} · update`,id);
+  openModal({title:'Copy for Telegram',icon:'send',size:'lg',body:`<p class="text-sm muted mb-3"><b>1.</b> Check the text below (you can edit it). <b>2.</b> Click Copy text. <b>3.</b> Paste it into your Telegram group.</p><textarea id="tg-text" class="input mw-tg" rows="16">${esc(text)}</textarea>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="copyText('tg-text')">${ic('copy')}Copy text</button>`});}
+const schedWhen=s=>`${s.repeat==='weekly'?`Every ${s.days.join(', ')}`:`On ${s.dates.map(d=>fmtS(d)).join(', ')}`} at ${s.times.join(' and ')}`;
+const scopeName=s=>s==='all'?'All clients':client(s)?.name||'—';
+function telegramSection(){const T=DB.telegram;
+  return `<section class="card p-5 mb-4"><div class="flex flex-wrap items-center gap-3 mb-1"><span class="chip info" style="padding:8px">${ic('send','!w-5 !h-5')}</span><div class="flex-1 min-w-[200px]"><h3 class="font-bold">Telegram summaries <span class="mono text-sm muted">${T.bot}</span></h3><div class="text-xs muted">Sends a formal summary to your Telegram groups automatically. Times are ${T.tz}.</div></div>${chip(T.connected?'Connected':'Not connected',T.connected?'ok':'','plug')}</div>
+    <ol class="mw-howto-steps"><li><b>Add the bot</b> ${T.bot} to your Telegram group.</li><li><b>Add the group</b> here with its chat ID.</li><li><b>Add a schedule:</b> pick the days or dates, the times, and the group.</li></ol>
+    <div class="grid gap-4 xl:grid-cols-[1.4fr_1fr] mt-2">
+      <div><div class="flex items-center justify-between"><div class="sec-h" style="margin:4px 0 8px">${ic('calendar-clock')}Schedules</div><button class="btn btn-primary h-8" onclick="editSchedule()">${ic('plus')}Add schedule</button></div><div class="flex flex-col gap-2">${T.schedules.map(s=>`<div class="mw-sched"><div class="flex-1 min-w-0"><div class="font-semibold text-sm">${esc(s.name)}</div><div class="text-xs muted">${esc(schedWhen(s))} · to <b>${esc(T.chats.find(c=>c.id===s.chat)?.name||'—')}</b> · ${esc(scopeName(s.scope))}</div><div class="text-xs muted">${s.last?`Last sent ${fmtDT(s.last)}`:'Not sent yet'}</div></div>
+        <label class="mw-switch-field ${s.on?'is-on':''}"><span class="mw-switch-field__state">${s.on?'on':'off'}</span><span class="switch"><input type="checkbox" role="switch" aria-label="${esc(s.name)}" ${s.on?'checked':''} onchange="DB.telegram.schedules.find(x=>x.id==='${s.id}').on=this.checked;rerender()"><span></span></span></label>${ib('eye','Preview',`tgPreview('${s.id}')`)}${ib('square-pen','Edit',`editSchedule('${s.id}')`)}${ib('send','Send now',`tgSendNow('${s.id}')`)}</div>`).join('')}</div></div>
+      <div><div class="flex items-center justify-between"><div class="sec-h" style="margin:4px 0 8px">${ic('messages-square')}Groups</div><button class="btn btn-ghost h-8" onclick="addChat()">${ic('plus')}Add group</button></div><div class="flex flex-col gap-2">${T.chats.map(c=>`<div class="mw-sched"><span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(c.name)}</span><span class="block text-xs muted mono">${c.chatId.slice(0,6)}••••${c.chatId.slice(-3)} · ${esc(scopeName(c.scope))}</span></span></div>`).join('')}</div>
+        <p class="text-xs muted mt-2">A group linked to one client only ever gets that client's tasks.</p></div></div></section>`}
+function tgPreview(id){const s=id?DB.telegram.schedules.find(x=>x.id===id):{name:'Weekly summary',scope:'all'};
+  openModal({title:`Preview · ${esc(s.name)}`,icon:'eye',size:'lg',body:`<textarea id="tg-text" class="input mw-tg" rows="20" readonly>${esc(summaryText(s.scope,s.name))}</textarea>`,foot:`<button class="btn btn-primary" onclick="copyText('tg-text')">${ic('copy')}Copy text</button>`})}
+function tgSendNow(id){const s=DB.telegram.schedules.find(x=>x.id===id);s.last=nowStamp();rerender();toast(`Sent “${s.name}” to ${DB.telegram.chats.find(c=>c.id===s.chat).name}`,'send')}
+function editSchedule(id){const s=id?DB.telegram.schedules.find(x=>x.id===id):{name:'',repeat:'weekly',days:['Mon'],dates:[],times:['09:00'],chat:'TC1',scope:'all'};S.tsDraft={...s,dates:[...s.dates]};
+  openModal({title:id?'Edit schedule':'Add schedule',icon:'calendar-clock',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-3">${fld('Name',inp('ts-n',s.name,'text','e.g. Weekly management summary'),'sm:col-span-2',true)}
+    <div class="fld sm:col-span-2"><span>When</span><div class="flex gap-2"><label class="check-row"><input type="radio" name="ts-r" value="weekly" ${s.repeat==='weekly'?'checked':''} onchange="tsRepeat()">Every week</label><label class="check-row"><input type="radio" name="ts-r" value="dates" ${s.repeat==='dates'?'checked':''} onchange="tsRepeat()">On chosen dates</label></div></div>
+    <div class="fld sm:col-span-2" id="ts-days" ${s.repeat==='weekly'?'':'hidden'}><span>Days</span><div class="flex flex-wrap gap-1.5">${WEEKDAYS.map(d=>`<label class="check-row"><input type="checkbox" name="ts-d" value="${d}" ${s.days.includes(d)?'checked':''}>${d}</label>`).join('')}</div></div>
+    <div class="fld sm:col-span-2" id="ts-dates" ${s.repeat==='dates'?'':'hidden'}><span>Dates</span><div class="flex gap-2"><input id="ts-dd" class="input" type="date" style="max-width:200px"><button type="button" class="btn btn-ghost" onclick="tsAddDate()">${ic('plus')}Add date</button></div><div class="flex flex-wrap gap-1.5 mt-2" id="ts-dl">${tsDates()}</div></div>
+    ${fld('Times',inp('ts-t',s.times.join(', '),'text','09:00, 18:00'),'',true)}${fld('Send to group',sel('ts-c',DB.telegram.chats.map(c=>[c.id,c.name]),s.chat))}
+    ${fld('Include',sel('ts-s',[['all','All clients'],...DB.clients.map(c=>[c.id,c.name])],s.scope),'sm:col-span-2')}</div>
+    <p class="text-xs muted mt-3">For more than one time a day, separate them with commas, e.g. 09:00, 18:00.</p>`,
+    foot:`${id?`<button class="btn btn-ghost" onclick="tgPreview('${id}')">${ic('eye')}Preview</button>`:''}<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveSchedule(${id?`'${id}'`:'null'})">${ic('check')}Save</button>`});}
+const tsDates=()=>S.tsDraft.dates.length?S.tsDraft.dates.map((d,i)=>`<span class="chip acc">${fmtS(d)}<button type="button" onclick="S.tsDraft.dates.splice(${i},1);$('#ts-dl').innerHTML=tsDates();icons()" aria-label="Remove ${d}">${ic('x')}</button></span>`).join(''):'<span class="text-xs muted">No dates yet.</span>';
+function tsAddDate(){const d=val('ts-dd');if(!d)return;if(!S.tsDraft.dates.includes(d))S.tsDraft.dates.push(d);S.tsDraft.dates.sort();$('#ts-dl').innerHTML=tsDates();icons()}
+function tsRepeat(){const w=$('input[name=ts-r]:checked').value==='weekly';$('#ts-days').hidden=!w;$('#ts-dates').hidden=w}
+function saveSchedule(id){const name=val('ts-n'),rep=$('input[name=ts-r]:checked').value,times=val('ts-t').split(',').map(x=>x.trim()).filter(Boolean);
+  if(!name){toast('Give the schedule a name','circle-alert');return}
+  if(!times.length||times.some(x=>!/^([01]\d|2[0-3]):[0-5]\d$/.test(x))){toast('Times must look like 09:00 or 18:30','circle-alert');return}
+  const days=picked('ts-d');if(rep==='weekly'&&!days.length){toast('Pick at least one day','circle-alert');return}
+  if(rep==='dates'&&!S.tsDraft.dates.length){toast('Add at least one date','circle-alert');return}
+  const o={name,repeat:rep,days:rep==='weekly'?days:[],dates:rep==='dates'?S.tsDraft.dates:[],times,chat:val('ts-c'),scope:val('ts-s')};
+  if(id)Object.assign(DB.telegram.schedules.find(x=>x.id===id),o);else DB.telegram.schedules.push({id:nextId(DB.telegram.schedules,'TS'),on:true,last:null,...o});
+  closeModal();rerender();toast('Schedule saved','calendar-clock');}
+function addChat(){openModal({title:'Add Telegram group',icon:'messages-square',body:`<p class="text-sm muted mb-3">First add ${DB.telegram.bot} to the group in Telegram. It replies with the group's chat ID.</p><div class="grid gap-3">${fld('Name',inp('tc-n','','text','e.g. Merlion Reach · campaigns'),'',true)}${fld('Chat ID',inp('tc-i','','text','-100…'),'',true)}${fld('Only send tasks for',sel('tc-s',[['all','All clients'],...DB.clients.map(c=>[c.id,c.name])],'all'))}</div>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="if(!val('tc-n')||!/^-?\\d{6,}$/.test(val('tc-i')))return toast('Name and a numeric chat ID are required','circle-alert');DB.telegram.chats.push({id:nextId(DB.telegram.chats,'TC'),name:val('tc-n'),chatId:val('tc-i'),scope:val('tc-s')});closeModal();rerender();toast('Group added','send')">${ic('check')}Add</button>`})}
+
+/* ---------- clients (listing) ---------- */
+function pinState(p){return p.locked?chip('Locked · 5 wrong PINs','warn','lock'):p.mustChange?chip('Waiting for first sign-in','info','key-round'):chip('Active','ok','check')}
+function pgClients(){
+  return `<div class="mw-howto">${ic('info','w-4 h-4 flex-none')}<span><b>1.</b> Add a client. <b>2.</b> Add their brands (one per region). <b>3.</b> Add the people who sign in (PICs). Each PIC starts with PIN <b>0000</b> and must change it at first sign-in, so share the username only when they're ready. 5 wrong PINs lock the account; unlock it here.</span></div>
+  ${DB.clients.map(c=>{const ms=DB.markets.filter(m=>m.client===c.id),cs=DB.campaigns.filter(x=>rollsOfCamp(x.id).some(r=>ms.some(m=>m.id===r.market)));
+    return `<section class="card mb-4 overflow-hidden"><div class="p-5 flex flex-wrap gap-4 items-start"><div class="flex-1 min-w-[240px]"><div class="flex items-center gap-2"><h3 class="font-bold text-lg">${esc(c.name)}</h3>${chip(c.status,c.status==='Active'?'ok':'')}</div>
+      <div class="text-sm muted mt-1">${esc(c.note)}</div><div class="text-xs mt-2"><span class="muted">Account manager</span> <b>${esc(ename(c.owner))}</b>${cs.length?` · <span class="muted">Campaigns</span> ${cs.map(x=>`<a href="#project-${x.id.toLowerCase()}" style="color:var(--accent)">${esc(x.name)}</a>`).join(', ')}`:''}</div>
+      <div class="flex flex-wrap items-center gap-1.5 mt-3"><span class="text-xs muted mr-1">Brands</span>${ms.map(m=>`<span class="chip">${marketTag(m.id)}</span>`).join('')}<button class="btn btn-ghost h-8" onclick="addMarket('${c.id}')">${ic('plus')}Add brand</button></div></div>
+      <button class="btn btn-ghost h-9" onclick="editPic('${c.id}')">${ic('user-plus')}Add PIC</button></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>PIC</th><th>Username</th><th>Sign-in</th><th>Last sign-in</th><th></th></tr></thead><tbody>${c.pics.map(p=>`<tr><td><div class="flex items-center gap-2">${av(p.display,28)}<div><div class="font-semibold">${esc(p.display)}</div><div class="text-xs muted">${esc(p.title)}</div></div></div></td><td class="mono">${esc(p.username)}</td><td>${pinState(p)}</td><td>${p.last?fmt(p.last):'<span class="muted">Never</span>'}</td>
+        <td><div class="actions">${p.locked?`<button class="btn btn-ghost h-8" onclick="unlockPic('${p.id}')">${ic('lock-open')}Unlock</button>`:''}${ib('key-round','Reset PIN to 0000',`resetPin('${p.id}')`)}</div></td></tr>`).join('')||'<tr><td colspan="5" class="muted text-sm">No PICs yet. Click Add PIC.</td></tr>'}</tbody></table></div></section>`}).join('')}`;
+}
+function editClient(){openModal({title:'Add client',icon:'building',body:`<div class="grid gap-3">${fld('Company name',inp('cl-n'),'',true)}${fld('Account manager',sel('cl-o',DB.employees.map(e=>[e.id,e.name]),'E003'))}${fld('Note',txt('cl-x','','',2))}</div>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="if(!val('cl-n'))return toast('Company name is required','circle-alert');DB.clients.push({id:nextId(DB.clients,'C'),name:val('cl-n'),owner:val('cl-o'),note:val('cl-x'),status:'Active',pics:[]});closeModal();rerender();toast('Client added · next, add their brands and PICs','building')">${ic('check')}Add client</button>`})}
+function editPic(cid){openModal({title:`Add PIC · ${esc(client(cid).name)}`,icon:'user-plus',body:`<div class="grid sm:grid-cols-2 gap-3">${fld('Name',inp('pc-d'),'',true)}${fld('Job title',inp('pc-t'))}${fld('Username',inp('pc-u','','text','e.g. orchid.minhanh','autocapitalize="off"'),'sm:col-span-2',true)}</div>
+  <p class="text-xs muted mt-3">The username can't be changed later: lowercase letters, numbers, dots and dashes. The PIN starts as <b>0000</b>; they choose their own at first sign-in.</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="savePic('${cid}')">${ic('check')}Add PIC</button>`})}
+function savePic(cid){const u=val('pc-u').toLowerCase(),d=val('pc-d');if(!d||!/^[a-z0-9][a-z0-9.\-]{2,30}$/.test(u)){toast('Name and a valid username are required','circle-alert');return}
+  if(allPics().some(p=>p.username===u)){toast('That username is already taken','circle-alert');return}
+  client(cid).pics.push({id:'CP'+(Math.max(0,...allPics().map(p=>+p.id.slice(2)))+1),username:u,display:d,title:val('pc-t'),pin:'0000',mustChange:true,tries:0,locked:false,last:null});closeModal();rerender();toast(`PIC added · username ${u}, PIN 0000`,'user-plus')}
+function resetPin(id){const p=pic(id);confirmBox(`Reset ${esc(p.display)}'s PIN?`,`The PIN goes back to <b>0000</b> and must be changed at the next sign-in.`,`${ic('key-round')}Reset PIN`,`const p=pic('${id}');Object.assign(p,{pin:'0000',mustChange:true,tries:0,locked:false});closeModal();rerender();toast('PIN reset to 0000','key-round')`)}
+function unlockPic(id){const p=pic(id);Object.assign(p,{tries:0,locked:false});rerender();toast(`${p.display} can sign in again`,'lock-open')}
+function addMarket(cid){openModal({title:`Add brand · ${esc(client(cid).name)}`,icon:'store',body:`<div class="grid sm:grid-cols-2 gap-3">${fld('Brand',inp('mk-b','','text','e.g. EU9'),'',true)}${fld('Region',sel('mk-r',['VN','SG','MY','TH','ID','PH'],'VN'),'',true)}${fld('Website',inp('mk-s','','text','brand.example'),'sm:col-span-2')}</div><p class="text-xs muted mt-3">The same brand can run in several regions, each for a different client.</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMarket('${cid}')">${ic('check')}Add brand</button>`})}
+function saveMarket(cid){const b=val('mk-b'),r=val('mk-r');if(!b){toast('Brand is required','circle-alert');return}
+  const taken=DB.markets.find(m=>m.brand.toLowerCase()===b.toLowerCase()&&m.region===r);if(taken){toast(`${b} (${r}) already belongs to ${client(taken.client).name}`,'circle-alert');return}
+  DB.markets.push({id:nextId(DB.markets,'M'),brand:b,region:r,client:cid,site:val('mk-s')});closeModal();rerender();toast('Brand added','store')}
+
+/* ---------- client sign-in, PIN and portal ---------- */
+function clientLoginForm(){
+  return `<form class="w-full max-w-sm m-auto" onsubmit="event.preventDefault();doClientLogin()">
+    <h2 class="text-3xl font-extrabold">Client sign-in</h2><p class="muted mt-1 mb-6">Use the username Hajimi Technologies gave you and your 4-digit PIN.</p>
+    <div class="flex flex-col gap-4">${fld('Username',inp('cl-u','','text','e.g. orchid.minhanh','autocomplete="username" autocapitalize="off"'))}${fld('PIN',pinInp('cl-p'))}
+      <button class="btn btn-primary w-full h-11 mt-1" type="submit">${ic('log-in')}Sign in</button>
+      <button type="button" class="btn btn-ghost w-full" onclick="S.loginMode=null;renderLogin()">${ic('arrow-left')}Staff sign-in</button></div>
+    <div class="mt-8"><div class="text-xs font-bold uppercase tracking-wider muted mb-2">Demo client PICs</div><div class="flex flex-col gap-2 acct-list">${DB.clients.flatMap(c=>c.pics.map(p=>`<button type="button" class="check-row w-full text-left" onclick="$('#cl-u').value='${p.username}';$('#cl-p').value='${p.pin}';doClientLogin()">${av(p.display,28)}<span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${esc(p.display)} <span class="muted font-normal">· ${esc(c.name)}</span></span><span class="block text-xs muted truncate mono">${p.username} · PIN ${p.pin}</span></span>${p.locked?chip('Locked','warn'):p.mustChange?chip('First sign-in','info'):''}</button>`)).join('')}</div></div></form>`;
+}
+function doClientLogin(){
+  const u=val('cl-u').toLowerCase(),pin=val('cl-p'),p=allPics().find(x=>x.username===u);
+  if(!p||picClient(p.id).status!=='Active'){toast('Username or PIN is wrong','circle-alert');return}
+  if(p.locked){toast('This account is locked after 5 wrong PINs. Ask your Hajimi contact to unlock it.','lock');return}
+  if(pin!==p.pin){p.tries++;if(p.tries>=5){p.locked=true;toast('Too many wrong PINs. This account is now locked; ask your Hajimi contact to unlock it.','lock')}else toast(`Username or PIN is wrong. ${5-p.tries} ${5-p.tries===1?'try':'tries'} left.`,'circle-alert');return}
+  p.tries=0;if(p.mustChange){S.pinChange=p.id;renderLogin();return}
+  clientEnter(p);
+}
+function clientEnter(p){const c=picClient(p.id);p.last=TODAY;S.pinChange=null;S.loginMode=null;
+  S.user={email:p.username,name:p.display,display:p.display,role:`Client · ${c.name}`,roleKey:'client',cid:c.id,pic:p.id,eid:null,gid:null};enterApp();}
+function pinChangeForm(){const p=pic(S.pinChange);
+  return `<form class="w-full max-w-sm m-auto" onsubmit="event.preventDefault();savePinChange()"><span class="icon-btn acc mb-4" style="width:48px;height:48px;background:var(--accent-soft)">${ic('key-round')}</span>
+    <h2 class="text-3xl font-extrabold">Choose your PIN</h2><p class="muted mt-1 mb-6">Welcome, <b>${esc(p.display)}</b>. This is your first sign-in, so please choose your own 4-digit PIN.</p>
+    <div class="flex flex-col gap-4">${fld('New PIN',pinInp('np-1','new-password'))}${fld('Repeat new PIN',pinInp('np-2','new-password'))}
+    <p class="text-xs muted">Not 0000, not the same digit four times (like 1111), and not a run like 1234.</p>
+    <button class="btn btn-primary w-full h-11" type="submit">${ic('check')}Save PIN and continue</button><button type="button" class="btn btn-ghost w-full" onclick="S.pinChange=null;renderLogin()">${ic('arrow-left')}Back</button></div></form>`}
+const weakPin=x=>!/^\d{4}$/.test(x)||/^(\d)\1{3}$/.test(x)||['0123','1234','2345','3456','4567','5678','6789','9876','8765','7654','6543','5432','4321','3210'].includes(x);
+function savePinChange(){const a=val('np-1'),b=val('np-2'),p=pic(S.pinChange);
+  if(weakPin(a)){toast('Choose 4 digits that are not 0000, repeated or a simple run','circle-alert');return}
+  if(a!==b){toast('The two PINs do not match','circle-alert');return}
+  p.pin=a;p.mustChange=false;toast('PIN saved','key-round');clientEnter(p)}
+function clientBanner(){return `<div class="mw-howto">${ic('building','w-4 h-4 flex-none')}<span>Signed in for <b>${esc(client(S.user.cid).name)}</b>. You see only your own brands. Every change you make to requirements is kept with your name and the time.</span></div>`}
+function dashClient(){autoPublish();
+  const ms=myMarkets(),rs=DB.rollouts.filter(r=>ms.includes(r.market)&&canSeeCamp(campOf(r)));
+  const box=(title,icon,tone,list,btn,empty)=>`<section class="card p-5 mw-cbox"><div class="flex items-center gap-2 mb-3"><span class="chip ${tone}" style="padding:7px">${ic(icon,'!w-4 !h-4')}</span><h3 class="font-bold flex-1">${title}</h3><b class="tnum text-lg">${list.length}</b></div>
+    ${list.length?`<div class="flex flex-col gap-2">${list.map(r=>`<div class="mw-sched"><button class="flex-1 min-w-0 text-left" onclick="viewRoll('${r.id}')"><span class="block text-sm font-semibold truncate">${esc(r.title)}</span><span class="block text-xs muted">${esc(mLabel(r.market))} · ${r.publishAt?fmtDT(isLive(r)?r.livedAt:r.publishAt,true):'date to be agreed'}</span></button>${btn(r)}</div>`).join('')}</div>`:`<p class="text-sm muted">${empty}</p>`}</section>`;
+  const input=rs.filter(needsReq),test=rs.filter(r=>r.stage==='Client testing'),soon=rs.filter(r=>['To do','In progress','Scheduled'].includes(r.stage)&&!needsReq(r)).sort((a,b)=>(a.publishAt||'9').localeCompare(b.publishAt||'9')),live=rs.filter(isLive);
+  return `${clientBanner()}<div class="greet mb-4">Hello <b>${esc(S.user.name)}</b>. Start with the first box: those items are waiting for you.</div>
+  <div class="grid gap-4 lg:grid-cols-2">
+    ${box('1 · Needs your input','file-pen-line','hi',input,r=>`<button class="btn btn-primary h-8" onclick="location.hash='req-${r.id.toLowerCase()}'">Fill in</button>`,'Nothing needed from you right now.')}
+    ${box('2 · Ready for you to test','flask-conical','warn',test,r=>r.clientOk?chip('Approved','ok','check'):`<button class="btn btn-primary h-8" onclick="viewRoll('${r.id}')">Test</button>`,'Nothing to test right now.')}
+    ${box('3 · Coming up','calendar-clock','info',soon,r=>`<button class="btn btn-ghost h-8" onclick="viewRoll('${r.id}')">View</button>`,'Nothing scheduled yet.')}
+    ${box('4 · Live','rocket','ok',live,r=>r.prod?`<a class="btn btn-ghost h-8" href="${esc(r.prod)}" target="_blank" rel="noopener">Open</a>`:'','Nothing live yet.')}</div>`}
+function pgClientAccount(){const p=pic(S.user.pic),c=client(S.user.cid);
+  return `<div class="grid gap-4 xl:grid-cols-2"><section class="mw-section"><div class="mw-section__title">${ic('id-card','w-4 h-4')}Your account</div>
+    <dl class="dl mt-4"><dt>Name</dt><dd>${esc(p.display)}</dd><dt>Company</dt><dd>${esc(c.name)}</dd><dt>Username</dt><dd class="mono">${esc(p.username)}</dd><dt>Brands</dt><dd>${DB.markets.filter(m=>m.client===c.id).map(m=>marketTag(m.id)).join(' ')}</dd><dt>Your Hajimi contact</dt><dd>${esc(ename(c.owner))}</dd></dl>
+    <p class="text-xs muted mt-3">To add a colleague, ask your Hajimi contact.</p></section>
+    <section class="mw-section"><div class="mw-section__title">${ic('key-round','w-4 h-4')}Change PIN</div>
+      <form class="grid gap-3 mt-4" onsubmit="event.preventDefault();clientChangePin()">${fld('Current PIN',pinInp('cp-0'))}${fld('New PIN',pinInp('cp-1','new-password'))}${fld('Repeat new PIN',pinInp('cp-2','new-password'))}
+      <div><button class="btn btn-primary" type="submit">${ic('check')}Update PIN</button></div></form></section></div>`}
+function clientChangePin(){const p=pic(S.user.pic),a=val('cp-1');if(val('cp-0')!==p.pin){toast('Current PIN is wrong','circle-alert');return}
+  if(weakPin(a)){toast('Choose 4 digits that are not 0000, repeated or a simple run','circle-alert');return}if(a!==val('cp-2')){toast('The two PINs do not match','circle-alert');return}
+  p.pin=a;['cp-0','cp-1','cp-2'].forEach(i=>$('#'+i).value='');toast('PIN updated','key-round')}
+
+/* ---------- wiring: menu, access, pages, guides ---------- */
+{const w=NAV.find(g=>g[0]==='Work');w[1]=w[1].filter(i=>i[0]!=='kpi');w[1].splice(2,0,['clients','building','Clients']);NAV.splice(NAV.indexOf(w)+1,0,['Performance',[['kpi','gauge','KPI']]]);}
+ACCESS.exec.push('clients','reqform');ACCESS.lead.push('clients','reqform');ACCESS.hr.push('reqform');ACCESS.staff.push('reqform');ACCESS.guest.push('reqform');
+ACCESS.client=['dashboard','projects','profile','reqform'];
+DB.roles.push({id:'client',name:'Client',note:'Client PICs: only their own brands in campaigns',locked:true,fixed:true});
+{const at=l=>DB.perms.findIndex(p=>p[1]===l)+1;
+  DB.perms.splice(at('Record delays & blockers'),0,['Work','Create campaigns & brand tasks',{exec:1,hr:0,lead:1,staff:0,guest:1}],['Work','Manage clients, brands & client sign-in',{exec:1,hr:0,lead:1,staff:0}],['Work','See own brands, test and update requirements',{client:1}]);
+  DB.perms.push(['System','Manage Telegram summaries',{exec:1,hr:1,lead:0,staff:0}]);}
+PAGES.clients={t:'Clients',c:'Work',r:pgClients,a:()=>`<button class="btn btn-primary" onclick="editClient()">${ic('plus')}<span class="hidden sm:inline">Add client</span></button>`};
+PAGES.reqform={t:'Requirements',c:'Work',r:pgReqForm};
+PAGES.kpi.c='Performance';
+{const r=PAGES.kpi.r;PAGES.kpi.r=()=>`<div class="mw-howto">${ic('gauge','w-4 h-4 flex-none')}<span>KPI is kept apart from projects and campaigns. It scores internal staff only; work by external partners and anything clients do never counts here.</span></div>`+r();}
+{const a=PAGES.projects.a;PAGES.projects.a=()=>isClientUser()?'':newCampaignBtn()+a();}
+GUIDES.clients={"intro":"Your clients, their brands in each region, and the people (PICs) who sign in for them.","steps":["Click Add client and enter the company name.","On the client, click Add brand. Add one brand per region, e.g. EU9 in VN.","Click Add PIC and give them a username. Their PIN starts as 0000.","Send them the username when they're ready. At first sign-in they choose their own PIN."],"tips":["5 wrong PINs lock the account. Click Unlock on the PIC's row.","Forgot PIN? Click the key icon to reset it to 0000."]};
+GUIDES.reqform={"intro":"What the client wants for one brand task, with every version kept.","steps":["Change what is different and click Save.","A new version is kept with your name and the time, and the team is told.","Click Change history to see exactly what changed."],"tips":["Old versions can't be edited or deleted, so both sides always have a clear record."]};
+GUIDES.projects.steps.push('Campaigns: click New campaign and follow the 5 steps. The campaign page is one grid: features down the side, brands across the top.','Click a box to see its next step. Click + to add a feature for another brand.');
+GUIDES.integrations.steps.unshift('Telegram: add the bot to your group, add the group here, then add a schedule (every week or on chosen dates, at one or more times).');
+
 (function boot(){
   document.documentElement.lang=LANG==='zh'?'zh-CN':'en';
   let sb='open';try{sb=localStorage.getItem('mw_sidebar')==='rail'?'rail':'open'}catch(e){}
