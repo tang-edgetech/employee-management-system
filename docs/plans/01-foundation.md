@@ -360,7 +360,7 @@ The milestones after M6 are unchanged: M7 (OpenAPI, CI; ask before the first pus
 
 ### 9.5 External partners (2026-11-06, owner approved the mockup 2026-11-06)
 
-Third-party Marketing and Design people take part in tasks and projects without joining the organisation. Mockup only; the backend is built with the Tasks and Projects modules, not in Foundation. Walk-through: `docs/design/partner-journeys.pdf`.
+Third-party Marketing and Design people take part in tasks and projects without joining the organisation. Mockup only; the backend is built with the Tasks and Projects modules, not in Foundation.
 
 | # | Decision |
 |---|---|
@@ -372,7 +372,7 @@ Third-party Marketing and Design people take part in tasks and projects without 
 
 ### 9.6 Campaigns, clients, notifications and Telegram (2026-11-10, owner approved the mockup 2026-11-10)
 
-Mockup only; built with the Tasks and Projects modules. Walk-through: `docs/design/campaign-guide.pdf`.
+Mockup only; built with the Tasks and Projects modules.
 
 | # | Decision |
 |---|---|
@@ -385,3 +385,24 @@ Mockup only; built with the Tasks and Projects modules. Walk-through: `docs/desi
 | D35 | Partner designers can create campaigns, only for clients their vendor is linked to. |
 | D36 | Every user has a notification box with plain-language messages when they are added to something or something of theirs changes. |
 | D37 | Telegram: "Copy for Telegram" on any task, feature or campaign (formal text with links); a bot sends fixed-template summaries on schedules (weekly days or chosen dates, one or more times), per group, optionally limited to one client. Managed from Integrations by Executive and HR. |
+
+### 9.7 Project focus, accounts, setup and audit trail (2026-11-11 to 2026-11-12, owner approved the mockup)
+
+Priorities changed (team lead): Phase 1 is project management, including campaigns. Mockup only for now; the build order is module switches and M7 typed API calls, then the Projects & Campaigns module (Plan 02). M7's GitHub checks and M8 come before the first deployment.
+
+| # | Decision |
+|---|---|
+| D38 | **Menu & Modules** (System Admin): switch whole modules on or off for everyone; off hides the menu item and blocks its pages, nothing is deleted. Off by default now: My Tasks, Meetings, KPI, Recruitment, Probation & Reviews. Projects & Campaigns and Import & Export are always on. Per-role access stays on Access Roles. |
+| D39 | **Projects & Campaigns** is one list (tabs: Active, Going live this week, Needs attention, Done, Archived; search; client filter) with a "Needs attention" column. Approvals move to notifications; standalone tasks belong to My Tasks. **Delivery** overview replaces KPI while KPI is off: on-time go-lives, overdue and waiting-on-client per project and per person (internal staff only), from the same recorded data KPI will use. |
+| D40 | Every project and campaign has **Project managers, PICs and Designers** (several each; staff or partner designers). Editing: anyone whose access role has **Manage projects & campaigns**, plus the people in those three roles on that item. Project pages use tabs (Overview, Timeline, Tasks, Delays, Activity) with edit-in-place pencils; inner pages have a back button. |
+| D41 | **Adjust timeline** for projects (phases, open tasks, shift by N days) and campaigns (go-lives not yet live, shift by N days). The first planned date is kept so lateness can still be measured. |
+| D42 | **Bulk actions** with tick boxes (empty box, dark border): Projects & Campaigns list (add people, move dates, archive/restore, CSV, Telegram), campaign brand tasks (next step, set status, move go-live, assign, hold, Telegram), client PICs (reset PIN, unlock, switch off/on), Employees (account on/off, department, group, reports-to, add to project, CSV). Items without permission are skipped and counted. |
+| D43 | Phone and desktop are both first-class: lists become cards, the campaign grid becomes a per-feature list, dialogs open full screen, the bulk bar stays at the bottom. |
+| D44 | Every employee has a **user account** (sign-in email, access role, on/off). Off stops sign-in only. Lifecycle actions (increment, promote, PIP, confirm, extend, convert) live on the employee's page. The Employees list has search, filters and sorting. |
+| D45 | Demo emails use **@gmail.com**. Employee numbers default to **LN-{seq}** (mockup now; backend seed and frontend demo data when those are next touched). |
+| D46 | **Email accounts (SMTP)**: several accounts, each assigned to kinds of email (account, notifications, HR letters, data review, recruitment, client portal, announcements). Senders must be **@lnworldwide.com.my**; passwords are stored encrypted and never shown. |
+| D47 | **/setup** is a compulsory first-run wizard (system check, company, first System Admin, SMTP with a tested account, security, work and employment, employee numbers, modules, import or start empty, review). The app redirects to it until finished. |
+| D48 | **Import & Export**: a versioned, checksummed bundle moves set-up data between development, staging and production. Import: check → preview (new / changed / same, conflict policy) → automatic backup → apply in a fixed dependency order → report with undo. Never exported: passwords, SMTP passwords, 2FA secrets, PINs, files; salaries only on request. Records match by name, code or email, never internal IDs. |
+| D49 | Partner deliverables can be **sent back with feedback** (Request changes) as well as approved. |
+| D50 | Nothing goes **live** without a **live site link** (brand tasks: before Scheduled or Live; projects: before Production). Links are checked against the brand's **domains**, which are managed per brand in Clients (live / staging / other, primary, domain and SSL expiry with 30-day warnings, registrar). |
+| D51 | **Audit trail**: every status change, request, approval and rejection records who (name, staff no., position, department, access role; company for partners and clients), when, from → to and the note. Shown on each item and on **System → Audit log** (Executive, HR, System Admin) with filters and CSV. Entries can't be edited or deleted. |
