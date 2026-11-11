@@ -644,6 +644,31 @@ tr.is-sel>td{background:var(--accent-soft)!important}
 .mw-brandchip{cursor:pointer;border:1px solid transparent}
 .mw-brandchip:hover{border-color:var(--accent)}
 .mw-dom input.input{height:34px;font-size:13px}
+/* round 12: created / updated stamps, sort & filter */
+.mw-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12px;color:var(--muted);margin:0 0 10px}
+.mw-meta svg{flex:none}
+.mw-meta b{color:var(--ink);font-weight:600}
+.mw-meta__sep{opacity:.6}
+#drawer .modal-b>.mw-meta{padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.mw-cell.is-dim{opacity:.22;filter:grayscale(1)}
+.mw-viewbar__more{height:36px}
+.mw-viewbar .mw-viewbar__sel{max-width:190px;text-overflow:ellipsis}
+.mw-viewbar__more .n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:700}
+@media (max-width:640px){.mw-meta__sep,.mw-meta>svg{display:none}.mw-meta{gap:2px}.mw-meta>span{width:100%}}
+/* round 13: contracts, usernames, audit result, employee record */
+.fld.is-auto input[readonly]{background:var(--surface-2);color:var(--muted)}
+.mw-hrtag{display:inline-block;margin-left:4px;padding:0 6px;border-radius:6px;font-size:10.5px;font-weight:700;letter-spacing:.02em;background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);vertical-align:1px}
+.mw-hrtag.is-hr{background:var(--surface-2);color:var(--muted)}
+.mw-res{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok);white-space:nowrap}
+.mw-res.is-fail{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.mw-audit__row .mw-res{padding:0 6px;font-size:10.5px;vertical-align:1px}
+tr.mw-audit--fail td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.mw-eetabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin:-4px 0 16px;scrollbar-width:none}
+.mw-eetabs button{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.mw-eetabs button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.mw-exp{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.mw-exp+.mw-exp{margin-top:8px}
+@media (max-width:640px){.mw-eetabs button span{display:none}.mw-eetabs button[aria-selected=true] span{display:inline}}
 </style>
 
 </head>
@@ -1180,8 +1205,8 @@ function vendorCard(v){
   const projs=DB.projects.filter(p=>(p.guests||[]).some(g=>ids.includes(g))),reqs=DB.tasks.filter(t=>ids.includes(t.requester)&&t.status!=='Done').length;
   return `<section class="card p-5 flex flex-col gap-4"><div class="flex items-start gap-3">${av(v.name,40)}<div class="flex-1 min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="font-bold text-lg leading-tight">${esc(v.name)}</h3>${chip(v.type,'info')}${chip(v.status,v.status==='Active'?'ok':'bad')}</div><div class="text-xs muted mt-1">${esc(v.note||'')}</div></div>
     ${ed?`<div class="actions">${ib('pencil','Edit partner',`editVendor('${v.id}')`)}${ib('user-plus','Add person',`editGuest('${v.id}')`)}</div>`:''}</div>
-    <dl class="mw-facts"><div><dt>Internal owner</dt><dd>${esc(ename(v.owner))}</dd></div><div><dt>Contract</dt><dd class="tnum">${fmtS(v.since)} → ${v.until?fmt(v.until):'open-ended'}</dd></div><div><dt>Contact</dt><dd class="text-xs">${esc(v.email)}${v.phone?'<br>'+esc(v.phone):''}</dd></div><div><dt>Projects · open requests</dt><dd>${projs.length?projs.map(p=>`<a href="#project-${p.id.toLowerCase()}" style="color:var(--accent)">${esc(p.name)}</a>`).join(', '):'—'} · ${reqs}</dd></div></dl>
-    <div class="flex flex-col">${ppl.map(g=>`<div class="flex items-center gap-3 py-2 border-b last:border-0" style="border-color:var(--line)">${av(g.name,30)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold">${esc(g.name)} <span class="muted font-normal">· ${esc(g.title)}</span></div><div class="text-xs muted truncate">${esc(g.email)} · ${g.last?'last sign-in '+fmtS(g.last):'not signed in yet'}</div></div>${chip(g.access,{Active:'ok',Invited:'warn',Disabled:'bad'}[g.access])}
+    <dl class="mw-facts"><div><dt>Internal owner</dt><dd>${esc(ename(v.owner))}</dd></div><div><dt>Contract</dt><dd class="tnum">${fmtS(v.since)} → ${v.until?fmt(v.until):'open-ended'}${ctBadge(v)}</dd></div><div><dt>Contact</dt><dd class="text-xs">${esc(v.email)}${v.phone?'<br>'+esc(v.phone):''}</dd></div><div><dt>Projects · open requests</dt><dd>${projs.length?projs.map(p=>`<a href="#project-${p.id.toLowerCase()}" style="color:var(--accent)">${esc(p.name)}</a>`).join(', '):'—'} · ${reqs}</dd></div></dl>
+    <div class="flex flex-col">${ppl.map(g=>`<div class="flex items-center gap-3 py-2 border-b last:border-0" style="border-color:var(--line)">${av(g.name,30)}<div class="flex-1 min-w-0"><div class="text-sm font-semibold">${esc(g.name)} <span class="muted font-normal">· ${esc(g.title)}</span></div><div class="text-xs muted truncate">${esc(g.email)} · <span class="mono">${esc(g.username||'')}</span> · ${g.last?'last sign-in '+fmtS(g.last):'not signed in yet'}</div></div>${chip(g.access,{Active:'ok',Invited:'warn',Disabled:'bad'}[g.access])}
       ${ed?`<div class="actions">${g.access==='Invited'?ib('mail','Resend invite',`toast('Invite resent to ${esc(g.email)}','mail')`):''}${ib('pencil','Edit person',`editGuest('${v.id}','${g.id}')`)}${ib(g.access==='Disabled'?'lock-open':'lock',g.access==='Disabled'?'Restore access':'Disable sign-in',`toggleGuest('${g.id}')`,g.access==='Disabled'?'':'bad')}</div>`:''}</div>`).join('')||'<p class="text-sm muted">No people yet.</p>'}</div></section>`;
 }
 function editVendor(id){
@@ -1511,7 +1536,7 @@ function pgProfile(){
   if(isClientUser())return pgClientAccount();
   const m=me(),u=S.user,tab=S.profTab||'overview';
   const [done,total]=m?profileProgress(m):[0,0];
-  const tabs=[['overview','Overview','user-round'],...(m?[['info','Personal information','id-card']]:[]),['security','Security','shield-check'],['prefs','Preferences','languages']];
+  const tabs=[['overview','Overview','user-round'],...(m?[['info','Employee information','id-card']]:[]),['security','Security','shield-check'],['prefs','Preferences','languages']];
   const dot=k=>(k==='info'&&done<total)||(k==='security'&&mustSetup2FA());
   return `${mustSetup2FA()?`<div class="mw-alert mw-alert--warning" role="alert">${ic('shield-alert','w-5 h-5 flex-none')}<div><b>${t('Two-factor authentication')}</b><div>${t('Your organisation requires two-factor authentication. Add an authenticator app to continue.')}</div></div></div>`:''}
   <div class="mw-tabs" role="tablist">${tabs.map(([k,l,i])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="mw-tabs__item ${tab===k?'is-active':''}" onclick="S.profTab='${k}';rerender()">${ic(i,'w-4 h-4')}${t(l)}${dot(k)?'<span class="mw-dot" aria-hidden="true"></span>':''}</button>`).join('')}</div>
@@ -2570,14 +2595,14 @@ const canManageProj = p => permOn(PM_PERM)||leadsOf(p).includes(uid())||p.pm===S
 /* task table (shared) */
 function taskTable(list,{compact=false,project=false}={}){
   if(!list.length)return `<p class="muted text-sm p-5">No tasks here.</p>`;
-  return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Task</th><th>Tag</th>${compact?'':'<th>Assignee</th>'}<th>Due</th><th>Progress</th><th>Status</th><th class="text-right">Actions</th></tr></thead><tbody>
+  return `<div class="tbl-wrap"><table class="tbl mw-autort"><thead><tr><th>Task</th><th>Tag</th>${compact?'':'<th>Assignee</th>'}<th>Due</th><th>Progress</th><th>Status</th><th>Last updated</th><th class="text-right">Actions</th></tr></thead><tbody>
   ${list.map(t=>{const p=proj(t.project),od=overdue(t),pend=(t.ext||[]).some(x=>x.status==='Pending'),dl=DB.delays.filter(d=>d.task===t.id);return `<tr>
     <td><button class="text-left" onclick="viewTask('${t.id}')"><div class="font-semibold">${esc(t.title)}</div><div class="text-xs muted">${t.requester?`<span style="color:var(--hi)">${ic('message-square-share','w-3 h-3 inline')} ${esc(t.reqType||'Request')} from ${esc(ename(t.requester))}</span> · `:''}${p&&!project?esc(p.name):p?'':'Standalone'}${t.deps.length?` · depends on ${t.deps.length}`:''}</div></button></td>
     <td>${tagc(t)}</td>${compact?'':`<td><span class="flex items-center gap-2">${av(ename(t.who),26)}<span class="text-sm">${whoLabel(t.who)}</span></span></td>`}
     <td class="tnum">${fmtS(t.due)}${t.origDue?`<div class="text-xs muted">was ${fmtS(t.origDue)}</div>`:''}${od?`<div class="text-xs" style="color:var(--bad)">${-days(t.due)}d overdue</div>`:''}</td>
     <td><div class="flex items-center gap-2"><div class="pct" style="width:70px"><i style="width:${t.pct}%"></i></div><span class="text-xs tnum">${t.pct}%</span></div></td>
     <td><div class="flex flex-col gap-1 items-start">${chip(t.status,TASK_TONE[t.status])}${needsCheckin(t)?chip('Check-in due','warn','message-square-warning'):''}${pend?chip('Ext. pending','hi','clock'):''}${dl.length?chip(dl.length+' delay','bad','flag'):''}</div></td>
-    <td><div class="actions">${taskActions(t)}</div></td></tr>`}).join('')}
+    <td>${updCell(t)}</td><td><div class="actions">${taskActions(t)}</div></td></tr>`}).join('')}
   </tbody></table></div>`;
 }
 function taskActions(t){
@@ -3341,7 +3366,7 @@ const myNotifs=()=>DB.notifs.filter(n=>n.to===notifKey());
 function updateBell(){const el=$('#notif-n');if(!el)return;const n=myNotifs().filter(x=>!x.read).length;el.textContent=n?(n>9?'9+':n):'';
   if(n&&!S.bellToasted){S.bellToasted=true;setTimeout(()=>toast(`You have ${n} new notification${n>1?'s':''}`,'bell'),900)}}
 function openNotif(i){const n=myNotifs()[i];n.read=true;closeModal();
-  if(n.link.startsWith('roll:'))viewRoll(n.link.slice(5));else if(n.link.startsWith('task:'))viewTask(n.link.slice(5));else location.hash=n.link.slice(1);updateBell()}
+  if(n.link.startsWith('roll:'))viewRoll(n.link.slice(5));else if(n.link.startsWith('task:'))viewTask(n.link.slice(5));else if(n.link.startsWith('emp:')){location.hash='employees';setTimeout(()=>viewEmployee(n.link.slice(4)),60)}else location.hash=n.link.slice(1);updateBell()}
 function readAllNotifs(){myNotifs().forEach(n=>n.read=true);updateBell();showNotifs()}
 function reminderItems(){
   const items=[];if(!S.user||isClientUser())return items;
@@ -3404,7 +3429,7 @@ function pgCampaign(c){
   const all=visRolls(c),mg=canManageCamp(c),mm=myMarkets(),cols=campMarkets(c),done=campDone(c);
   const next=all.filter(r=>!isLive(r)&&r.publishAt&&r.stage!=='On hold').sort((a,b)=>a.publishAt.localeCompare(b.publishAt))[0];
   const cls=[...new Set(cols.map(id=>market(id).client))];
-  const feats=featuresOf(c.id).filter(f=>!mm||all.some(r=>r.feature===f.id));
+  const feats=featuresOf(c.id).filter(f=>!mm||all.some(r=>r.feature===f.id)).filter(f=>!S.cgMatch||rollsOf(f.id).some(r=>S.cgMatch.has(r.id)));
   return `${isClientUser()?clientBanner():''}
   <section class="card p-5 mb-4"><div class="flex flex-wrap gap-x-6 gap-y-3 items-start">
     <div class="flex-1 min-w-[260px]"><div class="flex items-start gap-1"><p class="text-sm muted max-w-2xl">${esc(c.desc)}</p>${mg?pencil('Edit description',`editText('${c.id}','desc')`):''}</div>
@@ -4096,9 +4121,9 @@ function wlTelegram(){const parts=wlSel().map(x=>x.kind==='campaign'?summaryText
 /* ---------- 2. campaign brand tasks (select on the grid) ---------- */
 function cell(r){
   const date=r.stage==='On hold'?'':isLive(r)?fmtDT(r.livedAt,true):r.publishAt?fmtDT(r.publishAt,true):'',on=S.cgSel&&selSet('cg').has(r.id);
-  return `<button class="mw-cell ${on?'is-sel':''}" style="--c:${STAGE_C[r.stage]}" onclick="${S.cgSel?`selToggle('cg','${r.id}',${!on})`:`viewRoll('${r.id}')`}" aria-pressed="${S.cgSel?on:false}" aria-label="${esc(r.title)} · ${esc(mLabel(r.market))} · ${r.stage}">
+  return `<button class="mw-cell ${on?'is-sel':''}${S.cgMatch&&!S.cgMatch.has(r.id)?' is-dim':''}" style="--c:${STAGE_C[r.stage]}" onclick="${S.cgSel?`selToggle('cg','${r.id}',${!on})`:`viewRoll('${r.id}')`}" aria-pressed="${S.cgSel?on:false}" aria-label="${esc(r.title)} · ${esc(mLabel(r.market))} · ${r.stage}">
     ${S.cgSel?`<span class="mw-cell__tick">${on?ic('check','w-3 h-3'):''}</span>`:''}<span class="mw-cell__s">${ic(STAGE_IC[r.stage],'w-3.5 h-3.5')}${t(r.stage)}</span><span class="mw-cell__d">${date||'&nbsp;'}</span>${needsReq(r)&&!S.cgSel?`<span class="mw-cell__flag" data-tip="Requirements still needed">${ic('file-question','w-3.5 h-3.5')}</span>`:''}</button>`}
-function campMobile(c){const all=visRolls(c),mm=myMarkets();
+function campMobile(c){const all=visRolls(c).filter(r=>!S.cgMatch||S.cgMatch.has(r.id)),mm=myMarkets();
   return `<div class="mw-mob-only">${featuresOf(c.id).filter(f=>all.some(r=>r.feature===f.id)).map(f=>{const rs=all.filter(r=>r.feature===f.id);return `<section class="card mb-3 overflow-hidden"><div class="flex items-center gap-2 p-3" style="background:var(--surface-2)">${S.cgSel?cbMany('cg',rs.map(r=>r.id),'Select all in '+f.name):''}<b class="flex-1">${esc(f.name)}</b><span class="text-xs muted">${liveCount(rs)} live</span></div>
     ${rs.map(r=>{const on=selSet('cg').has(r.id);return `<button class="mw-mrow ${S.cgSel&&on?'is-sel':''}" onclick="${S.cgSel?`selToggle('cg','${r.id}',${!on})`:`viewRoll('${r.id}')`}">${S.cgSel?`<span class="mw-cell__tick">${on?ic('check','w-3 h-3'):''}</span>`:''}<span class="flex-1 min-w-0 text-left">${marketTag(r.market)}<span class="block text-xs muted truncate">${esc(r.title)}${mm?'':' · '+esc(client(market(r.market).client).name)}</span></span><span class="text-right">${stageChip(r.stage)}<span class="block text-xs muted mt-1">${isLive(r)?fmtDT(r.livedAt,true):r.publishAt&&r.stage!=='On hold'?fmtDT(r.publishAt,true):''}</span></span></button>`}).join('')}</section>`}).join('')}</div>`}
 function campBulk(c){if(!canManageCamp(c)&&!visRolls(c).some(r=>r.who.includes(uid())))return '';
@@ -4198,7 +4223,7 @@ function pgProject(p){
       ${mg?`<button class="btn btn-ghost h-9 mt-3" onclick="addPre('${p.id}')">${ic('plus')}Add item</button>`:''}</section>`;
   if(tab==='timeline')body=`<section class="card overflow-hidden"><div class="p-5 pb-3 flex items-center justify-between flex-wrap gap-2"><h3 class="card-title">${ic('gantt-chart','w-4 h-4')}Timeline</h3>${mg?`<button class="btn btn-primary h-9" onclick="adjustProjTimeline('${p.id}')">${ic('calendar-range')}Adjust timeline</button>`:''}</div>
     <div class="tbl-wrap" style="padding-top:18px">${gantt(p,ts)}</div></section>`;
-  if(tab==='tasks')body=`<section class="card overflow-hidden"><div class="p-5 pb-2 flex items-center justify-between flex-wrap gap-2"><h3 class="card-title">${ic('list-checks','w-4 h-4')}Tasks</h3>${mg?`<button class="btn btn-primary h-9" onclick="addTask('${p.id}')">${ic('plus')}Add task</button>`:''}</div>${taskTable(ts.sort((a,b)=>a.start.localeCompare(b.start)),{project:true})}</section>`;
+  if(tab==='tasks')body=`<div class="flex items-center justify-between flex-wrap gap-2 mb-3"><h3 class="card-title">${ic('list-checks','w-4 h-4')}Tasks</h3>${mg?`<button class="btn btn-primary h-9" onclick="addTask('${p.id}')">${ic('plus')}Add task</button>`:''}</div>${taskView('pt-'+p.id.toLowerCase(),ts,{project:true})}`;
   if(tab==='delays')body=`<section class="card p-5"><div class="flex items-center justify-between flex-wrap gap-2 mb-1"><h3 class="card-title">${ic('route','w-4 h-4')}Delay & blocker trace</h3><button class="btn btn-ghost h-9" onclick="recordDelay(null,'${p.id}')">${ic('flag')}Record delay</button></div><p class="text-xs muted mb-3">Who caused the wait, who was affected, when, and why.</p>${delayList(dl)}</section>`;
   if(tab==='activity')body=`<section class="card p-5"><h3 class="card-title mb-2">${ic('activity','w-4 h-4')}Activity</h3>${actList(DB.activity.filter(a=>a.p===p.id))}</section>`;
   return head+body;
@@ -4276,7 +4301,7 @@ function pgEmployees(){
 function empAcc(on){const ps=empSel().filter(e=>e.id!==S.user.eid),n=ps.length;const run=()=>{ps.forEach(e=>{e.account.on=on;logEvent(e.id,on?'Account switched on':'Account switched off','By '+S.user.name,on?'ok':'warn')});closeModal();selClear('emp');toast(`${n} account${n>1?'s':''} switched ${on?'on':'off'}`,on?'circle-check':'circle-slash')};
   if(on)return run();S.accRun=run;confirmBox(`Switch off ${n} account${n>1?'s':''}?`,'They can\'t sign in until switched back on. Nothing else changes.',`${ic('circle-slash')}Switch off`,'S.accRun()')}
 function empAccountBox(e){const a=e.account,mg=canManageAccounts();if(!mg&&S.user.eid!==e.id)return '';
-  return `<div class="sec-h">${ic('key-round')}User account</div><div class="mw-acc"><div class="flex items-center justify-between gap-3 flex-wrap"><div><div class="font-semibold">${esc(e.email)}</div><div class="text-xs muted">Signs in with this email · ${a.last?'last signed in '+fmt(a.last):a.invited?'invited, hasn\'t signed in yet':'never signed in'}</div></div>${mg?accSwitch(e):chip(a.on?'On':'Off',a.on?'ok':'')}</div>
+  return `<div class="sec-h">${ic('key-round')}User account</div><div class="mw-acc"><div class="flex items-center justify-between gap-3 flex-wrap"><div><div class="font-semibold">${esc(e.email)}</div><div class="text-xs muted">Username <b class="mono" style="color:var(--ink)">${esc(a.username||'—')}</b>${mg?pencil('Change username',`editUsername('e:${e.id}')`):''} · Signs in with email or username · ${a.last?'last signed in '+fmt(a.last):a.invited?'invited, hasn\'t signed in yet':'never signed in'}</div></div>${mg?accSwitch(e):chip(a.on?'On':'Off',a.on?'ok':'')}</div>
     <dl class="dl mt-3"><dt>Access role</dt><dd>${mg&&S.user.eid!==e.id?sel('acc-r',DB.roles.filter(r=>!['guest','client'].includes(r.id)).map(r=>[r.id,r.name]),a.role,`onchange="emp('${e.id}').account.role=this.value;logEvent('${e.id}','Access role changed',roleName(this.value),'info');toast('Access role updated','shield-check')" style="height:34px;max-width:220px"`):esc(roleName(a.role))}</dd><dt>Two-factor</dt><dd>${DB.settings.twoFA&&DB.settings.twoFARoles.includes(a.role)?'Required for this role':'Optional'}</dd></dl>
     ${mg?`<div class="flex flex-wrap gap-2 mt-3"><button class="btn btn-ghost h-9" onclick="emp('${e.id}').account.invited=true;toast('Invite sent to ${esc(e.email)} from noreply@lnworldwide.com.my','mail')">${ic('mail')}${a.last?'Resend invite':'Send invite'}</button><button class="btn btn-ghost h-9" onclick="toast('Password reset link sent to ${esc(e.email)}','key-round')">${ic('key-round')}Send password reset</button></div>`:''}</div>`}
 
@@ -4477,7 +4502,7 @@ function actor(){const u=S.user;if(!u)return {kind:'System',name:'System (automa
   if(u.pic){const p=pic(u.pic);return {kind:'Client',id:p.id,name:p.display,pos:p.title,org:client(u.cid).name}}
   return {kind:'System admin',id:u.email,name:u.name,role:'System Admin'}}
 const actorOf=id=>{const e=emp(id);return e?{kind:'Employee',id,name:e.name,no:e.no,pos:e.pos,dept:e.dept,role:roleName(e.account?.role)}:isGuest(id)?{kind:'Partner',id,name:guest(id).name,pos:guest(id).title,org:vendorOf(id)?.name}:pic(id)?{kind:'Client',id,name:pic(id).display,pos:pic(id).title,org:picClient(id).name}:{kind:'System',name:'System (automatic)'}};
-const actorLine=a=>a.kind==='Employee'?`${a.no} · ${a.pos} · ${a.dept} · ${a.role}`:a.kind==='Partner'?`${a.pos} · ${a.org} (partner)`:a.kind==='Client'?`${a.pos} · ${a.org} (client)`:a.kind==='System admin'?'System Admin':'Automatic';
+const actorLine=a=>a.kind==='Employee'?`${a.no} · ${a.pos} · ${a.dept} · ${a.role}`:a.kind==='Partner'?`${a.pos} · ${a.org} (partner)`:a.kind==='Client'?`${a.pos} · ${a.org} (client)`:a.kind==='System admin'?'System Admin':a.kind==='Visitor'?'Not signed in':'Automatic';
 DB.audit=[];
 function audit(type,ref,label,action,{detail='',from='',to='',who=null,at=null}={}){DB.audit.unshift({at:at||nowStamp(),actor:who||actor(),type,ref,label,action,detail,from,to})}
 // Seed: the history behind the demo data.
@@ -4493,7 +4518,7 @@ function audit(type,ref,label,action,{detail='',from='',to='',who=null,at=null}=
 DB.audit.sort((a,b)=>b.at.localeCompare(a.at));
 function auditBox(type,ref){const l=DB.audit.filter(a=>a.type===type&&a.ref===ref);if(!l.length)return '';
   return `<div class="sec-h">${ic('scroll-text')}Who did what</div><div class="mw-audit">${l.map(auditRow).join('')}</div>`}
-const auditRow=a=>`<div class="mw-audit__row">${av(a.actor.name,28)}<div class="flex-1 min-w-0"><div class="text-sm"><b>${esc(a.action)}</b>${a.from||a.to?` <span class="mw-audit__ft">${a.from?esc(a.from)+' → ':''}${esc(a.to)}</span>`:''}</div>${a.detail?`<div class="text-xs" style="overflow-wrap:anywhere">${esc(a.detail)}</div>`:''}<div class="text-xs muted mt-0.5"><b style="color:var(--ink)">${esc(a.actor.name)}</b> · ${esc(actorLine(a.actor))}</div><div class="text-xs muted">${fmtDT(a.at)}</div></div></div>`;
+const auditRow=a=>`<div class="mw-audit__row">${av(a.actor.name,28)}<div class="flex-1 min-w-0"><div class="text-sm">${resChip(a)} <b>${esc(a.action)}</b>${a.from||a.to?` <span class="mw-audit__ft">${a.from?esc(a.from)+' → ':''}${esc(a.to)}</span>`:''}</div>${a.detail?`<div class="text-xs" style="overflow-wrap:anywhere">${esc(a.detail)}</div>`:''}<div class="text-xs muted mt-0.5"><b style="color:var(--ink)">${esc(a.actor.name)}</b> · ${esc(actorLine(a.actor))}</div><div class="text-xs muted">${fmtDT(a.at)}</div></div></div>`;
 
 /* wrap an existing function: before() may return false to stop it */
 function wrapFn(name,before,after){const o=window[name];window[name]=function(...a){const c=before?before(...a):undefined;if(c===false)return;const r=o.apply(this,a);if(after)after(c,...a);return r}}
@@ -4599,6 +4624,483 @@ PAGES.audit={t:'Audit log',c:'System',r:pgAudit};
 DB.modules.find(m=>m.id==='system-tools').pages.push('audit');
 Object.assign(ZH,{'Audit log':'审计日志'});
 GUIDES.audit={"intro":"A permanent record of who changed what.","steps":["Search by action, item, person or staff number, or filter by item type and who did it.","Click an item to open it.","Export CSV for HR or an external audit."],"tips":["Entries can't be edited or deleted.","Automatic changes, such as a scheduled go-live, are recorded as System."]};
+
+/* =================== ROUND 12: CREATED / UPDATED STAMPS · SORT & FILTER =================== */
+// Every project, campaign, feature, brand task and task carries meta = {createdAt, createdBy, updatedAt, updatedBy}.
+// Stamps are set automatically: before each screen is drawn, any item whose data changed since the last
+// screen gets "updated now by whoever is signed in"; new items get "created". The real system does this
+// in the API layer (created_at/updated_at + created_by/updated_by on every row).
+const STAMP_SETS=[['Project',()=>DB.projects],['Campaign',()=>DB.campaigns],['Feature',()=>DB.features],['Brand task',()=>DB.rollouts],['Task',()=>DB.tasks]];
+const hashN=s=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+const seedT=(id,lo=9,hi=18)=>{const h=hashN(id);return String(lo+h%(hi-lo)).padStart(2,'0')+':'+String((h>>5)%60).padStart(2,'0')};
+const latestS=(...a)=>a.filter(Boolean).sort().at(-1);
+const capNow=s=>s>nowStamp()?TODAY+' 0'+(8+hashN(s)%2)+':'+String(hashN(s+'m')%60).padStart(2,'0'):s;
+const stampLabel=(type,x)=>type==='Brand task'?`${x.title} · ${mLabel(x.market)}`:x.name||x.title;
+function lastAudit(type,ref){return DB.audit.filter(a=>a.type===type&&a.ref===ref).sort((a,b)=>b.at.localeCompare(a.at))[0]}
+function seedMeta(){
+  const set=(x,cAt,cBy,uAt,uBy)=>{cAt=capNow(cAt);uAt=capNow(latestS(cAt,uAt));x.meta={createdAt:cAt,createdBy:cBy,updatedAt:uAt,updatedBy:uAt===cAt?cBy:(uBy||cBy)}};
+  DB.projects.forEach(p=>{const a=DB.activity.filter(x=>x.p===p.id).map(x=>({at:x.d+' '+x.t,who:actorOf(x.who)})).sort((a,b)=>b.at.localeCompare(a.at))[0],au=lastAudit('Project',p.id);
+    const u=[a,au&&{at:au.at,who:au.actor}].filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0];
+    set(p,addD(p.start,-5)+' '+seedT(p.id),actorOf(p.pm),u?.at,u?.who)});
+  DB.campaigns.forEach(c=>{const by=actorOf(c.createdBy||c.pm);set(c,addD(c.start,-7)+' '+seedT(c.id),by,addD(c.start,-2)+' '+seedT(c.id+'u'),actorOf(c.pm))});
+  DB.features.forEach((f,i)=>{const c=camp(f.campaign);set(f,addD(c.start,-6+Math.min(i,5))+' '+seedT(f.id),actorOf(c.pm))});
+  DB.rollouts.forEach(r=>{const f=feat(r.feature),c=camp(f.campaign),au=lastAudit('Brand task',r.id),lg=(r.log||[]).map(x=>x[0]).sort().at(-1);
+    const auto=au&&au.actor.kind==='System';let uAt=lg,uBy=actorOf(r.who[0]);if(au&&(!lg||au.at>=lg)){uAt=au.at;uBy=au.actor}else if(auto&&au.at===lg)uBy=au.actor;
+    set(r,(r.copiedFrom?addD(f.meta.createdAt.slice(0,10),1):f.meta.createdAt.slice(0,10))+' '+seedT(r.id),actorOf(c.pm),uAt,uBy)});
+  DB.tasks.forEach(t=>{const p=proj(t.project),au=lastAudit('Task',t.id),ci=(t.ci||[]).at(-1);
+    const cBy=actorOf(t.requester||p?.pm||t.who),cAt=addD(t.start,t.requester?0:-1)+' '+seedT(t.id,9,12);
+    let uAt=ci?ci[0]+' '+seedT(t.id+ci[0],12,19):null,uBy=actorOf(t.who);if(au&&(!uAt||au.at>uAt)){uAt=au.at;uBy=au.actor}
+    set(t,cAt,cBy,uAt,uBy)})}
+S.snap={};
+const snapOf=x=>{const {meta,...r}=x;return JSON.stringify(r)};
+function stampAll(){const now=nowStamp();let who=null;
+  STAMP_SETS.forEach(([type,get])=>get().forEach(x=>{const k=type+':'+x.id,s=snapOf(x);
+    if(!x.meta){who=who||actor();x.meta={createdAt:now,createdBy:who,updatedAt:now,updatedBy:who};audit(type,x.id,stampLabel(type,x),'Created')}
+    else if(S.snap[k]!==undefined&&S.snap[k]!==s){who=who||actor();x.meta.updatedAt=now;x.meta.updatedBy=who}
+    S.snap[k]=s}))}
+seedMeta();stampAll();
+wrapFn('route',()=>{stampAll()});
+// Brand tasks that go live by themselves are stamped by the system at their go-live time, not by the viewer.
+wrapFn('autoPublish',()=>DB.rollouts.filter(r=>r.stage==='Scheduled'&&r.publishAt&&r.publishAt<=nowStamp()),due=>due.forEach(r=>{r.meta.updatedAt=r.publishAt;r.meta.updatedBy={kind:'System',name:'System (automatic)'};S.snap['Brand task:'+r.id]=snapOf(r)}));
+wrapFn('auditOpen',(type,ref)=>{if(type==='Campaign'){location.hash='project-'+ref.toLowerCase();return false}if(type==='Feature'){location.hash='project-'+feat(ref).campaign.toLowerCase();return false}});
+
+/* ---------- showing the stamps ---------- */
+function ago(s){if(!s)return '—';const m=Math.round((new Date(nowStamp().replace(' ','T'))-new Date(s.replace(' ','T')))/60000);
+  if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';const d=Math.round(h/24);if(d===1)return 'yesterday';if(d<7)return d+' days ago';return fmtDT(s,true)+(s.slice(0,4)!==TODAY.slice(0,4)?' '+s.slice(0,4):'')}
+const whoTip=a=>esc(a.name+' · '+actorLine(a));
+const firstName=a=>a.kind==='System'?'System':a.name.split(' ')[0];
+function metaLine(x){const m=x.meta;if(!m)return '';
+  return `<div class="mw-meta">${ic('clock','w-3.5 h-3.5')}<span>Created <b class="tnum" data-tip="${fmtDT(m.createdAt)}">${fmtDT(m.createdAt,true)}${m.createdAt.slice(0,4)!==TODAY.slice(0,4)?' '+m.createdAt.slice(0,4):''}</b> by <b data-tip="${whoTip(m.createdBy)}">${esc(m.createdBy.name)}</b></span><span class="mw-meta__sep">·</span><span>Last updated <b class="tnum" data-tip="${fmtDT(m.updatedAt)}">${ago(m.updatedAt)}</b> by <b data-tip="${whoTip(m.updatedBy)}">${esc(m.updatedBy.name)}</b></span></div>`}
+const updCell=x=>x.meta?`<div class="text-xs tnum" data-tip="${fmtDT(x.meta.updatedAt)}">${ago(x.meta.updatedAt)}</div><div class="text-xs muted" data-tip="${whoTip(x.meta.updatedBy)}">${esc(firstName(x.meta.updatedBy))}</div>`:'—';
+const crCell=x=>x.meta?`<div class="text-xs tnum" data-tip="${fmtDT(x.meta.createdAt)}">${fmtDT(x.meta.createdAt,true)}</div><div class="text-xs muted" data-tip="${whoTip(x.meta.createdBy)}">${esc(firstName(x.meta.createdBy))}</div>`:'—';
+{const o=pgProject;window.pgProject=function(p){const h=o(p);return h.startsWith('<p class="muted">')?h:metaLine(p)+h}}
+for(const fn of ['viewRoll','viewTask'])wrapFn(fn,null,(c,id)=>{const x=fn==='viewRoll'?roll(id):task(id),b=$('#drawer .modal-b');if(b&&x&&!b.querySelector('.mw-meta'))b.insertAdjacentHTML('afterbegin',metaLine(x));icons()});
+
+/* ---------- date-range filters shared by every list ---------- */
+const WITHIN=[['today','Today'],['7','Last 7 days'],['30','Last 30 days'],['old','Older than 30 days']];
+const withinTest=(s,v)=>{if(!s)return false;const d=s.slice(0,10);return v==='today'?d===TODAY:v==='old'?d<addD(TODAY,-30):d>=addD(TODAY,-+v)};
+const metaFilters=get=>[{id:'upd',label:'Updated',more:true,opts:WITHIN,test:(x,v)=>withinTest(get(x)?.updatedAt,v)},{id:'cre',label:'Created',more:true,opts:WITHIN,test:(x,v)=>withinTest(get(x)?.createdAt,v)},
+  {id:'by',label:'Created by',more:true,opts:null,test:(x,v)=>(get(x)?.createdBy.id||'sys')===v}];
+const byOpts=(list,get)=>{const m=new Map();list.forEach(x=>{const a=get(x)?.createdBy;if(a)m.set(a.id||'sys',a.name)});return [...m].sort((a,b)=>a[1].localeCompare(b[1]))};
+const metaSorts=get=>({updated:['Last updated',cmpStr(x=>get(x)?.updatedAt)],created:['Created',cmpStr(x=>get(x)?.createdAt)]});
+
+/* view bar: optional view modes, filters with one option or fewer are left out, rarely used ones sit behind "More filters" */
+function viewBar(key,cfg,shown,total){
+  const o=vstate(key,cfg),fs=cfg.filters.filter(f=>f.opts&&f.opts.length>1),act=fs.filter(f=>o.f[f.id]).length,main=fs.filter(f=>!f.more),more=fs.filter(f=>f.more),open=o.more||more.some(f=>o.f[f.id]);
+  const selF=f=>'<select class="input mw-viewbar__sel'+(o.f[f.id]?' is-on':'')+'" aria-label="'+esc(f.label)+'" onchange="setView(\''+key+'\',\'f.'+f.id+'\',this.value)"><option value="">'+esc(f.label)+': All</option>'+f.opts.map(([v,l])=>'<option value="'+esc(v)+'"'+(o.f[f.id]==v?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>';
+  const modes=cfg.modes===undefined?VIEW_MODES:cfg.modes;
+  return '<div class="mw-viewbar">'+
+    '<label class="mw-viewbar__search">'+ic('search','w-4 h-4')+'<input class="input" placeholder="'+esc(cfg.ph||'Search…')+'" value="'+esc(o.q||'')+'" onchange="setView(\''+key+'\',\'q\',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()"></label>'+
+    main.map(selF).join('')+(open?more.map(selF).join(''):'')+
+    (more.length?'<button class="btn btn-ghost mw-viewbar__more" aria-expanded="'+!!open+'" onclick="S.views[\''+key+'\'].more='+!open+';rerender()">'+ic(open?'chevron-up':'sliders-horizontal')+(open?'Fewer filters':'More filters')+(!open&&more.filter(f=>o.f[f.id]).length?' <span class="n">'+more.filter(f=>o.f[f.id]).length+'</span>':'')+'</button>':'')+
+    (o.q||act?'<button class="btn btn-ghost" onclick="clearView(\''+key+'\')">'+ic('x')+'Clear</button>':'')+
+    '<span class="mw-viewbar__count">'+shown+(shown!==total?' of '+total:'')+'</span>'+
+    '<span class="mw-viewbar__spacer"></span>'+
+    '<span class="mw-viewbar__sort">'+ic('arrow-down-up','w-4 h-4')+'<select class="input mw-viewbar__sel" aria-label="Sort by" onchange="setView(\''+key+'\',\'sort\',this.value)">'+Object.entries(cfg.sorts).map(([k,[l]])=>'<option value="'+k+'"'+(o.sort===k?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>'+
+      ib(o.dir==='asc'?'arrow-up-narrow-wide':'arrow-down-wide-narrow',o.dir==='asc'?'Ascending (click for descending)':'Descending (click for ascending)','setView(\''+key+'\',\'dir\',\''+(o.dir==='asc'?'desc':'asc')+'\')')+'</span>'+
+    (modes.length?'<div class="mw-seg" role="group" aria-label="View">'+modes.map(([k,l,i])=>'<button class="'+(o.mode===k?'is-on':'')+'" data-tip="'+l+'" aria-pressed="'+(o.mode===k)+'" onclick="setView(\''+key+'\',\'mode\',\''+k+'\')">'+ic(i,'w-4 h-4')+'<span>'+l+'</span></button>').join('')+'</div>':'')+
+  '</div>';
+}
+// a sort picked from the menu starts in its natural direction (newest first for dates of change)
+{const o=setView;window.setView=function(key,prop,v){if(prop==='sort'&&S.views[key])S.views[key].dir=['updated','created'].includes(v)?'desc':'asc';return o(key,prop,v)}}
+
+/* ---------- 1. Tasks: My Tasks and each project's Tasks tab ---------- */
+function taskViewCfg(key=''){const inProj=key.startsWith('pt-'),list=inProj?DB.tasks.filter(t=>t.project===key.slice(3).toUpperCase()):DB.tasks;
+  const c={mode:'list',sort:inProj?'start':'due',ph:'Search tasks or people',
+    sorts:{due:['Due date',cmpStr(t=>t.due)],start:['Start date',cmpStr(t=>t.start)],...metaSorts(t=>t.meta),title:['Title',cmpStr(t=>t.title)],status:['Status',cmpNum(t=>TASK_STATUS.indexOf(t.status))],pct:['Progress',cmpNum(t=>t.pct)],who:['Assignee',cmpStr(t=>ename(t.who))]},
+    filters:[
+      {id:'status',label:'Status',opts:TASK_STATUS.map(x=>[x,x]),test:(t,v)=>t.status===v},
+      {id:'who',label:'Assignee',opts:[...new Set(list.map(t=>t.who))].map(w=>[w,ename(w)]).sort((a,b)=>a[1].localeCompare(b[1])),test:(t,v)=>t.who===v},
+      {id:'due',label:'Due',opts:[['overdue','Overdue'],['week','Next 7 days'],['month','Next 30 days']],test:(t,v)=>v==='overdue'?overdue(t):t.status!=='Done'&&days(t.due)>=0&&days(t.due)<=(v==='week'?7:30)},
+      ...(inProj?[]:[{id:'project',label:'Project',more:true,opts:[['-','Standalone']].concat(visProjects().map(p=>[p.id,p.name])),test:(t,v)=>v==='-'?!t.project:t.project===v}]),
+      {id:'tag',label:'Tag',more:true,opts:DB.tags.map(t=>[t.code,t.code+' · '+t.name]),test:(t,v)=>t.tag===v},
+      {id:'people',label:'People',more:true,opts:[['int','Internal staff'],['ext','External partners'],['req','Partner requests']],test:(t,v)=>v==='ext'?isGuest(t.who):v==='req'?!!t.requester:!isGuest(t.who)},
+      ...metaFilters(t=>t.meta)],
+    text:t=>t.title+' '+ename(t.who)+' '+(proj(t.project)?.name||'')};
+  c.filters.find(f=>f.id==='by').opts=byOpts(list,t=>t.meta);return c}
+function taskView(key,list,opts={}){
+  const cfg=taskViewCfg(key),o=vstate(key,cfg),shown=applyView(key,list,cfg);
+  const body=o.mode==='grid'?taskGrid(shown):o.mode==='cards'?taskCards(shown):'<section class="card overflow-hidden">'+(shown.length?taskTable(shown,opts):'<p class="muted text-sm p-5">No tasks match. Try clearing a filter.</p>')+'</section>';
+  return viewBar(key,cfg,shown.length,list.length)+body;
+}
+
+/* ---------- 2. Projects & Campaigns list ---------- */
+// "Last updated" on a row is the newest change to the item or anything inside it (its tasks, features or brand tasks).
+function workMeta(x){const o=anyProj(x.id);if(!o?.meta)return null;
+  const kids=x.kind==='Campaign'?[...featuresOf(o.id),...visRolls(o)]:DB.tasks.filter(t=>t.project===o.id);
+  const top=[o,...kids].filter(k=>k.meta).sort((a,b)=>b.meta.updatedAt.localeCompare(a.meta.updatedAt))[0];
+  return {...o.meta,updatedAt:top.meta.updatedAt,updatedBy:top.meta.updatedBy,inside:top===o?'':(top.title||top.name)}}
+function wlCfg(all){const people=[...new Set(all.flatMap(x=>x.leads))].map(id=>[id,ename(id)]).sort((a,b)=>a[1].localeCompare(b[1]));
+  const c={mode:'list',sort:'next',modes:[],ph:'Search by name or client',
+    sorts:{next:['Next date',cmpStr(x=>x.done?'~':(x.next?.when||'9').trim())],...metaSorts(x=>x.meta),name:['Name',cmpStr(x=>x.name)],client:['Client',cmpStr(x=>x.clients[0])],progress:['Progress',cmpNum(x=>x.pct)]},
+    filters:[
+      {id:'kind',label:'Type',opts:[...new Set(all.map(x=>x.kind))].map(k=>[k,k+'s']),test:(x,v)=>x.kind===v},
+      {id:'client',label:'Client',opts:[...new Set(all.flatMap(x=>x.clients))].sort().map(c=>[c,c]),test:(x,v)=>x.clients.includes(v)},
+      {id:'lead',label:'Managed by',opts:people,test:(x,v)=>x.leads.includes(v)},
+      ...metaFilters(x=>x.meta)],
+    text:x=>x.name+' '+x.clients.join(' ')+' '+x.leads.map(ename).join(' ')};
+  c.filters.find(f=>f.id==='by').opts=byOpts(all,x=>x.meta);return c}
+function pgProjects(){
+  const w=S.wl||(S.wl={tab:'active'});
+  const all=workItems().map(x=>{const o=anyProj(x.id),rs=x.kind==='Campaign'?visRolls(o):[];return {...x,archived:!!o.archived,meta:workMeta(x),pct:x.kind==='Campaign'?(rs.length?Math.round(liveCount(rs)/rs.length*100):0):projProgress(o)}});
+  const tabs=WL_TABS2.filter(t=>t[0]!=='archived'||all.some(x=>x.archived)),tab=tabs.find(x=>x[0]===w.tab)||tabs[0],bulk=!isClientUser();
+  const inTab=all.filter(tab[2]),cfg=wlCfg(all),list=applyView('wl',inTab,cfg);
+  return `${isGuestUser()?guestBanner():isClientUser()?clientBanner():''}
+  <div class="tabs mb-3">${tabs.map(([k,l,f])=>`<button class="tab ${tab[0]===k?'on':''}" onclick="S.wl.tab='${k}';rerender()">${l}<span class="n tnum">${all.filter(f).length}</span></button>`).join('')}</div>
+  ${viewBar('wl',cfg,list.length,inTab.length)}
+  ${list.length?`<section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl mw-wl mw-rtable"><thead><tr>${bulk?`<th style="width:36px">${cbMany('wl',list.map(x=>x.id))}</th>`:''}<th>Name</th><th style="width:170px">Progress</th><th>Next</th><th>Managed by</th><th>Needs attention</th><th style="width:120px">Last updated</th><th class="mw-rt-hide"></th></tr></thead><tbody>
+    ${list.map(x=>`<tr class="mw-rollout ${selSet('wl').has(x.id)?'is-sel':''}" onclick="location.hash='project-${x.id.toLowerCase()}'">${bulk?`<td class="mw-rt-cb">${cb('wl',x.id,'Select '+x.name)}</td>`:''}
+      <td class="mw-rt-title"><div class="flex items-center gap-2 flex-wrap"><span class="mw-kind mw-kind--${x.kind.toLowerCase()}">${x.kind}</span><b>${esc(x.name)}</b>${x.archived?chip('Archived'):''}</div><div class="text-xs muted mt-0.5" title="${esc(x.clients.join(', '))}">${esc(x.clients.slice(0,2).join(', '))}${x.clients.length>2?` +${x.clients.length-2} more`:''}</div></td>
+      <td data-l="Progress">${x.bar}<div class="text-xs muted mt-1">${x.prog}</div></td>
+      <td data-l="Next">${x.done?`<span style="color:var(--ok)">${ic('circle-check','w-4 h-4 inline -mt-0.5')} Complete</span>`:x.next?`<span class="text-sm font-semibold tnum">${fmtDT(x.next.when.trim(),true)}</span> <span class="text-xs muted">${esc(x.next.what)}</span>`:'<span class="muted">—</span>'}</td>
+      <td data-l="Managed by"><div class="flex items-center gap-2">${avs(x.leads,24,4)}<span class="text-xs muted">${esc(ename(x.pm))}${x.leads.length>1?` +${x.leads.length-1}`:''}</span></div></td>
+      <td data-l="Needs attention"><div class="flex flex-wrap gap-1">${x.done?'':x.att.length?x.att.map(([l,tn])=>chip(l,tn)).join(''):chip('On track','ok','check')}</div></td>
+      <td data-l="Last updated">${x.meta?`<div class="text-xs tnum" data-tip="${fmtDT(x.meta.updatedAt)}${x.meta.inside?' · in '+esc(x.meta.inside):''}">${ago(x.meta.updatedAt)}</div><div class="text-xs muted" data-tip="${whoTip(x.meta.updatedBy)}">${esc(firstName(x.meta.updatedBy))}</div>`:'—'}</td>
+      <td class="text-right muted mw-rt-hide">${ic('chevron-right','w-4 h-4')}</td></tr>`).join('')}</tbody></table></div></section>`
+    :`<div class="card p-8 text-center"><p class="font-semibold">Nothing here.</p><p class="text-sm muted mt-1">${S.views.wl.q||Object.values(S.views.wl.f).some(Boolean)?'Try clearing the search or a filter.':tab[0]==='attention'?'Everything is on track.':'No projects or campaigns in this list yet.'}</p></div>`}
+  ${bulk?bulkBar('wl',bbtn('user-plus','Add people',"wlPeople()")+bbtn('calendar-range','Move dates',"daysModal('Move dates','Moves every unfinished date (phases, open tasks and go-lives not yet live) in the selected projects and campaigns. Original dates are kept for the Delivery overview.','wlShift()')")+(w.tab==='archived'?bbtn('archive-restore','Restore',"wlArchive(false)"):bbtn('archive','Archive',"wlArchive(true)"))+bbtn('sheet','Export CSV',"wlCsv()")+bbtn('send','Telegram',"wlTelegram()")):''}`;
+}
+function wlCsv(){const items=workItems().filter(x=>selSet('wl').has(x.id)),who=a=>a?a.name:'';
+  csvOut('projects-and-campaigns',[['ID','Type','Name','Clients','Project managers','PIC','Designers','Progress','Next date','Next','Needs attention','Created at','Created by','Last updated at','Last updated by'],
+    ...items.map(x=>{const o=anyProj(x.id),m=workMeta(x);return [x.id,x.kind,x.name,x.clients.join('; '),o.pms.map(ename).join('; '),o.pics.map(ename).join('; '),o.designers.map(ename).join('; '),x.prog,x.next?.when.trim()||'',x.next?.what||'',x.att.map(a=>a[0]).join('; '),m?.createdAt,who(m?.createdBy),m?.updatedAt,who(m?.updatedBy)]})])}
+
+/* ---------- 3. Campaign brand tasks: filter the grid, or switch to a sortable list ---------- */
+const CG_DUE=[['late','Overdue'],['week','Next 7 days'],['month','Next 30 days'],['none','No go-live date']];
+function cgCfg(c){const all=visRolls(c),mm=myMarkets(),ppl=[...new Set(all.flatMap(r=>r.who))].map(id=>[id,ename(id)]).sort((a,b)=>a[1].localeCompare(b[1]));
+  const cfg={mode:'grid',sort:'golive',ph:'Search brand tasks',modes:[['grid','Grid','layout-grid'],['list','List','list']],
+    sorts:{golive:['Go-live',cmpStr(r=>r.stage==='On hold'?'~':isLive(r)?r.livedAt:(r.publishAt||'}'))],...metaSorts(r=>r.meta),feature:['Feature',cmpStr(r=>feat(r.feature).name)],brand:['Brand',cmpStr(r=>mLabel(r.market))],status:['Status',cmpNum(r=>ROLL_STAGES.indexOf(r.stage))]},
+    filters:[
+      {id:'stage',label:'Status',opts:ROLL_STAGES.filter(s=>all.some(r=>r.stage===s)).map(s=>[s,t(s)]),test:(r,v)=>r.stage===v},
+      {id:'market',label:'Brand',opts:campMarkets(c).map(id=>[id,mLabel(id)]),test:(r,v)=>r.market===v},
+      {id:'feature',label:'Feature',opts:featuresOf(c.id).filter(f=>all.some(r=>r.feature===f.id)).map(f=>[f.id,f.name]),test:(r,v)=>r.feature===v},
+      {id:'who',label:'Assigned to',opts:mm?[]:ppl,test:(r,v)=>r.who.includes(v)},
+      {id:'golive',label:'Go-live',more:true,opts:CG_DUE,test:(r,v)=>v==='none'?!r.publishAt&&!isLive(r):!isLive(r)&&r.stage!=='On hold'&&!!r.publishAt&&(v==='late'?r.publishAt<nowStamp():r.publishAt>=nowStamp()&&r.publishAt.slice(0,10)<=addD(TODAY,v==='week'?7:30))},
+      ...(mm?[]:[{id:'client',label:'Client',more:true,opts:[...new Set(campMarkets(c).map(id=>market(id).client))].map(id=>[id,client(id).name]),test:(r,v)=>market(r.market).client===v}]),
+      ...metaFilters(r=>r.meta)],
+    text:r=>r.title+' '+feat(r.feature).name+' '+mLabel(r.market)+' '+r.who.map(ename).join(' ')};
+  cfg.filters.find(f=>f.id==='by').opts=mm?[]:byOpts(all,r=>r.meta);return cfg}
+function cgList(rows){const sel=!!S.cgSel,mm=myMarkets();
+  if(!rows.length)return `<div class="card p-8 text-center"><p class="font-semibold">No brand tasks match.</p><p class="text-sm muted mt-1">Try clearing the search or a filter.</p></div>`;
+  return `<section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl mw-rtable mw-cglist"><thead><tr>${sel?`<th style="width:36px">${cbMany('cg',rows.map(r=>r.id))}</th>`:''}<th>Brand task</th><th>Brand</th><th>Status</th><th>Go-live</th>${mm?'':'<th>Assigned to</th>'}<th style="width:110px">Created</th><th style="width:120px">Last updated</th></tr></thead><tbody>
+  ${rows.map(r=>{const on=selSet('cg').has(r.id);return `<tr class="mw-rollout ${sel&&on?'is-sel':''}" onclick="${sel?`selToggle('cg','${r.id}',${!on})`:`viewRoll('${r.id}')`}">${sel?`<td class="mw-rt-cb">${cb('cg',r.id,'Select '+r.title)}</td>`:''}
+    <td class="mw-rt-title"><b>${esc(r.title)}</b><div class="text-xs muted">${esc(feat(r.feature).name)}${needsReq(r)?` · <span style="color:var(--acc)">${ic('file-question','w-3 h-3 inline -mt-0.5')} needs requirements</span>`:''}</div></td>
+    <td data-l="Brand">${marketTag(r.market)}</td><td data-l="Status">${stageChip(r.stage)}</td>
+    <td data-l="Go-live" class="tnum text-sm">${r.stage==='On hold'?'<span class="muted">On hold</span>':isLive(r)?fmtDT(r.livedAt,true):r.publishAt?`<span${r.publishAt<nowStamp()?' style="color:var(--warn)"':''}>${fmtDT(r.publishAt,true)}</span>`:'<span class="muted">Not set</span>'}</td>
+    ${mm?'':`<td data-l="Assigned to"><div class="flex items-center gap-2">${avs(r.who,22,3)}<span class="text-xs muted">${esc(r.who.map(w=>ename(w).split(' ')[0]).join(', '))}</span></div></td>`}
+    <td data-l="Created">${crCell(r)}</td><td data-l="Last updated">${updCell(r)}</td></tr>`}).join('')}</tbody></table></div></section>`}
+{const o=pgCampaign;window.pgCampaign=function(c){
+  if(!canSeeCamp(c))return o(c);
+  const key='cg-'+c.id,cfg=cgCfg(c),v=vstate(key,cfg),all=visRolls(c),rows=applyView(key,all,cfg),filtered=!!(v.q||Object.values(v.f).some(Boolean));
+  S.cgMatch=filtered?new Set(rows.map(r=>r.id)):null;S.cgMode=v.mode;
+  let h=o(c);const bar=viewBar(key,cfg,rows.length,all.length),a=h.indexOf('<section class="card overflow-hidden mw-desk-only">');
+  if(v.mode==='list'){const e=h.indexOf('</tbody></table></div></section>',a)+'</tbody></table></div></section>'.length;h=h.slice(0,a)+bar+cgList(rows)+h.slice(e)}
+  else h=h.slice(0,a)+bar+(filtered&&!rows.length?`<div class="card p-8 text-center mb-3"><p class="font-semibold">No brand tasks match.</p><p class="text-sm muted mt-1">Try clearing the search or a filter.</p></div>`:'')+h.slice(a);
+  if(v.mode==='list')h=h.replace(/<div class="mw-howto">.*?<\/span><\/div>/,`<div class="mw-howto">${ic('mouse-pointer-click','w-4 h-4 flex-none')}<span>One row per brand task. <b>Click a row</b> to see details and its next step. Switch to <b>Grid</b> to see features against brands.</span></div>`);
+  return h}}
+{const o=campMobile;window.campMobile=c=>S.cgMode==='list'?'':o(c)}
+
+/* =================== ROUND 13: CONTRACT LENGTH · USERNAMES · AUDIT RESULT · FULL EMPLOYEE RECORD =================== */
+
+/* ---------- 1. partner contracts: pick the length, the end date fills itself ---------- */
+const CT_LEN=[['1','1 year'],['2','2 years'],['3','3 years'],['5','5 years'],['0','Custom end date'],['-1','Open-ended']];
+const addY=(d,n)=>addD(String(+d.slice(0,4)+n)+d.slice(4),-1);
+const ctYears=v=>!v.until?-1:([1,2,3,5].find(n=>addY(v.since,n)===v.until)||0);
+function ctBadge(v){const n=ctYears(v),left=v.until?days(v.until):null;
+  return `<div class="flex flex-wrap gap-1 mt-1">${chip(n>0?`${n}-year contract`:n<0?'Open-ended':'Custom length','','file-clock')}${left!==null&&left>=0&&left<=30?chip(`Renew within ${left} day${left===1?'':'s'}`,'warn','bell-ring'):left!==null&&left<0?chip('Contract ended','warn','calendar-x'):''}</div>`}
+function ctUpd(){const n=+val('v-y'),s=val('v-s'),u=$('#v-u');if(!u)return;
+  if(n>0&&s){u.value=addY(s,n);u.readOnly=true}else if(n<0){u.value='';u.readOnly=true}else u.readOnly=false;
+  u.closest('.fld')?.classList.toggle('is-auto',n!==0);
+  const h=$('#v-uh');if(h)h.innerHTML=n<0?'No end date. Renewal reminders are off.':u.value?`Ends <b>${fmt(u.value)}</b>. The internal owner is reminded on <b>${fmt(addD(u.value,-30))}</b> (30 days before).`:'Pick the end date.'}
+function editVendor(id){
+  const v=id?vendor(id):{name:'',type:'Marketing',owner:S.user.eid||'E002',email:'',phone:'',since:TODAY,until:addY(TODAY,1),status:'Active',note:''};
+  openModal({title:id?'Edit partner':'Add external partner',icon:'handshake',size:'lg',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Company or freelancer name',inp('v-n',v.name,'text','e.g. Bright Spark Marketing'),'sm:col-span-2',true)}${fld('Type',sel('v-t',VENDOR_TYPES,v.type))}${fld('Internal owner',sel('v-o',DB.employees.filter(e=>des(e.desig).level>=3).map(e=>[e.id,e.name+' · '+e.pos]),v.owner))}
+    ${fld('Email',inp('v-e',v.email,'email'),'',true)}${fld('Phone',inp('v-p',v.phone,'tel'))}
+    ${fld('Contract start',inp('v-s',v.since,'date','','oninput="ctUpd()"'))}${fld('Contract length',sel('v-y',CT_LEN,String(ctYears(v)),'onchange="ctUpd()"'))}
+    ${fld('Contract end',inp('v-u',v.until,'date','','oninput="ctUpd()"'))}${fld('Status',sel('v-st',['Active','Inactive'],v.status))}
+    <p class="text-xs muted sm:col-span-2 -mt-2" id="v-uh"></p>
+    ${fld('What they do for us',txt('v-x',v.note,'Scope of work',2),'sm:col-span-2')}</div><p class="text-xs muted mt-3">Setting a partner to Inactive disables sign-in for all its people. Their past work stays on the projects.</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveVendor('${id||''}')">${ic('check')}Save</button>`});
+  ctUpd();
+}
+wrapFn('saveVendor',id=>{if(!val('v-n')||!val('v-e'))return;if(+val('v-y')===0&&val('v-u')&&val('v-u')<val('v-s')){toast('Contract end must be after the start','circle-alert');return false}
+  const v=id?vendor(id):null;return v?{s:v.since,u:v.until,st:v.status}:{n:DB.vendors.length}},
+  (c,id)=>{if(!c)return;const v=id?vendor(id):DB.vendors[c.n];if(!v)return;const len=ctYears(v),ct=`${fmtS(v.since)} → ${v.until?fmt(v.until):'open-ended'} (${len>0?len+' year'+(len>1?'s':''):len<0?'open-ended':'custom'})`;
+    if(!id)audit('Partner',v.id,v.name,'Partner added',{detail:ct});else{if(c.s!==v.since||c.u!==v.until)audit('Partner',v.id,v.name,'Contract changed',{from:`${fmtS(c.s)} → ${c.u?fmt(c.u):'open-ended'}`,to:ct});if(c.st!==v.status)audit('Partner',v.id,v.name,'Status changed',{from:c.st,to:v.status})}});
+
+/* ---------- 2. usernames: everyone signs in with email or username ---------- */
+const slugU=s=>String(s||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/[^a-z0-9]/g,'').slice(0,24)||'user';
+const U_RX=/^[a-z0-9._-]{3,30}$/;
+function allUsernames(){return [...DB.employees.map(e=>[e.account?.username,'e:'+e.id]),...DB.guests.map(g=>[g.username,'g:'+g.id]),...ACCOUNTS.filter(a=>!a.eid&&!a.gid).map(a=>[a.username,'a:'+a.email]),...allPics().map(p=>[p.username,'p:'+p.id])]}
+const userTaken=(u,self)=>allUsernames().some(([x,k])=>x===u&&k!==self);
+function uniqU(base,self){let u=base,i=1;while(userTaken(u,self))u=base+(++i);return u}
+ACCOUNTS.filter(a=>!a.eid&&!a.gid).forEach(a=>a.username=a.username||uniqU(slugU(a.name),'a:'+a.email));
+DB.employees.forEach(e=>{e.account=e.account||{on:true,role:'staff',last:null,invited:false};e.account.username=e.account.username||uniqU(slugU(e.display||e.name),'e:'+e.id)});
+DB.guests.forEach(g=>g.username=g.username||uniqU(slugU(g.name),'g:'+g.id));
+const accUsername=a=>a.eid?emp(a.eid)?.account?.username:a.gid?guest(a.gid)?.username:a.username;
+function findAccount(x){x=x.trim().toLowerCase();if(!x)return [null,''];const byMail=ACCOUNTS.find(a=>a.email===x);if(byMail)return [byMail,'email'];
+  const byUser=ACCOUNTS.find(a=>accUsername(a)===x);return [byUser||null,byUser?'username':'']}
+const VISITOR={kind:'Visitor',name:'Unknown visitor'};
+function loginForm(){
+  return `<form class="w-full max-w-sm m-auto" onsubmit="event.preventDefault();doLogin()">
+    <div class="lg:hidden flex items-center gap-3 mb-8"><span class="sb-logo" style="background:var(--accent);color:var(--accent-ink)">M</span><span class="sb-title">Meridian Workforce</span></div>
+    <h2 class="text-3xl font-extrabold">${t('Sign in')}</h2>
+    <p class="muted mt-1 mb-6">Use your work email or username. ${t('2FA is currently')} <b>${t(DB.settings.twoFA?'on':'off')}</b>.</p>
+    <div class="flex flex-col gap-4">
+      ${fld('Email or username',inp('l-email','tang@gmail.com','text','you@gmail.com or your username','autocomplete="username" autocapitalize="none" spellcheck="false"'))}
+      ${fld(t('Password'),`<div class="relative">${inp('l-pw','password123','password','••••••••','autocomplete="current-password"')}<button type="button" class="icon-btn absolute right-1 top-1" data-tip="Show / hide password" onclick="const p=$('#l-pw');p.type=p.type==='password'?'text':'password'">${ic('eye')}</button></div>`)}
+      <div class="flex items-center justify-between text-sm"><label class="flex items-center gap-2"><input type="checkbox" id="l-rem" checked style="accent-color:var(--accent)"> ${t('Remember me')}</label><a class="font-semibold" style="color:var(--accent)" href="javascript:toast('Reset link sent (mock)','mail')">${t('Forgot password?')}</a></div>
+      <button class="btn btn-primary w-full h-11 mt-1" type="submit">${ic('log-in')}${t('Sign in')}</button>
+      <button type="button" class="btn btn-ghost w-full" onclick="S.loginMode='client';renderLogin()">${ic('building')}Client? Sign in with username and PIN</button>
+      <a class="text-xs muted text-center block" href="#setup">Mockup: open the first-time setup (/setup)</a>
+    </div>
+    <div class="mt-8">
+      <div class="text-xs font-bold uppercase tracking-wider muted mb-2">${t('Demo accounts')}</div>
+      <div class="flex flex-col gap-2 acct-list">${ACCOUNTS.map(a=>`<button type="button" class="check-row w-full text-left" onclick="$('#l-email').value='${a.email}';doLogin()">${av(a.name,28)}<span class="flex-1 min-w-0"><span class="block text-sm font-semibold">${a.name}</span><span class="block text-xs muted truncate">${a.sub} · <span class="mono">${esc(accUsername(a)||'')}</span></span></span>${chip(a.role.split(' · ')[0],{sysadmin:'acc',exec:'hi',hr:'ok',lead:'info',guest:'warn'}[a.roleKey]||'')}</button>`).join('')}</div>
+    </div>
+  </form>`;
+}
+function doLogin(){
+  const typed=val('l-email'),[acc,via]=findAccount(typed);
+  if(!acc){audit('Sign-in',typed,typed||'(empty)','Sign-in failed',{result:'Failed',detail:'No account with that email or username',who:VISITOR});toast('No account with that email or username. Pick a demo account.','circle-alert');return}
+  const who=acc.eid?actorOf(acc.eid):acc.gid?actorOf(acc.gid):{kind:'System admin',id:acc.email,name:acc.name,role:'System Admin'};
+  if(acc.eid&&emp(acc.eid)?.account?.on===false){audit('Sign-in',acc.email,acc.name,'Sign-in failed',{result:'Failed',detail:'Account is switched off',who});toast('This account is switched off. Ask HR or your System Admin.','lock');return}
+  if(acc.gid&&!activeGuest(acc.gid)){audit('Sign-in',acc.email,acc.name,'Sign-in failed',{result:'Failed',detail:'Guest sign-in is disabled',who});toast('Sign-in is disabled for this guest. Contact your LN Worldwide contact person.','lock');return}
+  S.loginVia=via;if(acc.gid)guest(acc.gid).last=TODAY;
+  if((acc.devices||[]).length){S.pending2FA=acc;renderLogin();setTimeout(()=>$('#otp0')?.focus(),50);return}
+  S.user=acc;enterApp();
+}
+wrapFn('enterApp',null,()=>{if(!S.user||!S.loginVia)return;const u=S.user;audit('Sign-in',u.email,u.name,'Signed in',{detail:'With '+S.loginVia+(u.devices?.length?' + 2FA':'')});S.loginVia=null});
+wrapFn('doClientLogin',()=>{const u=val('cl-u').toLowerCase(),pin=val('cl-p'),p=allPics().find(x=>x.username===u);
+  const fail=(d,who=VISITOR,x=u,l=u)=>audit('Sign-in',x,l||'(empty)','Client sign-in failed',{result:'Failed',detail:d,who});
+  if(!p||picClient(p.id).status!=='Active')return fail('Unknown username or inactive client');const w=actorOf(p.id),l=`${p.display} · ${picClient(p.id).name}`;
+  if(p.disabled)return fail('Account is switched off',w,p.id,l);if(p.locked)return fail('Account is locked',w,p.id,l);
+  if(pin!==p.pin)return fail(p.tries+1>=5?'Wrong PIN · account now locked':`Wrong PIN · ${4-p.tries} tries left`,w,p.id,l);
+  S.loginVia='username + PIN'});
+function editUsername(key){const [k,id]=key.split(':'),cur=k==='e'?emp(id).account.username:k==='g'?guest(id).username:ACCOUNTS.find(a=>a.email===id).username;
+  openModal({title:'Change username',icon:'at-sign',size:'sm',body:`${fld('Username',inp('un-v',cur,'text','','autocapitalize="none" spellcheck="false"'),'',true)}<p class="text-xs muted mt-2">3–30 characters: lowercase letters, numbers, dot, dash or underscore. Must be unique. The person can sign in with this or their email.</p>`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveUsername('${key}')">${ic('check')}Save</button>`})}
+function saveUsername(key){const [k,id]=key.split(':'),v=val('un-v').toLowerCase();
+  if(!U_RX.test(v))return toast('Use 3–30 lowercase letters, numbers, dot, dash or underscore','circle-alert');
+  if(userTaken(v,key))return toast('That username is already taken','circle-alert');
+  const o=k==='e'?emp(id).account:k==='g'?guest(id):ACCOUNTS.find(a=>a.email===id),from=o.username;if(from===v)return closeModal();o.username=v;
+  const name=k==='e'?emp(id).name:k==='g'?guest(id).name:o.name;audit(k==='e'?'Employee':k==='g'?'Partner person':'Account',id,name,'Username changed',{from,to:v});
+  if(k==='e')logEvent(id,'Username changed',`${from} → ${v}`,'info');closeModal();rerender();toast('Username saved','at-sign')}
+function editGuest(vid,gid){
+  const g=gid?guest(gid):{name:'',title:'',email:'',username:''},v=vendor(vid);
+  openModal({title:gid?'Edit person':'Add person · '+esc(v.name),icon:'user-plus',body:`<div class="grid sm:grid-cols-2 gap-4">${fld('Name',inp('g-n',g.name,'text','',gid?'':'oninput="if(!$(\'#g-u\').dataset.t)$(\'#g-u\').value=slugU(this.value)"'),'',true)}${fld('Role',inp('g-t',g.title,'text','e.g. Graphic Designer'))}${fld('Email',inp('g-e',g.email,'email'),'',true)}${fld('Username',inp('g-u',g.username,'text','made from the name','autocapitalize="none" spellcheck="false" oninput="this.dataset.t=1"'),'',true)}</div>
+    <p class="text-xs muted mt-3">They sign in with the email or the username.${gid?'':' An invite email lets them set a password. They sign in as a Guest and see nothing until you add them to a project or meeting.'}</p>`,
+  foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveGuest('${vid}','${gid||''}')">${ic(gid?'check':'send')}${gid?'Save':'Send invite'}</button>`});
+}
+function saveGuest(vid,gid){
+  if(!val('g-n')||!val('g-e')){toast('Name and email are required','circle-alert');return}
+  const un=(val('g-u')||slugU(val('g-n'))).toLowerCase();if(!U_RX.test(un))return toast('Username: 3–30 lowercase letters, numbers, dot, dash or underscore','circle-alert');
+  if(userTaken(un,gid?'g:'+gid:''))return toast('That username is already taken','circle-alert');
+  const o={name:val('g-n'),title:val('g-t'),email:val('g-e').toLowerCase(),username:un};
+  if(gid){const g=guest(gid),from=g.username;Object.assign(g,o);if(from!==un)audit('Partner person',gid,g.name,'Username changed',{from,to:un})}
+  else{if(vendor(vid).status!=='Active'){toast('This partner is inactive','circle-alert');return}const g={id:nextId(DB.guests,'G'),vendor:vid,...o,access:'Invited',last:null};DB.guests.push(g);audit('Partner person',g.id,g.name,'Invited',{detail:`${vendor(vid).name} · ${o.email} · ${un}`,to:'Invited'})}
+  closeModal();rerender();toast(gid?'Saved':'Invite sent to '+o.email,gid?'check':'mail');
+}
+{const o=profSecurity;window.profSecurity=function(u){const h=o(u),un=u.eid?emp(u.eid)?.account?.username:u.gid?guest(u.gid)?.username:u.username;
+  return h.replace('<div class="grid gap-4 xl:grid-cols-2">',`<div class="grid gap-4 xl:grid-cols-2"><section class="mw-section xl:col-span-2"><div class="mw-section__title">${ic('at-sign','w-4 h-4')}Sign-in name</div><dl class="dl mt-3"><dt>Email</dt><dd>${esc(u.email)}</dd><dt>Username</dt><dd class="mono">${esc(un||'—')}</dd></dl><p class="text-xs muted mt-2">You can sign in with either one. Ask HR or your System Admin to change your username.</p></section>`)}}
+
+/* ---------- 3. audit log: every entry is Success or Failed ---------- */
+function audit(type,ref,label,action,{detail='',from='',to='',who=null,at=null,result='Success'}={}){DB.audit.unshift({at:at||nowStamp(),actor:who||actor(),type,ref,label,action,detail,from,to,result})}
+const resChip=a=>a.result==='Failed'?`<span class="mw-res is-fail">${ic('circle-x','w-3.5 h-3.5')}Failed</span>`:`<span class="mw-res">${ic('circle-check','w-3.5 h-3.5')}Success</span>`;
+// blocked actions are recorded as Failed with the reason
+wrapFn('liveUrlModal',(rid,then)=>{if(then){const r=roll(rid);audit('Brand task',rid,rl(r),'Status change blocked',{result:'Failed',detail:'Live site link missing'})}});
+wrapFn('cgSetStage',(r,s)=>{if(['Scheduled','Live'].includes(s)&&!r.prod&&r.stage!==s)audit('Brand task',r.id,rl(r),'Status change blocked (bulk)',{result:'Failed',from:r.stage,to:s,detail:'Live site link missing'})});
+wrapFn('projLiveUrl',(id,then)=>{if(then){const p=proj(id);audit('Project',id,p.name,'Phase change blocked',{result:'Failed',to:'Production',detail:'Live site link missing'})}});
+function pgAudit(){const f=S.auF||(S.auF={q:'',type:'',kind:'',res:''}),types=[...new Set(DB.audit.map(a=>a.type))],kinds=[...new Set(DB.audit.map(a=>a.actor.kind))];
+  const list=DB.audit.filter(a=>(!f.type||a.type===f.type)&&(!f.kind||a.actor.kind===f.kind)&&(!f.res||(a.result||'Success')===f.res)&&(!f.q||`${a.action} ${a.label} ${a.actor.name} ${a.actor.no||''} ${a.detail}`.toLowerCase().includes(f.q.toLowerCase())));
+  const fail=DB.audit.filter(a=>a.result==='Failed').length;
+  const fsel=(id,k,opts,l)=>sel(id,[['',l],...opts],f[k]||'',`onchange="S.auF.${k}=this.value;rerender()" aria-label="${l}"`).replace('class="input"',`class="input mw-viewbar__sel${f[k]?' is-on':''}" style="height:36px"`);
+  return `<div class="mw-howto">${ic('shield-check','w-4 h-4 flex-none')}<span>Every sign-in, status change, request, approval and rejection, with who did it (name, staff no., position, department and access role; company for partners and clients) and whether it <b>succeeded or failed</b>. Failed entries say why, e.g. wrong PIN or live site link missing. Entries can't be edited or deleted.</span></div>
+  <div class="mw-listbar mw-listbar--wrap"><div class="mw-viewbar__search">${ic('search','w-4 h-4')}<input id="au-q" class="input" style="height:36px" placeholder="Search action, item, person, staff no." value="${esc(f.q)}" oninput="S.auF.q=this.value;rerender();const i=$('#au-q');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></div>
+    ${fsel('au-r','res',[['Success','Success'],['Failed',`Failed (${fail})`]],'Success and failed')}${fsel('au-t','type',types,'All items')}${fsel('au-k','kind',kinds,'Everyone')}<span class="mw-viewbar__count">${list.length} of ${DB.audit.length}</span><span class="mw-viewbar__spacer"></span>
+    <button class="btn btn-ghost h-9" onclick="auditCsv()">${ic('sheet')}Export CSV</button></div>
+  <section class="card overflow-hidden"><div class="tbl-wrap"><table class="tbl mw-autort"><thead><tr><th>Action</th><th>Result</th><th>Item</th><th>Who</th><th>When</th></tr></thead><tbody>
+    ${list.map(a=>`<tr class="${a.result==='Failed'?'mw-audit--fail':''}"><td><b>${esc(a.action)}</b>${a.from||a.to?`<div class="mw-audit__ft mt-1">${a.from?esc(a.from)+' → ':''}${esc(a.to)}</div>`:''}${a.detail?`<div class="text-xs muted mt-1" style="max-width:360px;overflow-wrap:anywhere">${esc(a.detail)}</div>`:''}</td>
+      <td>${resChip(a)}</td>
+      <td><button class="text-left" onclick="auditOpen('${a.type}','${esc(a.ref)}')"><span class="chip">${esc(a.type)}</span><div class="text-sm mt-1" style="color:var(--accent)">${esc(a.label)}</div></button></td>
+      <td><div class="flex items-center gap-2">${av(a.actor.name,26)}<div><div class="text-sm font-semibold">${esc(a.actor.name)}</div><div class="text-xs muted">${esc(actorLine(a.actor))}</div></div></div></td><td class="tnum text-sm" style="white-space:nowrap">${fmtDT(a.at)}</td></tr>`).join('')||'<tr><td colspan="5" class="muted text-sm">Nothing matches.</td></tr>'}</tbody></table></div></section>`}
+function auditCsv(){csvOut('audit-log',[['When','Action','Result','From','To','Details','Item type','Item','Name','Staff no.','Position','Department','Access role','Company'],...DB.audit.map(a=>[a.at,a.action,a.result||'Success',a.from,a.to,a.detail,a.type,a.label,a.actor.name,a.actor.no||'',a.actor.pos||'',a.actor.dept||'',a.actor.role||'',a.actor.org||''])])}
+wrapFn('auditOpen',(type,ref)=>{if(type==='Sign-in'){toast('Sign-in attempt: details are on this row','log-in');return false}if(type==='Partner'||type==='Partner person'){location.hash='vendors';return false}if(type==='Account'){location.hash='profile';return false}});
+
+/* ---------- 4 & 5. full employee record ---------- */
+const OPT={race:['Malay','Chinese','Indian','Bumiputera Sabah','Bumiputera Sarawak','Others'],religion:['Islam','Buddhism','Christianity','Hinduism','Taoism','Sikhism','Others','None'],marital:['Single','Married','Divorced','Widowed'],
+  bank:['Maybank','CIMB Bank','Public Bank','RHB Bank','Hong Leong Bank','AmBank','Bank Islam','Bank Rakyat','UOB','OCBC','HSBC','Alliance Bank','Affin Bank','BSN'],rel:['Spouse','Mother','Father','Sibling','Child','Friend','Other'],
+  endReason:['Resigned','Contract ended','Internship ended','Terminated','Retired','Other'],location:['HQ · Petaling Jaya','Remote','Hybrid','Client site'],edu:['SPM','STPM / A-Level','Diploma',"Bachelor's Degree","Master's Degree",'PhD'],
+  doc:['NRIC / passport copy','Offer letter','Employment contract','Certificate','Bank statement header','Resignation letter','Other']};
+// [key,label,type,opts,mode]  mode: s = employee saves directly · a = employee asks, HR approves · h = HR only
+const EMP_SECTIONS=[
+  ['personal','Personal','id-card',[['name','Full legal name','text',0,'a'],['display','Preferred name','text',0,'s'],['idType','ID type','sel',['NRIC','Passport'],'a'],['idNo','NRIC / passport no.','text',0,'a'],['dob','Date of birth','date',0,'a'],['gender','Gender','sel',['Male','Female'],'a'],['nationality','Nationality','text',0,'a'],['race','Race','sel',OPT.race,'s'],['religion','Religion','sel',OPT.religion,'s'],['marital','Marital status','sel',OPT.marital,'a']]],
+  ['contact','Contact','contact',[['email','Work email','email',0,'h'],['personalEmail','Personal email','email',0,'s'],['phone','Mobile','tel',0,'s'],['address','Home address','wide',0,'s']]],
+  ['family','Family & emergency contact','users',[['spouse.name','Spouse name','text',0,'s'],['spouse.job','Spouse occupation','text',0,'s'],['spouse.working','Spouse working?','sel',['Yes','No'],'s'],['children','Number of children','number',0,'s'],['ec.name','Emergency contact name','text',0,'s'],['ec.rel','Relationship','sel',OPT.rel,'s'],['ec.phone','Emergency contact phone','tel',0,'s']]],
+  ['bank','Bank & statutory','landmark',[['bank.name','Bank','sel',OPT.bank,'a'],['bank.acc','Account number','text',0,'a'],['bank.holder','Account holder name','text',0,'a'],['stat.epf','EPF no.','text',0,'a'],['stat.socso','SOCSO no.','text',0,'a'],['stat.eis','EIS no.','text',0,'a'],['stat.tax','Income tax no. (LHDN)','text',0,'a']]],
+  ['edu','Education','graduation-cap',[['edu.level','Highest level','sel',OPT.edu,'s'],['edu.inst','Institution','text',0,'s'],['edu.field','Field of study','text',0,'s'],['edu.year','Year completed','number',0,'s']]],
+];
+const EMP_FIELDS=EMP_SECTIONS.flatMap(s=>s[3]);
+const SECRET=['idNo','bank.acc','stat.epf','stat.socso','stat.eis','stat.tax'];
+const REQUIRED=['name','idNo','dob','gender','nationality','race','religion','marital','personalEmail','phone','address','ec.name','ec.rel','ec.phone','bank.name','bank.acc','bank.holder','stat.epf','stat.socso','stat.tax','edu.level'];
+const pset=(o,k,v)=>{const p=k.split('.');if(p.length>1){o[p[0]]=o[p[0]]||{};o[p[0]][p[1]]=v}else o[k]=v};
+const kid=k=>k.replace('.','-');
+const mask=v=>String(v||'').replace(/.(?=.{4})/g,'•');
+const fieldLabel=k=>EMP_FIELDS.find(f=>f[0]===k)?.[1]||k;
+// seed the extra details for the demo employees
+DB.employees.forEach((e,i)=>{const n=+e.id.slice(1),zh=/^(Tan|Lim|Lee|Wong|Tee|Gan|Ong|Ng|Chan|Cheong|Yap|Teh|Chin|Leong|Tang|Mei|Sin|Wei|Jeff|Joe|Leon|Ah )/.test(e.name);
+  e.race=e.race||(zh?'Chinese':['Malay','Indian','Chinese','Others'][n%4]);e.religion=e.religion||({Chinese:['Buddhism','Christianity','Taoism','None'][n%4],Malay:'Islam',Indian:['Hinduism','Christianity'][n%2]}[e.race]||'Others');
+  const age=2026-+e.dob.slice(0,4);e.marital=e.marital||(age>32?(n%5?'Married':'Single'):n%4===0?'Married':'Single');
+  if(e.marital==='Married'&&!e.spouse)e.spouse={name:(e.gender==='Male'?'Wong ':'Lim ')+['Siew Mei','Kok Leong','Hui Ling','Wei Jie'][n%4],job:['Teacher','Accountant','Engineer','Nurse'][n%4],working:n%3?'Yes':'No'};
+  e.children=e.children??(e.marital==='Married'?n%3:0);
+  e.bank=e.bank||{name:OPT.bank[n%6],acc:String(1140000000+n*7919371).slice(0,12),holder:e.name.toUpperCase()};
+  e.stat=e.stat||{epf:String(10000000+n*48271).slice(0,8),socso:e.idNo.replace(/-/g,''),eis:e.idNo.replace(/-/g,''),tax:'IG'+String(20000000000+n*9137713).slice(0,11)};
+  e.location=e.location||(n%7===3?'Hybrid':'HQ · Petaling Jaya');
+  e.jobDesc=e.jobDesc||`${e.pos} in the ${e.dept} team. Delivers assigned project work on time, keeps tasks and check-ins up to date and supports teammates.`;
+  e.exp=e.exp||(e.type==='Internship'?[]:[{company:['Grab','Shopee Malaysia','Maxis','AirAsia Digital','Fusionex'][n%5],title:e.pos.replace(/^(Senior |Lead |Head of )/,''),from:addD(e.joined,-(900+n*13)).slice(0,7),to:addD(e.joined,-30).slice(0,7),reason:['Career growth','Relocation','Contract ended'][n%3]}]);
+  e.docs=e.docs||[{name:'NRIC copy.pdf',type:'NRIC / passport copy',size:'412 KB',on:e.joined,by:'HR'},{name:'Offer letter.pdf',type:'Offer letter',size:'188 KB',on:addD(e.joined,-14),by:'HR'},...(e.type==='Contract'?[{name:'Contract 2025-2026.pdf',type:'Employment contract',size:'230 KB',on:e.joined,by:'HR'}]:[])];
+  if(i%6===5){e.stat.tax='';e.spouse&&(e.spouse.job='')}});
+function profileProgress(m){const done=REQUIRED.filter(k=>{const v=pget(m,k);return v!==null&&v!==undefined&&String(v).trim()!==''}).length;return [done,REQUIRED.length]}
+
+/* shared form pieces */
+function empInput(prefix,f,v,{lock=false,showMode=false}={}){const [k,l,ty,opts,mode]=f,id=prefix+kid(k),dis=lock?'disabled':'';
+  const ctl=ty==='sel'?sel(id,[['','—'],...opts],v??'',dis):ty==='area'?txt(id,v??'','',3):inp(id,v??'',ty==='wide'?'text':ty,'',dis);
+  const tag=showMode&&mode==='a'?' <span class="mw-hrtag" data-tip="HR approves this change first">HR approval</span>':showMode&&mode==='h'?' <span class="mw-hrtag is-hr" data-tip="Only HR can change this">HR only</span>':'';
+  return fld(esc(l)+tag,ctl,ty==='wide'||ty==='area'?'sm:col-span-2':'',REQUIRED.includes(k))}
+function expEditor(list,canEdit){S.expDraft=list.map(x=>({...x}));return `<div id="exp-box">${expRows(canEdit)}</div>`}
+function expRows(canEdit){const L=S.expDraft;
+  return (L.length?L.map((x,i)=>`<div class="mw-exp"><div class="grid sm:grid-cols-2 gap-3">${fld('Company',inp('ex-c'+i,x.company,'text','',canEdit?'':'disabled'))}${fld('Position',inp('ex-t'+i,x.title,'text','',canEdit?'':'disabled'))}${fld('From',inp('ex-f'+i,x.from,'month','',canEdit?'':'disabled'))}${fld('To',inp('ex-o'+i,x.to,'month','',canEdit?'':'disabled'))}${fld('Reason for leaving',inp('ex-r'+i,x.reason,'text','',canEdit?'':'disabled'),'sm:col-span-2')}</div>${canEdit?`<button type="button" class="btn btn-ghost h-8 mt-2" onclick="expRead();S.expDraft.splice(${i},1);$('#exp-box').innerHTML=expRows(true);icons()">${ic('trash-2')}Remove</button>`:''}</div>`).join(''):'<p class="text-sm muted">No previous jobs added.</p>')+
+  (canEdit?`<button type="button" class="btn btn-ghost h-9 mt-2" onclick="expRead();S.expDraft.push({company:'',title:'',from:'',to:'',reason:''});$('#exp-box').innerHTML=expRows(true);icons()">${ic('plus')}Add previous job</button>`:'')}
+function expRead(){S.expDraft=S.expDraft.map((x,i)=>$('#ex-c'+i)?{company:val('ex-c'+i),title:val('ex-t'+i),from:val('ex-f'+i),to:val('ex-o'+i),reason:val('ex-r'+i)}:x)}
+const expClean=()=>(expRead(),S.expDraft.filter(x=>x.company||x.title));
+const expText=x=>`${x.from?x.from:'?'} – ${x.to?x.to:'?'}`;
+function docList(e,{canAdd=false,canRemove=()=>false}={}){const D=e.docs||[];
+  return `<div class="flex flex-col">${D.map((d,i)=>`<div class="flex items-center gap-3 py-2 border-b last:border-0" style="border-color:var(--line)"><span class="chip" style="padding:6px">${ic('file-text','w-4 h-4')}</span><div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">${esc(d.name)}</div><div class="text-xs muted">${esc(d.type)} · ${esc(d.size)} · added ${fmtS(d.on)} by ${esc(d.by)}</div></div>${ib('download','Download',`toast('Download starts in the real system','download')`)}${canRemove(d)?ib('trash-2','Remove',`docRemove('${e.id}',${i})`):''}</div>`).join('')||'<p class="text-sm muted">No documents yet.</p>'}</div>
+  ${canAdd?`<div class="flex flex-wrap items-end gap-2 mt-3">${fld('Document type',sel('doc-t-'+e.id,OPT.doc,OPT.doc[0]))}<label class="btn btn-ghost h-9" style="cursor:pointer">${ic('upload')}Upload file<input type="file" class="sr-only" accept=".pdf,.jpg,.jpeg,.png" onchange="docAdd('${e.id}',this)"></label></div><p class="text-xs muted mt-1">PDF, JPG or PNG, up to 5 MB. Files are scanned before they are saved.</p>`:''}`}
+function docAdd(id,input){const f=input.files[0];if(!f)return;if(f.size>5*1024*1024)return toast('Max 5 MB','circle-alert');const e=emp(id),self=S.user.eid===id;
+  e.docs=[...(e.docs||[]),{name:f.name,type:val('doc-t-'+id),size:Math.max(1,Math.round(f.size/1024))+' KB',on:TODAY,by:self?'Self':S.user.name}];
+  audit('Employee',id,e.name,'Document uploaded',{detail:`${val('doc-t-'+id)} · ${f.name}`});logEvent(id,'Document uploaded',`${val('doc-t-'+id)} · ${f.name}`,'info');
+  if(S.drawerFn&&$('#drawer'))S.drawerFn();else rerender();toast('Document added','file-check')}
+function docRemove(id,i){const e=emp(id),d=e.docs[i];e.docs.splice(i,1);audit('Employee',id,e.name,'Document removed',{detail:`${d.type} · ${d.name}`});if(S.drawerFn&&$('#drawer'))S.drawerFn();else rerender();toast('Document removed','trash-2')}
+
+/* Profile → Employee information: only for people with an employee record */
+function profInfo(m,done,total){const it=DB.review.items[m.id],pend=it?.st==='Submitted'?(it.changes||[]):[],pv=k=>pend.find(c=>c[3]===k);
+  const sec=([id,title,icon,fs])=>`<section class="mw-section"><div class="mw-section__title">${ic(icon,'w-4 h-4')}${title}</div><div class="mw-form-grid mt-3">${fs.map(f=>{const p=pv(f[0]);return empInput('pi-',f,p?p[2]:pget(m,f[0]),{lock:f[4]==='h',showMode:true}).replace(/<\/label>$/,p?`<span class="text-xs" style="color:var(--warn)">Waiting for HR · now: ${esc(p[1]||'—')}</span></label>`:'</label>')}).join('')}</div></section>`;
+  return `${reviewBanner()}
+  <div class="mw-alert mw-alert--info">${ic('info','w-5 h-5 flex-none')}<div><b>Your employee information</b><div>Most details save straight away. Fields marked <span class="mw-hrtag">HR approval</span> (legal name, NRIC, date of birth, marital status, bank and statutory numbers) are sent to HR first. Job details are managed by HR.</div></div></div>
+  ${pend.length?`<div class="mw-alert mw-alert--warning">${ic('hourglass','w-5 h-5 flex-none')}<div><b>Waiting for HR approval since ${fmt(it.on)}</b><div>${pend.map(c=>esc(c[0])).join(', ')}</div></div></div>`:''}
+  <div class="flex justify-between text-sm mb-1"><b>Profile completeness</b><span class="muted">${done}/${total} required fields</span></div><div class="mw-progress mb-4"><div class="mw-progress__bar" style="width:${Math.round(done/total*100)}%"></div></div>
+  <form class="grid gap-4" onsubmit="event.preventDefault();submitInfo()">
+    ${EMP_SECTIONS.map(sec).join('')}
+    <section class="mw-section"><div class="mw-section__title">${ic('briefcase','w-4 h-4')}Job <span class="mw-hrtag is-hr">Managed by HR</span></div>${jobDl(m,true)}</section>
+    <section class="mw-section"><div class="mw-section__title">${ic('history','w-4 h-4')}Work experience</div><p class="text-xs muted mb-2">Previous jobs before LN Worldwide.</p>${expEditor(m.exp||[],true)}</section>
+    <div class="flex flex-wrap gap-2 sticky-save"><button class="btn btn-primary" type="submit">${ic('check')}Save changes</button><span class="text-xs muted self-center">Changes are recorded in the Audit log.</span></div>
+  </form>
+  <section class="mw-section mt-4"><div class="mw-section__title">${ic('folder-open','w-4 h-4')}Documents</div><p class="text-xs muted mb-2">Upload copies HR asks for (NRIC, certificates). Documents HR added can only be removed by HR.</p>${docList(m,{canAdd:true,canRemove:d=>d.by==='Self'})}</section>`}
+function submitInfo(){const m=me(),pend=[],direct=[];
+  EMP_FIELDS.forEach(([k,l,ty,,mode])=>{if(mode==='h')return;const el=$('#pi-'+kid(k));if(!el)return;const v=el.value.trim(),old=String(pget(m,k)??'');
+    const it=DB.review.items[m.id],was=it?.st==='Submitted'?(it.changes||[]).find(c=>c[3]===k):null;if(v===(was?was[2]:old))return;
+    if(mode==='a'){if(v!==old)pend.push([l,old,v,k])}else{pset(m,k,ty==='number'&&v!==''?+v:v);direct.push(l)}});
+  if(direct.includes('Preferred name')&&S.user.eid===m.id)S.user.display=m.display;
+  const ex=expClean();if(JSON.stringify(ex)!==JSON.stringify(m.exp||[])){m.exp=ex;direct.push('Work experience')}
+  if(!direct.length&&!pend.length)return toast('Nothing changed','info');
+  if(direct.length){m.infoUpdated=TODAY;logEvent(m.id,'Personal data updated',direct.join(', '),'info');audit('Employee',m.id,m.name,'Updated own information',{detail:direct.join(', ')})}
+  if(pend.length){const it=DB.review.items[m.id],keep=it?.st==='Submitted'?(it.changes||[]).filter(c=>!pend.some(p=>p[3]===c[3])):[];
+    DB.review.items[m.id]={st:'Submitted',on:TODAY,changes:[...keep,...pend]};
+    audit('Employee',m.id,m.name,'Change request sent to HR',{detail:pend.map(p=>`${p[0]}: ${SECRET.includes(p[3])?mask(p[1]):p[1]||'—'} → ${SECRET.includes(p[3])?mask(p[2]):p[2]}`).join('; '),to:'Pending'});
+    notify(ACCOUNTS.filter(a=>a.roleKey==='hr').map(a=>a.eid),`${m.name} asked to update ${pend.map(p=>p[0]).join(', ')}.`,'emp:'+m.id)}
+  $('#shell')?.remove();route();toast(direct.length&&pend.length?`Saved · ${pend.length} change${pend.length>1?'s':''} sent to HR`:pend.length?'Sent to HR for approval':'Saved','check')}
+// HR reviews requested changes from the employee drawer or the Annual Data Review page
+function reviewChanges(id){const e=emp(id),it=DB.review.items[id];
+  openModal({title:`Changes from ${esc(e.name)}`,icon:'git-compare',body:`<div class="tbl-wrap"><table class="mini-tbl"><thead><tr><th>Field</th><th>Current</th><th>New</th></tr></thead><tbody>${(it.changes||[]).map(([f,o,n])=>`<tr><td><b>${esc(f)}</b></td><td style="white-space:normal;text-decoration:line-through" class="muted">${esc(o||'—')}</td><td style="white-space:normal;color:var(--ok)"><b>${esc(n)}</b></td></tr>`).join('')}</tbody></table></div>
+    <p class="text-xs muted mt-3">Asked ${fmt(it.on)}. Check supporting documents (e.g. NRIC copy, bank statement) before approving.</p>${fld('Note to the employee (needed to reject)',txt('rv-note','','e.g. Please upload the bank statement header.',2))}`,
+    foot:`<button class="btn btn-ghost" onclick="rejectReview('${id}')">${ic('undo-2')}Reject</button><button class="btn btn-primary" onclick="approveReview('${id}')">${ic('check')}Approve & apply</button>`})}
+function approveReview(id){const e=emp(id),it=DB.review.items[id],old={'Mobile':'phone','Home address':'address','Address':'address','Emergency contact name':'ec.name','Emergency relationship':'ec.rel','Emergency contact phone':'ec.phone','Personal email':'personalEmail','Marital status':'marital'};
+  (it.changes||[]).forEach(([f,,n,k])=>{const key=k||old[f];if(key)pset(e,key,n)});e.infoUpdated=TODAY;DB.review.items[id]={st:'Approved',on:TODAY};
+  const names=(it.changes||[]).map(c=>c[0]).join(', ');logEvent(id,'Personal data updated',`Approved by ${S.user.name} · ${names}`,'info');
+  audit('Employee',id,e.name,'Change request approved',{from:'Pending',to:'Approved',detail:names});notify([id],`HR approved your changes: ${names}.`,'#profile');
+  closeModal();if(S.drawerFn&&$('#drawer'))S.drawerFn();rerender();toast('Changes applied','check')}
+function rejectReview(id){const n=val('rv-note');if(!n)return toast('Add a short note for the employee','circle-alert');const e=emp(id),it=DB.review.items[id],names=(it.changes||[]).map(c=>c[0]).join(', ');
+  DB.review.items[id]={st:'Pending'};audit('Employee',id,e.name,'Change request rejected',{from:'Pending',to:'Rejected',detail:`${names} · ${n}`});notify([id],`HR returned your change request (${names}): ${n}`,'#profile');
+  closeModal();if(S.drawerFn&&$('#drawer'))S.drawerFn();rerender();toast('Returned to the employee','undo-2')}
+
+/* employee drawer */
+function jobDl(e,hrView){const d=des(e.desig);
+  return `<dl class="dl mt-2"><dt>Staff no.</dt><dd class="mono">${e.no}</dd><dt>Position</dt><dd>${esc(e.pos)}</dd><dt>Designation</dt><dd>${esc(d.name)} · L${d.level}</dd><dt>Department</dt><dd>${esc(e.dept)}</dd><dt>Reports to</dt><dd>${e.reports?`<a href="javascript:viewEmployee('${e.reports}')" style="color:var(--accent)" class="font-semibold">${esc(ename(e.reports))}</a>`:'—'}</dd>
+    <dt>Employment type</dt><dd>${esc(e.type)}</dd><dt>Status</dt><dd>${chip(e.status,STATUS_TONE[e.status])}</dd><dt>Work location</dt><dd>${esc(e.location||'—')}</dd>
+    <dt>Employment start</dt><dd>${fmt(e.joined)} · ${(-days(e.joined)/365.25).toFixed(1)} yrs</dd>${e.probEnd?`<dt>Probation ends</dt><dd>${fmt(e.probEnd)}</dd>`:''}${e.pipEnd?`<dt>PIP review</dt><dd>${fmt(e.pipEnd)}</dd>`:''}
+    <dt>Employment end</dt><dd>${e.endDate?`${fmt(e.endDate)}${e.endReason?' · '+esc(e.endReason):''}`:'<span class="muted">—</span>'}</dd>
+    ${hrView?`<dt>Basic salary</dt><dd>${isHR()&&S.user.roleKey!=='lead'||S.user.eid===e.id?`<b>${RM(e.salary)}</b>${isHR()?` <span class="muted text-xs">band ${RM(d.min)}–${RM(d.max)}</span>`:''}`:'<span class="muted">Restricted</span>'}</dd>`:''}
+    <dt>Job description</dt><dd style="white-space:pre-line">${esc(e.jobDesc||'—')}</dd></dl>`}
+function valText(e,f,full){const [k,,ty]=f,v=pget(e,k);if(v===undefined||v===null||String(v).trim()==='')return '<span class="muted">—</span>';
+  if(SECRET.includes(k)&&!full)return `<span class="mono">${esc(mask(v))}</span>`;return ty==='date'?fmt(v):SECRET.includes(k)?`<span class="mono">${esc(v)}</span>`:esc(v)}
+function viewEmployee(id){
+  S.drawerFn=()=>viewEmployee(id);
+  const e=emp(id),d=des(e.desig),team=DB.teams.find(t=>t.members.includes(id)),ev=[...(DB.events[id]||[{d:e.joined,t:'Joined',x:`${e.pos} · ${d.name}`,c:'acc'}])].reverse(),hr=isHR(),self=S.user.eid===id,lead=!hr&&!self&&canEdit(id);
+  const full=hr||self,k=kpiOf(id),it=DB.review.items[id],pend=it?.st==='Submitted'&&(it.changes||[]).length;
+  const shown=full?EMP_SECTIONS:lead?EMP_SECTIONS.filter(s=>['contact','family'].includes(s[0])).map(s=>s[0]==='family'?[s[0],'Emergency contact',s[2],s[3].filter(f=>f[0].startsWith('ec.'))]:s):EMP_SECTIONS.filter(s=>s[0]==='contact').map(s=>[s[0],s[1],s[2],s[3].filter(f=>f[0]==='email')]);
+  const [dn,tot]=profileProgress(e);
+  openDrawer(`<div class="modal-h">${av(e.name,48)}<div class="flex-1 min-w-0"><div class="font-bold text-lg truncate">${esc(e.name)}</div><div class="text-xs muted">${e.no} · ${esc(e.pos)}</div></div>${canEdit(id)?ib('pencil','Edit employee',`editEmployee('${id}')`):''}${ib('x','Close','closeDrawer()')}</div>
+  <div class="modal-b flex-1">
+    <div class="flex flex-wrap gap-2">${chip(e.status,STATUS_TONE[e.status])}${chip(d.name+' · L'+d.level,'acc','layers')}${chip(e.type,'','file-badge')}${team?chip(team.name+((team.leads||[]).includes(id)?' · Team lead':''),'hi',(team.leads||[]).includes(id)?'crown':'users-round'):''}</div>
+    ${pend&&hr?`<div class="mw-alert mw-alert--warning mt-3 mb-0">${ic('git-compare','w-5 h-5 flex-none')}<div class="flex-1"><b>${esc(e.name.split(' ')[0])} asked to change ${it.changes.length} field${it.changes.length>1?'s':''}</b><div>${it.changes.map(c=>esc(c[0])).join(', ')}</div></div><button class="btn btn-primary h-9" onclick="reviewChanges('${id}')">${ic('git-compare')}Review</button></div>`:''}
+    <div class="kv mt-4"><div><span class="text-xs muted">KPI Q4</span><b>${k.score.toFixed(0)} ${gradeBadge(k)}</b></div><div><span class="text-xs muted">Open tasks</span><b>${DB.tasks.filter(t=>t.who===id&&t.status!=='Done').length}</b></div><div><span class="text-xs muted">Profile</span><b class="tnum">${dn}/${tot}</b></div></div>
+    <div class="sec-h">${ic('briefcase')}Job</div>${jobDl(e,true)}
+    ${empAccountBox(e)}
+    ${shown.map(([sid,title,icon,fs])=>`<div class="sec-h">${ic(icon)}${title}${sid==='personal'?' '+chip('Updated '+fmtS(e.infoUpdated),days(e.infoUpdated)<-365?'warn':''):''}</div><dl class="dl">${fs.map(f=>`<dt>${esc(f[1])}</dt><dd>${valText(e,f,full)}</dd>`).join('')}</dl>`).join('')}
+    ${!full&&!lead?`<p class="text-xs muted mt-3">${ic('lock','w-3.5 h-3.5 inline -mt-0.5')} Personal details are visible to HR and the employee only.</p>`:''}
+    ${full?`<div class="sec-h">${ic('history')}Work experience</div>${(e.exp||[]).length?`<div class="flex flex-col gap-2">${e.exp.map(x=>`<div class="mw-exp"><div class="text-sm font-semibold">${esc(x.title||'—')} · ${esc(x.company||'—')}</div><div class="text-xs muted">${esc(expText(x))}${x.reason?' · left: '+esc(x.reason):''}</div></div>`).join('')}</div>`:'<p class="text-sm muted">None recorded.</p>'}
+      <div class="sec-h">${ic('folder-open')}Documents</div>${docList(e,{canAdd:hr,canRemove:()=>hr})}`:''}
+    <div class="sec-h">${ic('history')}Lifecycle history</div>
+    <div class="timeline">${ev.map(x=>`<div class="tl" style="--tl:var(--${x.c==='acc'?'accent':x.c})"><div class="text-sm font-semibold">${x.t} <span class="text-xs muted font-normal">· ${fmt(x.d)}</span></div>${x.x?`<div class="text-sm muted">${esc(x.x)}</div>`:''}</div>`).join('')}</div>
+  </div>
+  <div class="modal-f flex-wrap">${empLifeBtns(e)}</div>`);
+}
+
+/* HR edit form: everything in tabs */
+const EE_TABS=[['job','Job','briefcase'],['personal','Personal','id-card'],['contact','Contact & family','users'],['bank','Bank & statutory','landmark'],['edu','Education & experience','graduation-cap'],['docs','Documents','folder-open']];
+function eeTab(k){$$('.mw-eetab').forEach(x=>x.hidden=x.dataset.t!==k);$$('.mw-eetabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===k))}
+function editEmployee(id){
+  const e=id?emp(id):{name:'',display:'',no:nextEmpNo(),email:'',pos:'',desig:'D1',dept:deptNames()[2],type:'Permanent',status:'Probation',joined:TODAY,reports:'',salary:3400,gender:'Male',dob:'',idType:'NRIC',idNo:'',nationality:'Malaysian',phone:'',address:'',ec:{name:'',rel:'Parent',phone:''},photo:null,location:'HQ · Petaling Jaya',exp:[],docs:[]};
+  const salOk=['sysadmin','hr','exec'].includes(S.user.roleKey),lead=S.user.roleKey==='lead',L=lead?'disabled':'';
+  const tabs=lead?EE_TABS.filter(t=>['job','contact'].includes(t[0])):EE_TABS;
+  const secF=sid=>EMP_SECTIONS.find(s=>s[0]===sid)[3];
+  const grid=fs=>`<div class="grid sm:grid-cols-2 gap-4">${fs.filter(f=>f[0]!=='email').map(f=>empInput('ef-',f,pget(e,f[0]),{lock:lead&&(f[4]==='a')})).join('')}</div>`;
+  openModal({title:id?`Edit ${esc(e.name)}`:'Add employee',icon:id?'user-round-pen':'user-plus',size:'lg',body:`
+    <div class="mw-eetabs" role="tablist">${tabs.map(([k,l,i],n)=>`<button type="button" role="tab" data-t="${k}" aria-selected="${n===0}" onclick="eeTab('${k}')">${ic(i,'w-4 h-4')}<span>${l}</span></button>`).join('')}</div>
+    <div class="mw-eetab" data-t="job">${photoField(e.photo,e.name)}<div class="grid sm:grid-cols-2 gap-4 mt-3">
+      ${fld('Employee no.',inp('ee-no',e.no,'text','',L),'',true)}${fld('Work email',inp('ee-mail',e.email,'email'),'',true)}
+      ${fld('Position title',inp('ee-pos',e.pos),'',true)}${fld('Designation',sel('ee-des',[...DB.designations].sort((a,b)=>a.level-b.level).map(d=>[d.id,d.name]),e.desig,L))}
+      ${fld('Department',sel('ee-dept',deptNames(),e.dept))}${fld('Superior (reports to)',sel('ee-rep',[['','— None —'],...DB.employees.filter(x=>x.id!==id).map(x=>[x.id,`${x.name} · ${des(x.desig).name}`])],e.reports||''))}
+      ${fld('Employment type',sel('ee-type',DB.empTypes.map(t=>t.id),e.type,L))}${fld('Status',sel('ee-st',Object.keys(STATUS_TONE),e.status,L))}
+      ${fld('Work location',sel('ee-loc',OPT.location,e.location||OPT.location[0]))}${salOk?fld('Basic salary (RM)',inp('ee-sal',e.salary,'number')):`<div class="fld"><span>Basic salary</span><div class="input flex items-center muted">${ic('lock','w-4 h-4 mr-2')}Restricted to HR / C-Level</div></div>`}
+      ${fld('Employment start date',inp('ee-join',e.joined,'date','',L),'',true)}${fld('Probation end',inp('ee-prob',e.probEnd||'','date','',L))}
+      ${fld('Employment end date',inp('ee-end',e.endDate||'','date','',L))}${fld('End reason',sel('ee-endr',[['','—'],...OPT.endReason],e.endReason||'',L))}
+      ${fld('Job description',txt('ee-jd',e.jobDesc||'','Main duties and responsibilities',3),'sm:col-span-2')}
+    </div>${lead?`<p class="text-xs muted mt-3">${ic('info','w-3.5 h-3.5 inline')} As team lead you can edit work details and contact info. Designation, type, dates and salary go through HR.</p>`:''}</div>
+    ${lead?'':`<div class="mw-eetab" data-t="personal" hidden>${grid(secF('personal'))}</div>`}
+    <div class="mw-eetab" data-t="contact" hidden><div class="text-sm font-semibold mb-2">Contact</div>${grid(secF('contact'))}<div class="text-sm font-semibold mt-5 mb-2">${lead?'Emergency contact':'Family & emergency contact'}</div>${grid(lead?secF('family').filter(f=>f[0].startsWith('ec.')):secF('family'))}</div>
+    ${lead?'':`<div class="mw-eetab" data-t="bank" hidden>${grid(secF('bank'))}<p class="text-xs muted mt-3">Used for payroll. Account numbers and statutory numbers are shown only to HR and the employee.</p></div>
+    <div class="mw-eetab" data-t="edu" hidden>${grid(secF('edu'))}<div class="text-sm font-semibold mt-5 mb-2">Work experience</div>${expEditor(e.exp||[],true)}</div>
+    <div class="mw-eetab" data-t="docs" hidden>${id?docList(e,{canAdd:true,canRemove:()=>true}):'<p class="text-sm muted">Save the employee first, then add documents.</p>'}</div>`}`,
+    foot:`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveEmployee('${id||''}')">${ic('check')}Save</button>`});
+}
+function saveEmployee(id){
+  const name=$('#ef-name')?val('ef-name'):emp(id)?.name;
+  if(!name||!val('ee-pos')){toast('Full legal name and position are required','circle-alert');$('#ef-name')&&!name&&eeTab('personal');return}
+  if(!id&&!val('ee-mail')){toast('Work email is required','circle-alert');return}
+  if(val('ee-end')&&val('ee-end')<val('ee-join')){toast('Employment end must be after the start','circle-alert');return}
+  const isNew=!id,e=id?emp(id):{id:'E'+String(30+DB.employees.length),events:[],infoUpdated:TODAY,idType:'NRIC',exp:[],docs:[]},before=JSON.parse(JSON.stringify(e));
+  const o={no:val('ee-no'),email:val('ee-mail'),pos:val('ee-pos'),desig:val('ee-des'),dept:val('ee-dept'),reports:val('ee-rep')||null,type:val('ee-type'),status:val('ee-st'),joined:val('ee-join'),location:val('ee-loc'),probEnd:val('ee-prob')||null,endDate:val('ee-end')||null,endReason:val('ee-endr')||'',jobDesc:val('ee-jd')};
+  if($('#ee-sal'))o.salary=+val('ee-sal');Object.assign(e,o);
+  EMP_FIELDS.forEach(([k,,ty])=>{const el=$('#ef-'+kid(k));if(el&&!el.disabled)pset(e,k,ty==='number'&&el.value!==''?+el.value:el.value.trim())});
+  if($('#exp-box'))e.exp=expClean();if(!e.display)e.display=e.name;
+  if(S.tmpPhoto)e.photo=S.tmpPhoto;
+  if(isNew){e.account={on:true,role:'staff',last:null,invited:false,username:uniqU(slugU(e.name),'e:'+e.id)};DB.employees.push(e);takeEmpNo(e.no);logEvent(e.id,'Joined',`${e.pos} · ${des(e.desig).name}`,'acc',e.joined);audit('Employee',e.id,e.name,'Employee added',{detail:`${e.no} · ${e.pos} · username ${e.account.username}`})}
+  else{const lbl={no:'Employee no.',email:'Work email',pos:'Position',desig:'Designation',dept:'Department',reports:'Reports to',type:'Employment type',status:'Status',joined:'Employment start',location:'Work location',probEnd:'Probation end',endDate:'Employment end',endReason:'End reason',jobDesc:'Job description',salary:'Basic salary',exp:'Work experience',photo:'Official photo'};
+    const ch=[...Object.keys(lbl).filter(k=>JSON.stringify(before[k]??'')!==JSON.stringify(e[k]??'')).map(k=>lbl[k]),...EMP_FIELDS.filter(([k])=>String(pget(before,k)??'')!==String(pget(e,k)??'')).map(f=>f[1])];
+    if(ch.length){e.infoUpdated=TODAY;logEvent(id,'Record edited',`by ${S.user.name} · ${ch.join(', ')}`,'info');audit('Employee',id,e.name,'Employee record updated',{detail:ch.join(', ')})}}
+  closeModal();rerender();toast(id?'Employee updated':'Employee added · username '+e.account.username,'user-check');
+}
 
 (function boot(){
   document.documentElement.lang=LANG==='zh'?'zh-CN':'en';
